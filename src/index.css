@@ -1,0 +1,355 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --scrollbar-track: #f1f5f9;
+    --scrollbar-thumb: linear-gradient(180deg, #ef4444, #dc2626);
+    --scrollbar-thumb-hover: linear-gradient(180deg, #f87171, #ef4444);
+  }
+
+  .dark {
+    --scrollbar-track: #0f172a;
+    --scrollbar-thumb: linear-gradient(180deg, #ef4444, #dc2626);
+    --scrollbar-thumb-hover: linear-gradient(180deg, #f87171, #ef4444);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: theme('colors.slate.50');
+    color: theme('colors.slate.900');
+  }
+
+  html.dark {
+    background-color: theme('colors.slate.950');
+    color: theme('colors.white');
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+}
+
+@layer components {
+  /* Magnetic button effect */
+  .magnetic-btn {
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  }
+
+  .magnetic-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  @media (pointer: fine) {
+    .magnetic-btn {
+      --magnetism: 0px;
+    }
+
+    .magnetic-btn:hover {
+      animation: magneticPull 0.3s ease-out forwards;
+    }
+  }
+
+  @keyframes magneticPull {
+    0% {
+      transform: translateY(-2px) scale(1);
+    }
+    50% {
+      transform: translateY(-4px) scale(1.01);
+    }
+    100% {
+      transform: translateY(-2px) scale(1);
+    }
+  }
+
+  /* Smooth gradient transitions */
+  .gradient-transition {
+    background-size: 200% 200%;
+    animation: gradientShift 8s ease infinite;
+  }
+
+  @keyframes gradientShift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Glow effect for cards */
+  .card-glow {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.1);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+
+  .card-glow:hover {
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.2), 0 0 60px rgba(239, 68, 68, 0.05);
+  }
+
+  /* Refined button styles */
+  .btn-primary-news {
+    @apply relative px-6 py-3 text-sm font-semibold text-white overflow-hidden group rounded-xl;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  }
+
+  .btn-primary-news:hover {
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .btn-primary-news::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: inherit;
+  }
+
+  .btn-primary-news:hover::before {
+    opacity: 0.1;
+  }
+
+  /* Dark theme consistency */
+  .dark-section {
+    background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+  }
+
+  /* ======== NEW ANIMATION UTILITIES ======== */
+
+  .text-shimmer {
+    --shimmer-1: #dc2626;
+    --shimmer-2: #ef4444;
+    background: linear-gradient(
+      90deg,
+      var(--shimmer-1) 0%,
+      var(--shimmer-2) 25%,
+      var(--shimmer-1) 50%,
+      var(--shimmer-2) 75%,
+      var(--shimmer-1) 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  .dark .text-shimmer {
+    --shimmer-1: #ffffff;
+    --shimmer-2: #fca5a5;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Slide Up entrance */
+  .slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+    opacity: 0;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Fade In Scale entrance */
+  .fade-in-scale {
+    animation: fadeInScale 0.5s ease-out forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Glow Pulse — for buttons and interactive elements */
+  .glow-pulse {
+    animation: glowPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes glowPulse {
+    0%, 100% {
+      box-shadow: 0 0 5px rgba(239, 68, 68, 0.3), 0 0 15px rgba(239, 68, 68, 0.1);
+    }
+    50% {
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.5), 0 0 40px rgba(239, 68, 68, 0.2);
+    }
+  }
+
+  /* Border Glow animation */
+  .border-glow {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .border-glow::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #ef4444, #f97316, #ef4444, #dc2626, #ef4444);
+    background-size: 400% 400%;
+    animation: borderGlow 4s ease-in-out infinite;
+    z-index: -1;
+    border-radius: inherit;
+  }
+
+  @keyframes borderGlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  /* Animated underline for links */
+  .animated-underline {
+    position: relative;
+    display: inline-block;
+  }
+
+  .animated-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #ef4444, #f97316);
+    transition: width 0.3s ease;
+    border-radius: 1px;
+  }
+
+  .animated-underline:hover::after {
+    width: 100%;
+  }
+
+  /* Floating animation */
+  .animate-float {
+    animation: floatAnim 6s ease-in-out infinite;
+  }
+
+  @keyframes floatAnim {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+
+  /* Staggered entrance animation delays */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+  .stagger-6 { animation-delay: 0.6s; }
+  .stagger-7 { animation-delay: 0.7s; }
+
+  /* Particle animation for hero */
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: particleFloat linear infinite;
+  }
+
+  @keyframes particleFloat {
+    0% {
+      opacity: 0;
+      transform: translateY(100vh) scale(0);
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-20vh) scale(1);
+    }
+  }
+
+  /* Google button styling */
+  .google-btn {
+    @apply relative flex items-center justify-center w-full py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-300;
+    background: white;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  .google-btn:hover {
+    background: #f9fafb;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .dark .google-btn {
+    background: rgba(255, 255, 255, 0.08);
+    color: #e5e7eb;
+    border-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+  }
+
+  .dark .google-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.1);
+  }
+
+  /* Divider line with "or" */
+  .auth-divider {
+    @apply flex items-center my-6;
+  }
+
+  .auth-divider::before,
+  .auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #d4d4d4, transparent);
+  }
+
+  .dark .auth-divider::before,
+  .dark .auth-divider::after {
+    background: linear-gradient(90deg, transparent, #404040, transparent);
+  }
+}
