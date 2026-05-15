@@ -22,6 +22,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ redirectTo = '/' }) => {
   const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterFormValues>();
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const { register: registerUser, signInWithGoogle } = useAuth();
@@ -32,16 +33,25 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ redirectTo = '/' }) => {
     setIsLoading(true);
     setErrorMessage(null);
     
+    console.log('Attempting registration for:', data.email);
+    
     try {
-      const { error } = await registerUser(data.email, data.password, data.username);
+      const { error, session } = await registerUser(data.email, data.password, data.username);
       
       if (error) {
+        console.error('Registration failed in component:', error);
         setErrorMessage(error.message || 'Registration failed. Please try again.');
       } else {
-        navigate(redirectTo);
+        console.log('Registration call successful. Session:', session ? 'Found' : 'Null (Expected if email confirmation is on)');
+        if (session) {
+          navigate(redirectTo);
+        } else {
+          setIsSuccess(true);
+        }
       }
-    } catch (error) {
-      setErrorMessage('An unexpected error occurred. Please try again.');
+    } catch (error: any) {
+      console.error('Unexpected error in RegisterForm onSubmit:', error);
+      setErrorMessage(error.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -105,80 +115,112 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ redirectTo = '/' }) => {
             <p className="text-sm">{errorMessage}</p>
           </motion.div>
         )}
-        
-        <Input
-          label="Username"
-          fullWidth
-          placeholder="johndoe"
-          error={errors.username?.message}
-          {...register('username', { 
-            required: 'Username is required',
-            minLength: {
-              value: 3,
-              message: 'Username must have at least 3 characters'
-            },
-            maxLength: {
-              value: 20,
-              message: 'Username cannot exceed 20 characters'
-            },
-            pattern: {
-              value: /^[a-zA-Z0-9_]+$/,
-              message: 'Username can only contain letters, numbers, and underscores'
-            }
-          })}
-        />
 
-        <Input
-          label="Email"
-          type="email"
-          fullWidth
-          placeholder="your.email@example.com"
-          error={errors.email?.message}
-          {...register('email', { 
-            required: 'Email is required', 
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: 'Please enter a valid email address'
-            }
-          })}
-        />
+        {isSuccess && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="p-4 rounded-lg bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-400 mb-6 border border-green-100 dark:border-green-900/30"
+          >
+            <div className="flex items-center mb-2">
+              <div className="p-1 bg-green-100 dark:bg-green-900/40 rounded-full mr-2">
+                <svg className="h-4 w-4 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <p className="font-bold">Account created!</p>
+            </div>
+            <p className="text-sm">
+              Please check your email to confirm your account before signing in.
+            </p>
+            <Button 
+              onClick={() => navigate('/login')} 
+              variant="outline" 
+              size="sm" 
+              className="mt-4 w-full border-green-200 hover:bg-green-100 dark:border-green-800 dark:hover:bg-green-900/40"
+            >
+              Go to Login
+            </Button>
+          </motion.div>
+        )}
         
-        <Input
-          label="Password"
-          type="password"
-          fullWidth
-          placeholder="••••••••"
-          error={errors.password?.message}
-          {...register('password', { 
-            required: 'Password is required',
-            minLength: {
-              value: 6,
-              message: 'Password must have at least 6 characters'
-            }
-          })}
-        />
-        
-        <Input
-          label="Confirm Password"
-          type="password"
-          fullWidth
-          placeholder="••••••••"
-          error={errors.confirmPassword?.message}
-          {...register('confirmPassword', { 
-            required: 'Please confirm your password',
-            validate: value => value === password || 'Passwords do not match'
-          })}
-        />
-        
-        <Button
-          type="submit"
-          fullWidth
-          isLoading={isLoading}
-          disabled={isGoogleLoading}
-          className="mt-2"
-        >
-          Create Account
-        </Button>
+        {!isSuccess && (
+          <>
+            <Input
+              label="Username"
+              fullWidth
+              placeholder="johndoe"
+              error={errors.username?.message}
+              {...register('username', { 
+                required: 'Username is required',
+                minLength: {
+                  value: 3,
+                  message: 'Username must have at least 3 characters'
+                },
+                maxLength: {
+                  value: 20,
+                  message: 'Username cannot exceed 20 characters'
+                },
+                pattern: {
+                  value: /^[a-zA-Z0-9_]+$/,
+                  message: 'Username can only contain letters, numbers, and underscores'
+                }
+              })}
+            />
+
+            <Input
+              label="Email"
+              type="email"
+              fullWidth
+              placeholder="your.email@example.com"
+              error={errors.email?.message}
+              {...register('email', { 
+                required: 'Email is required', 
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: 'Please enter a valid email address'
+                }
+              })}
+            />
+            
+            <Input
+              label="Password"
+              type="password"
+              fullWidth
+              placeholder="••••••••"
+              error={errors.password?.message}
+              {...register('password', { 
+                required: 'Password is required',
+                minLength: {
+                  value: 6,
+                  message: 'Password must have at least 6 characters'
+                }
+              })}
+            />
+            
+            <Input
+              label="Confirm Password"
+              type="password"
+              fullWidth
+              placeholder="••••••••"
+              error={errors.confirmPassword?.message}
+              {...register('confirmPassword', { 
+                required: 'Please confirm your password',
+                validate: value => value === password || 'Passwords do not match'
+              })}
+            />
+            
+            <Button
+              type="submit"
+              fullWidth
+              isLoading={isLoading}
+              disabled={isGoogleLoading}
+              className="mt-2"
+            >
+              Create Account
+            </Button>
+          </>
+        )}
       </form>
     </motion.div>
   );

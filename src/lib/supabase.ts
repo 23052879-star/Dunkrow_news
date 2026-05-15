@@ -22,6 +22,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase environment variables not found. Running in demo mode.');
 } else if (!isSupabaseConfigured()) {
   console.warn('Supabase not properly configured. Using placeholder values.');
+} else {
+  console.log('Supabase client initialized with URL:', supabaseUrl);
 }
 
 // Create a safe Supabase client that won't throw errors

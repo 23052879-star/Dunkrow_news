@@ -8,7 +8,7 @@ type AuthContextType = {
   isLoading: boolean;
   isAdmin: boolean;
   login: (email: string, password: string) => Promise<{ error: any }>;
-  register: (email: string, password: string, username: string) => Promise<{ error: any }>;
+  register: (email: string, password: string, username: string) => Promise<{ error: any; session: any }>;
   signInWithGoogle: () => Promise<{ error: any }>;
   logout: () => Promise<void>;
 };
@@ -29,51 +29,90 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchOrCreateProfile = async (sessionUser: any) => {
     try {
+      // 1. Try to fetch existing profile
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', sessionUser.id)
         .single();
       
-      if (profileError || !profile) {
-        // Profile doesn't exist — create one (common for OAuth users)
-        const username = sessionUser.user_metadata?.full_name 
-          || sessionUser.user_metadata?.name 
-          || sessionUser.email?.split('@')[0] 
-          || 'user';
-        const avatarUrl = sessionUser.user_metadata?.avatar_url 
-          || sessionUser.user_metadata?.picture 
-          || `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random`;
-
-        try {
-          await supabase.from('profiles').upsert({
-            id: sessionUser.id,
-            username,
-            avatar_url: avatarUrl,
-            role: 'user'
-          });
-        } catch (insertError) {
-          console.error('Error creating profile:', insertError);
-        }
-
+      if (!profileError && profile) {
         return {
-          id: sessionUser.id,
-          username,
-          avatarUrl,
-          role: 'user' as const,
+          id: profile.id,
+          username: profile.username,
+          avatarUrl: profile.avatar_url,
+          role: profile.role,
           email: sessionUser.email
         };
       }
 
+      // 2. Profile doesn't exist or error fetching — attempt to create one
+      // Extract base username from various metadata sources
+      let baseUsername = sessionUser.user_metadata?.username
+        || sessionUser.user_metadata?.full_name 
+        || sessionUser.user_metadata?.name 
+        || sessionUser.email?.split('@')[0] 
+        || 'user';
+
+      // Sanitize username: lowercase, replace non-alphanumeric with underscores
+      baseUsername = baseUsername.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '');
+      if (!baseUsername) baseUsername = 'user';
+
+      const avatarUrl = sessionUser.user_metadata?.avatar_url 
+        || sessionUser.user_metadata?.picture 
+        || `https://ui-avatars.com/api/?name=${encodeURIComponent(baseUsername)}&background=random`;
+
+      // 3. Handle potential username conflicts (retry loop)
+      let finalUsername = baseUsername;
+      let counter = 0;
+      let profileCreated = false;
+      let lastError = null;
+
+      // Try up to 5 times with different usernames if there's a conflict
+      while (counter < 5 && !profileCreated) {
+        const { data: newProfile, error: insertError } = await supabase.from('profiles').upsert({
+          id: sessionUser.id,
+          username: finalUsername,
+          avatar_url: avatarUrl,
+          role: 'user'
+        }).select().single();
+
+        if (!insertError && newProfile) {
+          profileCreated = true;
+          return {
+            id: newProfile.id,
+            username: newProfile.username,
+            avatarUrl: newProfile.avatar_url,
+            role: newProfile.role,
+            email: sessionUser.email
+          };
+        }
+
+        // If error is a unique constraint violation on username, increment and retry
+        if (insertError?.code === '23505' && insertError?.message?.includes('username')) {
+          counter++;
+          finalUsername = `${baseUsername}${counter}`;
+        } else {
+          lastError = insertError;
+          break; // Stop if it's a different error
+        }
+      }
+
+      if (lastError) {
+        console.error('Failed to create profile after retries:', lastError);
+      }
+
+      // Return a temporary local user object even if DB insert failed
+      // so the app remains functional for the session
       return {
-        id: profile.id,
-        username: profile.username,
-        avatarUrl: profile.avatar_url,
-        role: profile.role,
+        id: sessionUser.id,
+        username: finalUsername,
+        avatarUrl,
+        role: 'user' as const,
         email: sessionUser.email
       };
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('Unexpected error in fetchOrCreateProfile:', error);
       return {
         id: sessionUser.id,
         username: sessionUser.email?.split('@')[0] || 'user',
@@ -173,8 +212,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) console.error('Login error:', error);
       return { error };
     } catch (error) {
+      console.error('Unexpected login error:', error);
       return { error };
     }
   };
@@ -189,23 +230,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       });
       
-      if (!error && data.user) {
-        try {
-          await supabase.from('profiles').insert({
-            id: data.user.id,
-            username,
-            avatar_url: `https://ui-avatars.com/api/?name=${username}&background=random`,
-            role: 'user'
-          });
-        } catch (profileError) {
-          console.error('Error creating profile:', profileError);
-          // Don't fail registration if profile creation fails
-        }
+      if (error) {
+        console.error('Supabase registration error:', error);
+        return { error, session: null };
       }
       
-      return { error };
-    } catch (error) {
-      return { error };
+      return { error: null, session: data?.session || null };
+    } catch (error: any) {
+      console.error('Unexpected registration error:', error);
+      return { error: error, session: null };
     }
   };
 

@@ -92,6 +92,7 @@ ALTER TABLE newsletter_subscriptions ENABLE ROW LEVEL SECURITY;
 -- 4. POLICIES
 -- Profiles
 CREATE POLICY "Users can read all profiles" ON profiles FOR SELECT USING (true);
+CREATE POLICY "Users can insert their own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
 CREATE POLICY "Users can update their own profile" ON profiles FOR UPDATE TO authenticated USING (auth.uid() = id);
 
 -- Categories
@@ -140,18 +141,66 @@ CREATE TRIGGER profiles_updated_at BEFORE UPDATE ON profiles FOR EACH ROW EXECUT
 -- Auto-profile on signup
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+  base_username TEXT;
+  final_username TEXT;
+  counter INTEGER := 0;
 BEGIN
+  -- 1. Try to get username from metadata (common for email signup)
+  base_username := NEW.raw_user_meta_data->>'username';
+  
+  -- 2. If missing, try full_name or name (common for Google/GitHub)
+  IF base_username IS NULL THEN
+    base_username := COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name');
+  END IF;
+  
+  -- 3. If still missing, use email prefix
+  IF base_username IS NULL THEN
+    base_username := split_part(NEW.email, '@', 1);
+  END IF;
+  
+  -- 4. Final fallback
+  IF base_username IS NULL OR base_username = '' THEN
+    base_username := 'user';
+  END IF;
+
+  -- 5. SANITIZE: Lowercase and remove/replace invalid characters (keep a-z0-9 and _)
+  base_username := lower(regexp_replace(base_username, '[^a-zA-Z0-9]', '_', 'g'));
+  -- Remove multiple underscores and trim
+  base_username := regexp_replace(base_username, '_+', '_', 'g');
+  base_username := trim(both '_' from base_username);
+  
+  IF base_username = '' THEN
+    base_username := 'user';
+  END IF;
+  
+  final_username := base_username;
+  
+  -- 6. HANDLE CONFLICTS
+  WHILE EXISTS (SELECT 1 FROM public.profiles WHERE username = final_username) LOOP
+    counter := counter + 1;
+    final_username := base_username || counter::text;
+  END LOOP;
+
+  -- 7. INSERT with ON CONFLICT for extra safety
   INSERT INTO public.profiles (id, username, avatar_url, role)
   VALUES (
     NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
-    COALESCE(NEW.raw_user_meta_data->>'avatar_url', 'https://ui-avatars.com/api/?name=' || split_part(NEW.email, '@', 1) || '&background=random'),
+    final_username,
+    COALESCE(
+      NEW.raw_user_meta_data->>'avatar_url', 
+      'https://ui-avatars.com/api/?name=' || final_username || '&background=random'
+    ),
     'user'
-  );
+  )
+  ON CONFLICT (id) DO NOTHING;
+  
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- Re-create trigger (drop first to be safe)
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE PROCEDURE handle_new_user();
 
 -- 6. SEED DATA

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, User, LogOut, ChevronDown, Moon, Sun, Settings, LayoutDashboard } from 'lucide-react';
+import { Menu, X, User, LogOut, ChevronDown, Moon, Sun, Settings, LayoutDashboard, Sparkles, SmilePlus, MessageSquare } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { supabase } from '../../lib/supabase';
@@ -153,50 +153,66 @@ const Header: React.FC = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-2 flex-1 justify-center max-w-4xl mx-4 min-w-0">
-            {/* Categories Dropdown */}
+          <nav className="hidden lg:flex items-center flex-1 justify-center max-w-4xl mx-4 min-w-0">
+            {/* Combined Explore Dropdown */}
             <div className="relative group py-4">
-              <button className="flex items-center space-x-1 text-sm font-semibold transition-all duration-300 px-3 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10">
-                <span>Categories</span>
-                <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
+              <button className="flex items-center space-x-2 text-sm font-bold transition-all duration-300 px-4 py-2.5 rounded-2xl text-slate-700 dark:text-slate-200 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 group-hover:shadow-sm">
+                <Sparkles size={16} className="text-red-500" />
+                <span>Explore</span>
+                <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300 opacity-50" />
               </button>
               
               {/* Dropdown Menu */}
-              <div className="absolute top-[85%] left-1/2 -translate-x-1/2 mt-2 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-95 group-hover:scale-100 z-50">
-                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl ring-1 ring-black/5 dark:ring-white/10 p-2 border border-slate-100 dark:border-slate-700 backdrop-blur-xl">
-                  {categories.map(category => (
+              <div className="absolute top-[85%] left-1/2 -translate-x-1/2 mt-2 w-72 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-95 group-hover:scale-100 z-50">
+                <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl ring-1 ring-black/5 dark:ring-white/10 p-3 border border-slate-100 dark:border-slate-700 backdrop-blur-xl">
+                  {/* Featured Sections */}
+                  <div className="grid grid-cols-1 gap-1 mb-3 pb-3 border-b border-slate-100 dark:border-slate-700/50">
                     <Link
-                      key={category.slug}
-                      to={`/category/${category.slug}`}
-                      className="block px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 rounded-xl transition-colors"
+                      to="/whispers"
+                      className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 rounded-2xl transition-all duration-200"
                     >
-                      {category.name}
+                      <div className="w-8 h-8 rounded-xl bg-red-100 dark:bg-red-900/40 flex items-center justify-center text-red-600 dark:text-red-400">
+                        <MessageSquare size={16} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span>Weekend Whispers</span>
+                        <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">Insider Stories</span>
+                      </div>
                     </Link>
-                  ))}
+                    <Link
+                      to="/jokes-trivia"
+                      className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 rounded-2xl transition-all duration-200"
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-orange-600 dark:text-orange-400">
+                        <SmilePlus size={16} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span>Daily Digest</span>
+                        <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">Jokes & Trivia</span>
+                      </div>
+                    </Link>
+                  </div>
+
+                  {/* Categories Label */}
+                  <div className="px-4 py-1 mb-1">
+                    <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Categories</span>
+                  </div>
+
+                  {/* Categories Grid */}
+                  <div className="grid grid-cols-1 gap-0.5">
+                    {categories.map(category => (
+                      <Link
+                        key={category.slug}
+                        to={`/category/${category.slug}`}
+                        className="block px-4 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white rounded-xl transition-colors"
+                      >
+                        {category.name}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-
-            <Link 
-              to="/whispers" 
-              className={`text-xs xl:text-sm font-semibold transition-all duration-300 px-3 py-2 rounded-xl whitespace-nowrap ${
-                location.pathname === '/whispers' 
-                  ? 'text-white bg-gradient-to-r from-red-600 to-red-700 shadow-md' 
-                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
-              }`}
-            >
-              Whispers
-            </Link>
-            <Link 
-              to="/jokes-trivia" 
-              className={`text-xs xl:text-sm font-semibold transition-all duration-300 px-3 py-2 rounded-xl whitespace-nowrap ${
-                location.pathname === '/jokes-trivia' 
-                  ? 'text-white bg-gradient-to-r from-red-600 to-red-700 shadow-md' 
-                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
-              }`}
-            >
-              Digest
-            </Link>
           </nav>
 
           {/* Right side: User menu */}
