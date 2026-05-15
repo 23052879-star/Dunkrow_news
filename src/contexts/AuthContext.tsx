@@ -88,6 +88,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           };
         }
 
+        // Log the exact error for debugging
+        if (insertError) {
+          console.error(`Profile creation attempt ${counter + 1} failed:`, {
+            code: insertError.code,
+            message: insertError.message,
+            details: insertError.details,
+            hint: insertError.hint
+          });
+        }
+
         // If error is a unique constraint violation on username, increment and retry
         if (insertError?.code === '23505' && insertError?.message?.includes('username')) {
           counter++;

@@ -91,9 +91,17 @@ ALTER TABLE newsletter_subscriptions ENABLE ROW LEVEL SECURITY;
 
 -- 4. POLICIES
 -- Profiles
+DROP POLICY IF EXISTS "Users can read all profiles" ON profiles;
+DROP POLICY IF EXISTS "Users can insert their own profile" ON profiles;
+DROP POLICY IF EXISTS "Users can update their own profile" ON profiles;
+
 CREATE POLICY "Users can read all profiles" ON profiles FOR SELECT USING (true);
 CREATE POLICY "Users can insert their own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
-CREATE POLICY "Users can update their own profile" ON profiles FOR UPDATE TO authenticated USING (auth.uid() = id);
+CREATE POLICY "Users can update their own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
+
+-- Ensure authenticated role can do everything to their own profile
+GRANT ALL ON profiles TO authenticated;
+GRANT ALL ON profiles TO service_role;
 
 -- Categories
 CREATE POLICY "Anyone can read categories" ON categories FOR SELECT USING (true);
@@ -146,10 +154,12 @@ DECLARE
   final_username TEXT;
   counter INTEGER := 0;
 BEGIN
-  -- 1. Try to get username from metadata (common for email signup)
+  RAISE NOTICE 'Trigger started for user: %', NEW.email;
+
+  -- 1. Try to get username from metadata
   base_username := NEW.raw_user_meta_data->>'username';
   
-  -- 2. If missing, try full_name or name (common for Google/GitHub)
+  -- 2. If missing, try full_name or name
   IF base_username IS NULL THEN
     base_username := COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name');
   END IF;
@@ -164,9 +174,8 @@ BEGIN
     base_username := 'user';
   END IF;
 
-  -- 5. SANITIZE: Lowercase and remove/replace invalid characters (keep a-z0-9 and _)
+  -- 5. SANITIZE
   base_username := lower(regexp_replace(base_username, '[^a-zA-Z0-9]', '_', 'g'));
-  -- Remove multiple underscores and trim
   base_username := regexp_replace(base_username, '_+', '_', 'g');
   base_username := trim(both '_' from base_username);
   
@@ -182,19 +191,29 @@ BEGIN
     final_username := base_username || counter::text;
   END LOOP;
 
-  -- 7. INSERT with ON CONFLICT for extra safety
-  INSERT INTO public.profiles (id, username, avatar_url, role)
-  VALUES (
-    NEW.id,
-    final_username,
-    COALESCE(
-      NEW.raw_user_meta_data->>'avatar_url', 
-      'https://ui-avatars.com/api/?name=' || final_username || '&background=random'
-    ),
-    'user'
-  )
-  ON CONFLICT (id) DO NOTHING;
+  RAISE NOTICE 'Inserting profile for % with username %', NEW.id, final_username;
+
+  -- 7. INSERT with ON CONFLICT
+  BEGIN
+    INSERT INTO public.profiles (id, username, avatar_url, role)
+    VALUES (
+      NEW.id,
+      final_username,
+      COALESCE(
+        NEW.raw_user_meta_data->>'avatar_url', 
+        'https://ui-avatars.com/api/?name=' || final_username || '&background=random'
+      ),
+      'user'
+    )
+    ON CONFLICT (id) DO UPDATE SET
+      username = EXCLUDED.username,
+      avatar_url = EXCLUDED.avatar_url;
+  EXCEPTION WHEN OTHERS THEN
+    RAISE WARNING 'Failed to insert profile for user %: %', NEW.id, SQLERRM;
+    RETURN NEW;
+  END;
   
+  RAISE NOTICE 'Profile successfully handled for user: %', NEW.id;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
