@@ -163,14 +163,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log('Hash contains access_token, Supabase should process this.');
         } else if (window.location.search.includes('error=')) {
           console.error('URL contains error:', window.location.search);
-          alert('Authentication Error: ' + window.location.search);
         }
 
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error('Session error:', sessionError);
-          alert('Session Error: ' + sessionError.message);
           if (mounted) {
             setIsLoading(false);
           }
@@ -218,7 +216,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(userData);
           } catch (err) {
             console.error('Error in fetchOrCreateProfile during auth change:', err);
-            alert('Error creating profile after sign in. Check console.');
           } finally {
             setIsLoading(false);
           }
