@@ -104,15 +104,25 @@ GRANT ALL ON profiles TO authenticated;
 GRANT ALL ON profiles TO service_role;
 
 -- Categories
+DROP POLICY IF EXISTS "Anyone can read categories" ON categories;
 CREATE POLICY "Anyone can read categories" ON categories FOR SELECT USING (true);
 
 -- Articles
+DROP POLICY IF EXISTS "Anyone can read published articles" ON articles;
+DROP POLICY IF EXISTS "Authors can CRUD their own articles" ON articles;
+DROP POLICY IF EXISTS "Admins can CRUD all articles" ON articles;
+
 CREATE POLICY "Anyone can read published articles" ON articles FOR SELECT USING (published = true);
 CREATE POLICY "Authors can CRUD their own articles" ON articles FOR ALL TO authenticated USING (auth.uid() = author_id);
 CREATE POLICY "Admins can CRUD all articles" ON articles FOR ALL TO authenticated 
 USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- Comments
+DROP POLICY IF EXISTS "Anyone can read approved comments" ON comments;
+DROP POLICY IF EXISTS "Users can create comments" ON comments;
+DROP POLICY IF EXISTS "Users can read their own comments" ON comments;
+DROP POLICY IF EXISTS "Admins can CRUD all comments" ON comments;
+
 CREATE POLICY "Anyone can read approved comments" ON comments FOR SELECT USING (approved = true);
 CREATE POLICY "Users can create comments" ON comments FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can read their own comments" ON comments FOR SELECT TO authenticated USING (auth.uid() = user_id);
@@ -120,16 +130,25 @@ CREATE POLICY "Admins can CRUD all comments" ON comments FOR ALL TO authenticate
 USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- Whispers
+DROP POLICY IF EXISTS "Anyone can read published whispers" ON whispers;
+DROP POLICY IF EXISTS "Admins can CRUD all whispers" ON whispers;
+
 CREATE POLICY "Anyone can read published whispers" ON whispers FOR SELECT USING (published = true);
 CREATE POLICY "Admins can CRUD all whispers" ON whispers FOR ALL TO authenticated 
 USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- Jokes/Trivia
+DROP POLICY IF EXISTS "Anyone can read published jokes/trivia" ON jokes_trivia;
+DROP POLICY IF EXISTS "Admins can CRUD all jokes/trivia" ON jokes_trivia;
+
 CREATE POLICY "Anyone can read published jokes/trivia" ON jokes_trivia FOR SELECT USING (published = true);
 CREATE POLICY "Admins can CRUD all jokes/trivia" ON jokes_trivia FOR ALL TO authenticated 
 USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- Newsletter
+DROP POLICY IF EXISTS "Anyone can subscribe to newsletter" ON newsletter_subscriptions;
+DROP POLICY IF EXISTS "Admins can view all newsletter subscriptions" ON newsletter_subscriptions;
+
 CREATE POLICY "Anyone can subscribe to newsletter" ON newsletter_subscriptions FOR INSERT TO public WITH CHECK (true);
 CREATE POLICY "Admins can view all newsletter subscriptions" ON newsletter_subscriptions FOR SELECT TO authenticated 
 USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
