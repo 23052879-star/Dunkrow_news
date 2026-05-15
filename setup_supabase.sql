@@ -162,7 +162,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Re-create triggers (drop first to be safe)
+DROP TRIGGER IF EXISTS articles_updated_at ON articles;
 CREATE TRIGGER articles_updated_at BEFORE UPDATE ON articles FOR EACH ROW EXECUTE PROCEDURE set_updated_at();
+
+DROP TRIGGER IF EXISTS profiles_updated_at ON profiles;
 CREATE TRIGGER profiles_updated_at BEFORE UPDATE ON profiles FOR EACH ROW EXECUTE PROCEDURE set_updated_at();
 
 -- Auto-profile on signup

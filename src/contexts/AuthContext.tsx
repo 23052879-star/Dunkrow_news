@@ -157,10 +157,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       try {
+        // Log the URL to see if we have a hash token
+        console.log('Current URL on checkSession:', window.location.href);
+        if (window.location.hash.includes('access_token')) {
+          console.log('Hash contains access_token, Supabase should process this.');
+        } else if (window.location.search.includes('error=')) {
+          console.error('URL contains error:', window.location.search);
+          alert('Authentication Error: ' + window.location.search);
+        }
+
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error('Session error:', sessionError);
+          alert('Session Error: ' + sessionError.message);
           if (mounted) {
             setIsLoading(false);
           }
@@ -199,11 +209,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
         if (!mounted) return;
+        
+        console.log(`Auth event: ${event}`, session ? 'Session found' : 'No session');
 
         if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
-          const userData = await fetchOrCreateProfile(session.user);
-          setUser(userData);
-          setIsLoading(false);
+          try {
+            const userData = await fetchOrCreateProfile(session.user);
+            setUser(userData);
+          } catch (err) {
+            console.error('Error in fetchOrCreateProfile during auth change:', err);
+            alert('Error creating profile after sign in. Check console.');
+          } finally {
+            setIsLoading(false);
+          }
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
           setIsLoading(false);
