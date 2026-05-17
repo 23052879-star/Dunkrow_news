@@ -155,35 +155,34 @@ const HomePage: React.FC = () => {
       </Helmet>
 
       {/* Hero Section */}
-      <div ref={heroRef} className="relative min-h-screen overflow-hidden bg-black transition-colors duration-500">
+      <div ref={heroRef} className="relative min-h-screen overflow-hidden bg-slate-50 dark:bg-black transition-colors duration-500">
         {/* Subtle Grid Background */}
-        <div className="absolute inset-0 z-0 opacity-10 text-white pointer-events-none" style={{ backgroundImage: 'linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)', backgroundSize: '4rem 4rem' }}></div>
+        <div className="absolute inset-0 z-0 opacity-10 text-slate-900 dark:text-white pointer-events-none" style={{ backgroundImage: 'linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)', backgroundSize: '4rem 4rem' }}></div>
         
-        {/* Crazy Professional Aurora Background */}
+        {/* Crazy Professional Aurora Background (Optimized) */}
         <motion.div
-          className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
+          className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-60 dark:opacity-100"
           style={{ y: ySpring, opacity: opacitySpring, scale: scaleSpring }}
         >
           {/* Drifting Stars / Particles */}
-          {[...Array(50)].map((_, i) => (
+          {[...Array(30)].map((_, i) => (
             <motion.div
               key={`star-${i}`}
               className="absolute rounded-full"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                width: `${Math.random() * 4 + 1}px`,
-                height: `${Math.random() * 4 + 1}px`,
-                background: Math.random() > 0.5 ? '#ef4444' : '#ffffff',
-                boxShadow: '0 0 10px rgba(239, 68, 68, 0.8)',
+                width: `${Math.random() * 3 + 1}px`,
+                height: `${Math.random() * 3 + 1}px`,
+                background: Math.random() > 0.5 ? '#ef4444' : '#000000',
               }}
               animate={{
-                y: [0, -1000],
-                opacity: [0, 1, 0],
+                y: [0, -500],
+                opacity: [0, 0.8, 0],
                 scale: [0, 1, 0]
               }}
               transition={{
-                duration: Math.random() * 10 + 10,
+                duration: Math.random() * 10 + 15,
                 repeat: Infinity,
                 ease: "linear",
                 delay: Math.random() * 10,
@@ -191,32 +190,16 @@ const HomePage: React.FC = () => {
             />
           ))}
 
-          {/* Flowing Red/Black Aurora Shapes */}
+          {/* Flowing Red/Black Aurora Shapes - Optimized without heavy blur */}
           <motion.div
-            className="absolute top-[20%] left-[20%] w-[40vw] h-[40vw] rounded-full blur-[80px] mix-blend-screen"
+            className="absolute top-[10%] left-[10%] w-[50vw] h-[50vw] rounded-full mix-blend-screen opacity-50"
             style={{
-              background: 'radial-gradient(circle, rgba(220, 38, 38, 0.6) 0%, rgba(153, 27, 27, 0.2) 50%, rgba(0,0,0,0) 70%)',
+              background: 'radial-gradient(circle, rgba(220, 38, 38, 0.4) 0%, rgba(153, 27, 27, 0.1) 40%, rgba(0,0,0,0) 70%)',
             }}
             animate={{
-              x: [0, 200, -100, 0],
-              y: [0, -100, 200, 0],
-              scale: [1, 1.2, 0.8, 1],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-          <motion.div
-            className="absolute bottom-[20%] right-[20%] w-[50vw] h-[50vw] rounded-full blur-[100px] mix-blend-screen"
-            style={{
-              background: 'radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(220, 38, 38, 0.4) 40%, rgba(0,0,0,0) 70%)',
-            }}
-            animate={{
-              x: [0, -300, 100, 0],
-              y: [0, 200, -200, 0],
-              scale: [1, 0.8, 1.3, 1],
+              x: [0, 150, -50, 0],
+              y: [0, -100, 150, 0],
+              scale: [1, 1.1, 0.9, 1],
             }}
             transition={{
               duration: 25,
@@ -225,17 +208,17 @@ const HomePage: React.FC = () => {
             }}
           />
           <motion.div
-            className="absolute top-[60%] left-[40%] w-[30vw] h-[30vw] rounded-full blur-[60px] mix-blend-screen"
+            className="absolute bottom-[10%] right-[10%] w-[60vw] h-[60vw] rounded-full mix-blend-screen opacity-40"
             style={{
-              background: 'radial-gradient(circle, rgba(239, 68, 68, 0.5) 0%, rgba(0,0,0,0) 70%)',
+              background: 'radial-gradient(circle, rgba(220, 38, 38, 0.3) 0%, rgba(220, 38, 38, 0.1) 30%, rgba(0,0,0,0) 65%)',
             }}
             animate={{
-              x: [0, 100, -200, 0],
-              y: [0, 150, -100, 0],
-              scale: [1.2, 1, 1.5, 1.2],
+              x: [0, -200, 100, 0],
+              y: [0, 150, -150, 0],
+              scale: [1, 0.9, 1.1, 1],
             }}
             transition={{
-              duration: 18,
+              duration: 30,
               repeat: Infinity,
               ease: "easeInOut"
             }}
@@ -345,7 +328,7 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div id="main-content" className="bg-black relative z-20">
+      <div id="main-content" className="bg-slate-50 dark:bg-black relative z-20 transition-colors duration-500">
         <motion.div 
           className="max-w-screen-2xl mx-auto px-6 pt-12 pb-24 space-y-24"
           initial={{ opacity: 0 }}
