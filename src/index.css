@@ -17,14 +17,14 @@
 
   html {
     scroll-behavior: smooth;
-    background-color: #000000;
-    color: theme('colors.white');
-    color-scheme: dark;
+    background-color: theme('colors.slate.50');
+    color: theme('colors.slate.900');
   }
 
   html.dark {
     background-color: #000000;
     color: theme('colors.white');
+    color-scheme: dark;
   }
 
   /* Custom scrollbar */

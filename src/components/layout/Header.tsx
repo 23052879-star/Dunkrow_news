@@ -203,7 +203,14 @@ const Header: React.FC = () => {
 
           {/* Right side: User menu */}
           <div className="hidden lg:flex items-center space-x-2 flex-shrink-0 min-w-0">
-            {/* Theme Toggle Removed */}
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 mr-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
 
             {user ? (
               <div className="relative">
@@ -288,7 +295,13 @@ const Header: React.FC = () => {
 
           {/* Mobile menu buttons */}
           <div className="lg:hidden flex items-center space-x-2">
-            {/* Mobile Theme Toggle Removed */}
+            {/* Mobile Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 rounded-xl transition-colors"
+            >
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 text-slate-800 dark:text-slate-200 rounded-xl"

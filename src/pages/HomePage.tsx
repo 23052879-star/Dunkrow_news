@@ -161,39 +161,83 @@ const HomePage: React.FC = () => {
         
         {/* Crazy Professional Aurora Background */}
         <motion.div
-          className="absolute inset-0 z-0 pointer-events-none overflow-hidden"
+          className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
           style={{ y: ySpring, opacity: opacitySpring, scale: scaleSpring }}
         >
+          {/* Drifting Stars / Particles */}
+          {[...Array(50)].map((_, i) => (
+            <motion.div
+              key={`star-${i}`}
+              className="absolute rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                width: `${Math.random() * 4 + 1}px`,
+                height: `${Math.random() * 4 + 1}px`,
+                background: Math.random() > 0.5 ? '#ef4444' : '#ffffff',
+                boxShadow: '0 0 10px rgba(239, 68, 68, 0.8)',
+              }}
+              animate={{
+                y: [0, -1000],
+                opacity: [0, 1, 0],
+                scale: [0, 1, 0]
+              }}
+              transition={{
+                duration: Math.random() * 10 + 10,
+                repeat: Infinity,
+                ease: "linear",
+                delay: Math.random() * 10,
+              }}
+            />
+          ))}
+
+          {/* Flowing Red/Black Aurora Shapes */}
           <motion.div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150vw] h-[150vw] sm:w-[120vw] sm:h-[120vw] rounded-[45%] blur-[120px] opacity-30 mix-blend-screen z-0"
+            className="absolute top-[20%] left-[20%] w-[40vw] h-[40vw] rounded-full blur-[80px] mix-blend-screen"
             style={{
-              background: 'radial-gradient(circle, rgba(220, 38, 38, 0.8) 0%, rgba(150, 0, 0, 0.2) 40%, rgba(0,0,0,0) 70%)',
+              background: 'radial-gradient(circle, rgba(220, 38, 38, 0.6) 0%, rgba(153, 27, 27, 0.2) 50%, rgba(0,0,0,0) 70%)',
             }}
             animate={{
-              rotate: [0, 360],
-              scale: [1, 1.1, 1],
-              borderRadius: ["40%", "45%", "50%", "40%"]
-            }}
-            transition={{
-              duration: 25,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          />
-          <motion.div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120vw] h-[120vw] sm:w-[90vw] sm:h-[90vw] rounded-[35%] blur-[100px] opacity-20 mix-blend-screen z-0"
-            style={{
-              background: 'radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(220, 38, 38, 0.4) 30%, rgba(0,0,0,0) 70%)',
-            }}
-            animate={{
-              rotate: [360, 0],
-              scale: [1.1, 0.9, 1.1],
-              borderRadius: ["35%", "50%", "40%", "35%"]
+              x: [0, 200, -100, 0],
+              y: [0, -100, 200, 0],
+              scale: [1, 1.2, 0.8, 1],
             }}
             transition={{
               duration: 20,
               repeat: Infinity,
-              ease: "linear"
+              ease: "easeInOut"
+            }}
+          />
+          <motion.div
+            className="absolute bottom-[20%] right-[20%] w-[50vw] h-[50vw] rounded-full blur-[100px] mix-blend-screen"
+            style={{
+              background: 'radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(220, 38, 38, 0.4) 40%, rgba(0,0,0,0) 70%)',
+            }}
+            animate={{
+              x: [0, -300, 100, 0],
+              y: [0, 200, -200, 0],
+              scale: [1, 0.8, 1.3, 1],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+          <motion.div
+            className="absolute top-[60%] left-[40%] w-[30vw] h-[30vw] rounded-full blur-[60px] mix-blend-screen"
+            style={{
+              background: 'radial-gradient(circle, rgba(239, 68, 68, 0.5) 0%, rgba(0,0,0,0) 70%)',
+            }}
+            animate={{
+              x: [0, 100, -200, 0],
+              y: [0, 150, -100, 0],
+              scale: [1.2, 1, 1.5, 1.2],
+            }}
+            transition={{
+              duration: 18,
+              repeat: Infinity,
+              ease: "easeInOut"
             }}
           />
         </motion.div>
