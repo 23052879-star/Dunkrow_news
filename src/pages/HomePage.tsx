@@ -303,104 +303,83 @@ const HomePage: React.FC = () => {
         <div className="relative z-10 min-h-screen">
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 min-h-screen items-center pt-32 pb-48 lg:pt-32 lg:pb-32">
             {/* Left Content */}
-            <div className="text-center lg:text-left order-2 lg:order-1 z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, ease: "easeOut" }}
-              className="mb-8 lg:mb-12"
-            >
-              <motion.h1 
-                className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-slate-900 dark:text-white mb-4 lg:mb-6 tracking-normal font-['Dancing_Script']"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.3 }}
-              >
-                <span className="text-shimmer bg-clip-text text-transparent pb-4">
-                  Dunkrow
-                </span>
-              </motion.h1>
-              
+            <div className="text-center lg:text-left order-2 lg:order-1 z-10 flex flex-col items-center lg:items-start">
               <motion.p 
-                className="text-lg sm:text-xl md:text-2xl text-red-600 dark:text-blue-100 mb-4 lg:mb-6 font-medium tracking-wide uppercase"
-                initial={{ opacity: 0, y: 30 }}
+                className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-4 font-semibold tracking-[0.2em] uppercase"
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.5 }}
+                transition={{ duration: 1, delay: 0.2 }}
               >
                 Premier Global News Platform
               </motion.p>
               
-              <motion.p 
-                className="text-base sm:text-lg md:text-xl text-slate-700 dark:text-white/90 mb-8 lg:mb-12 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
-                initial={{ opacity: 0, y: 30 }}
+              <motion.h1 
+                className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-medium text-slate-900 dark:text-white mb-6 font-['Playfair_Display'] tracking-tight"
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.7 }}
+                transition={{ duration: 1, delay: 0.4 }}
               >
-                Award-winning digital journalism delivering real-time breaking news, investigative reports, and expert analysis from trusted correspondents worldwide. Where credibility meets innovation in modern news reporting.
+                Dunkrow <span className="italic text-slate-600 dark:text-slate-300">News.</span>
+              </motion.h1>
+              
+              <motion.p 
+                className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 mb-10 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.6 }}
+              >
+                Award-winning digital journalism delivering real-time breaking news, investigative reports, and expert analysis from trusted correspondents worldwide.
               </motion.p>
-            </motion.div>
 
-            {/* Realistic Stats */}
-            <motion.div 
-              className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6 mb-10 lg:mb-12 max-w-2xl mx-auto lg:mx-0"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.9 }}
-            >
-              <div className="text-center lg:text-left bg-white/10 dark:bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-slate-200/50 dark:border-white/10 shadow-sm">
-                <div className="flex items-center justify-center lg:justify-start mb-1">
-                  <Users size={18} className="text-red-600 dark:text-red-400 mr-2" />
-                  <div className="text-2xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white">1.2M+</div>
-                </div>
-                <div className="text-slate-500 dark:text-red-100 text-xs font-bold uppercase tracking-wider">Monthly Readers</div>
-              </div>
-              <div className="text-center lg:text-left bg-white/10 dark:bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-slate-200/50 dark:border-white/10 shadow-sm">
-                <div className="flex items-center justify-center lg:justify-start mb-1">
-                  <Clock size={18} className="text-red-600 dark:text-red-400 mr-2" />
-                  <div className="text-2xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white">24/7</div>
-                </div>
-                <div className="text-slate-500 dark:text-red-100 text-xs font-bold uppercase tracking-wider">Global Coverage</div>
-              </div>
-              <div className="text-center lg:text-left bg-white/10 dark:bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-slate-200/50 dark:border-white/10 shadow-sm">
-                <div className="flex items-center justify-center lg:justify-start mb-1">
-                  <BarChart3 size={18} className="text-red-600 dark:text-red-400 mr-2" />
-                  <div className="text-2xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white">250+</div>
-                </div>
-                <div className="text-slate-500 dark:text-red-100 text-xs font-bold uppercase tracking-wider">Daily Articles</div>
-              </div>
-            </motion.div>
-
-            {/* CTA Buttons */}
-            <motion.div
-              className="flex flex-col sm:flex-row gap-4 lg:gap-6 justify-center lg:justify-start"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 1.1 }}
-            >
-              <motion.button
-                onClick={scrollToContent}
-                className="magnetic-btn relative px-6 lg:px-8 py-3 lg:py-4 text-base lg:text-lg font-semibold text-white overflow-hidden group bg-gradient-to-r from-red-600 to-red-700 rounded-xl shadow-xl hover:shadow-red-600/50"
-                whileHover={{ y: -3 }}
-                whileTap={{ y: -1 }}
+              {/* Clean minimal Buttons */}
+              <motion.div
+                className="flex flex-col sm:flex-row gap-4 lg:gap-6 justify-center lg:justify-start w-full sm:w-auto mb-12"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.8 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-red-700 to-red-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-                <span className="relative z-10 flex items-center">
-                  Explore Breaking News
-                  <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-                </span>
-              </motion.button>
-
-              <Link to="/whispers">
                 <motion.button
-                  className="magnetic-btn relative px-6 lg:px-8 py-3 lg:py-4 text-base lg:text-lg font-semibold text-red-600 dark:text-white overflow-hidden group border-2 border-red-400/50 rounded-xl backdrop-blur-sm w-full sm:w-auto hover:border-red-400"
-                  whileHover={{ y: -3 }}
-                  whileTap={{ y: -1 }}
+                  onClick={scrollToContent}
+                  className="px-8 py-3.5 text-sm font-medium text-white bg-slate-900 dark:bg-white dark:text-slate-900 rounded-full hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-lg shadow-black/10"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-xl"></div>
-                  <span className="relative z-10 text-red-600 dark:text-white group-hover:text-white">Investigative Reports</span>
+                  Explore Breaking News
                 </motion.button>
-              </Link>
-            </motion.div>
+
+                <Link to="/whispers" className="w-full sm:w-auto">
+                  <motion.button
+                    className="w-full px-8 py-3.5 text-sm font-medium text-slate-900 dark:text-white border border-slate-300 dark:border-white/20 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 transition-colors backdrop-blur-sm"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Investigative Reports
+                  </motion.button>
+                </Link>
+              </motion.div>
+
+              {/* Minimal Stats */}
+              <motion.div 
+                className="flex items-center gap-8 lg:gap-12 opacity-80"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1, delay: 1 }}
+              >
+                <div className="flex flex-col items-center lg:items-start">
+                  <span className="text-2xl font-['Playfair_Display'] italic text-slate-900 dark:text-white">1.2M+</span>
+                  <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Readers</span>
+                </div>
+                <div className="h-8 w-px bg-slate-300 dark:bg-slate-700"></div>
+                <div className="flex flex-col items-center lg:items-start">
+                  <span className="text-2xl font-['Playfair_Display'] italic text-slate-900 dark:text-white">24/7</span>
+                  <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Coverage</span>
+                </div>
+                <div className="h-8 w-px bg-slate-300 dark:bg-slate-700"></div>
+                <div className="flex flex-col items-center lg:items-start">
+                  <span className="text-2xl font-['Playfair_Display'] italic text-slate-900 dark:text-white">250+</span>
+                  <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Daily</span>
+                </div>
+              </motion.div>
             </div>
 
             {/* Right Content - 3D Revolving Logo */}
