@@ -16,103 +16,16 @@ interface Category {
 }
 
 const categoryIcons: Record<string, React.ReactNode> = {
-  'Politics': <img src="/logo-removebg-preview.png" alt="Politics" className="w-6 h-6 object-contain drop-shadow-md filter brightness-0 invert" />,
-  'Technology': <Zap size={24} className="text-white drop-shadow-md" />,
-  'Business': <Briefcase size={24} className="text-white drop-shadow-md" />,
-  'Sports': <Football size={24} className="text-white drop-shadow-md" />,
-  'Entertainment': <Film size={24} className="text-white drop-shadow-md" />,
-  'Science': <Flask size={24} className="text-white drop-shadow-md" />,
-  'Health': <Heart size={24} className="text-white drop-shadow-md" />
+  'Politics': <img src="/logo-removebg-preview.png" alt="Politics" className="w-6 h-6 object-contain dark:filter dark:brightness-0 dark:invert" />,
+  'Technology': <Zap size={24} />,
+  'Business': <Briefcase size={24} />,
+  'Sports': <Football size={24} />,
+  'Entertainment': <Film size={24} />,
+  'Science': <Flask size={24} />,
+  'Health': <Heart size={24} />
 };
 
-// 3D Revolving Logo Component
-const RevolvingLogo: React.FC = () => {
-  return (
-    <div className="relative w-64 h-64 sm:w-72 sm:h-72 lg:w-96 lg:h-96 mx-auto flex items-center justify-center" style={{ perspective: "1000px" }}>
-      {/* Glow effect behind logo */}
-      <motion.div 
-        className="absolute inset-0 bg-red-600/30 rounded-full blur-[80px]"
-        animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-      />
-      
-      {/* 3D Rotating Logo */}
-      <motion.div
-        className="relative z-10 flex items-center justify-center"
-        animate={{ rotateY: [0, 360] }}
-        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-        style={{ transformStyle: "preserve-3d" }}
-      >
-        <img 
-          src="/logo-removebg-preview.png" 
-          alt="Dunkrow Logo 3D" 
-          className="w-32 h-32 sm:w-48 sm:h-48 lg:w-64 lg:h-64 object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] dark:filter dark:brightness-0 dark:invert"
-        />
-      </motion.div>
-
-      {/* Orbital Rings around Logo */}
-      <motion.div
-        className="absolute inset-0 border border-white/20 rounded-full"
-        animate={{ rotateZ: [0, 360] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        style={{ transform: "rotateX(70deg)", transformStyle: "preserve-3d" }}
-      />
-      <motion.div
-        className="absolute inset-4 border border-red-400/20 rounded-full"
-        animate={{ rotateZ: [360, 0] }}
-        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        style={{ transform: "rotateX(60deg) rotateY(20deg)", transformStyle: "preserve-3d" }}
-      />
-      
-      {/* Floating particles inside orbits */}
-      {[...Array(5)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-2 h-2 bg-red-300 rounded-full shadow-[0_0_10px_rgba(252,165,165,0.8)]"
-          style={{
-            top: `${30 + Math.random() * 40}%`,
-            left: `${30 + Math.random() * 40}%`,
-          }}
-          animate={{
-            scale: [1, 1.5, 1],
-            opacity: [0.5, 1, 0.5]
-          }}
-          transition={{
-            duration: 1 + Math.random() * 2,
-            repeat: Infinity,
-            delay: Math.random() * 2
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
-const FloatingElement: React.FC<{ children: React.ReactNode; delay?: number; duration?: number; className?: string }> = ({ 
-  children, 
-  delay = 0, 
-  duration = 3,
-  className = ""
-}) => {
-  return (
-    <motion.div
-      className={`absolute ${className}`}
-      animate={{
-        y: [0, -20, 0],
-        rotate: [0, 5, -5, 0],
-        scale: [1, 1.05, 1]
-      }}
-      transition={{
-        duration,
-        delay,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }}
-    >
-      {children}
-    </motion.div>
-  );
-};
+// Removed RevolvingLogo and FloatingElement for a cleaner editorial layout
 
 const HomePage: React.FC = () => {
   const { articles, featuredArticles, isLoading, fetchArticles, fetchFeaturedArticles } = useArticleStore();
@@ -242,70 +155,17 @@ const HomePage: React.FC = () => {
       </Helmet>
 
       {/* Hero Section */}
-      <div ref={heroRef} className="relative min-h-screen overflow-hidden bg-gradient-to-br from-red-50 via-slate-50 to-white dark:from-red-950 dark:via-slate-950 dark:to-slate-950 transition-colors duration-500">
-        {/* Animated Background Elements */}
-        <motion.div
-          className="absolute inset-0 z-0"
-          style={{ y: ySpring, opacity: opacitySpring, scale: scaleSpring }}
-        >
-          {/* Particles */}
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="particle"
-              style={{
-                left: `${Math.random() * 100}%`,
-                width: `${Math.random() * 6 + 2}px`,
-                height: `${Math.random() * 6 + 2}px`,
-                background: Math.random() > 0.5 ? 'rgba(239, 68, 68, 0.4)' : 'rgba(255, 255, 255, 0.2)',
-                animationDuration: `${Math.random() * 10 + 10}s`,
-                animationDelay: `-${Math.random() * 10}s`
-              }}
-            />
-          ))}
-
-          {/* Floating News Icons */}
-          <FloatingElement delay={0} duration={4} className="top-20 left-4 lg:left-10 text-red-500/15">
-            <BarChart3 size={60} />
-          </FloatingElement>
-
-          <FloatingElement delay={1} duration={5} className="top-32 right-4 lg:right-20 text-red-400/10">
-            <Clock size={70} />
-          </FloatingElement>
-
-          <FloatingElement delay={2} duration={3.5} className="bottom-40 left-4 lg:left-20 text-red-500/12">
-            <Shield size={55} />
-          </FloatingElement>
-
-          <FloatingElement delay={0.5} duration={4.5} className="top-60 left-1/4 lg:left-1/3 text-red-400/10">
-            <Play size={65} />
-          </FloatingElement>
-
-          <FloatingElement delay={1.5} duration={3} className="bottom-60 right-4 lg:right-10 text-red-500/15">
-            <TrendingUp size={50} />
-          </FloatingElement>
-
-          {/* Geometric Shapes with red tones */}
-          <FloatingElement delay={0} duration={6} className="top-40 right-1/4 lg:right-1/3">
-            <div className="w-16 h-16 bg-red-500/10 rounded-full backdrop-blur-sm"></div>
-          </FloatingElement>
-
-          <FloatingElement delay={2} duration={5} className="bottom-32 left-1/6 lg:left-1/4">
-            <div className="w-12 h-12 bg-red-600/10 rotate-45 backdrop-blur-sm"></div>
-          </FloatingElement>
-
-          <FloatingElement delay={1} duration={4} className="top-1/2 right-8 lg:right-16">
-            <div className="w-10 h-10 bg-red-400/8 rounded-lg backdrop-blur-sm"></div>
-          </FloatingElement>
-        </motion.div>
-
+      <div ref={heroRef} className="relative min-h-screen overflow-hidden bg-white dark:bg-black transition-colors duration-500">
+        {/* Subtle Grid Background */}
+        <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05] text-slate-900 dark:text-white" style={{ backgroundImage: 'linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)', backgroundSize: '4rem 4rem' }}></div>
+        
         {/* Main Hero Content */}
         <div className="relative z-10 min-h-screen">
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 min-h-screen items-center pt-32 pb-48 lg:pt-32 lg:pb-32">
             {/* Left Content */}
             <div className="text-center lg:text-left order-2 lg:order-1 z-10 flex flex-col items-center lg:items-start">
               <motion.p 
-                className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-4 font-semibold tracking-[0.2em] uppercase"
+                className="text-xs sm:text-sm text-red-600 dark:text-red-500 mb-4 font-semibold tracking-[0.2em] uppercase"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.2 }}
@@ -319,11 +179,11 @@ const HomePage: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.4 }}
               >
-                Dunkrow <span className="italic text-slate-600 dark:text-slate-300">News.</span>
+                Dunkrow <span className="italic text-slate-500 dark:text-slate-400">News.</span>
               </motion.h1>
               
               <motion.p 
-                className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 mb-10 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light"
+                className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.6 }}
@@ -349,7 +209,7 @@ const HomePage: React.FC = () => {
 
                 <Link to="/whispers" className="w-full sm:w-auto">
                   <motion.button
-                    className="w-full px-8 py-3.5 text-sm font-medium text-slate-900 dark:text-white border border-slate-300 dark:border-white/20 rounded-full hover:bg-slate-50 dark:hover:bg-white/5 transition-colors backdrop-blur-sm"
+                    className="w-full px-8 py-3.5 text-sm font-medium text-slate-900 dark:text-white border border-slate-300 dark:border-neutral-700 rounded-full hover:bg-slate-50 dark:hover:bg-neutral-900 transition-colors backdrop-blur-sm"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -369,12 +229,12 @@ const HomePage: React.FC = () => {
                   <span className="text-2xl font-['Playfair_Display'] italic text-slate-900 dark:text-white">1.2M+</span>
                   <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Readers</span>
                 </div>
-                <div className="h-8 w-px bg-slate-300 dark:bg-slate-700"></div>
+                <div className="h-8 w-px bg-slate-200 dark:bg-neutral-800"></div>
                 <div className="flex flex-col items-center lg:items-start">
                   <span className="text-2xl font-['Playfair_Display'] italic text-slate-900 dark:text-white">24/7</span>
                   <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Coverage</span>
                 </div>
-                <div className="h-8 w-px bg-slate-300 dark:bg-slate-700"></div>
+                <div className="h-8 w-px bg-slate-200 dark:bg-neutral-800"></div>
                 <div className="flex flex-col items-center lg:items-start">
                   <span className="text-2xl font-['Playfair_Display'] italic text-slate-900 dark:text-white">250+</span>
                   <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Daily</span>
@@ -382,15 +242,34 @@ const HomePage: React.FC = () => {
               </motion.div>
             </div>
 
-            {/* Right Content - 3D Revolving Logo */}
+            {/* Right Content - Editorial Graphic */}
             <div className="flex items-center justify-center order-1 lg:order-2">
               <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 1.2, delay: 0.5 }}
-                className="w-full max-w-sm lg:max-w-md xl:max-w-lg"
+                className="w-full max-w-sm lg:max-w-md xl:max-w-lg relative"
               >
-                <RevolvingLogo />
+                <div className="aspect-[4/5] bg-slate-50 dark:bg-neutral-900/50 border border-slate-200 dark:border-neutral-800 p-8 flex flex-col justify-between relative z-10 backdrop-blur-sm shadow-2xl">
+                  <div>
+                    <div className="w-12 h-1 bg-red-600 mb-6"></div>
+                    <h3 className="text-2xl font-['Playfair_Display'] italic text-slate-900 dark:text-white mb-6">Latest Briefing</h3>
+                    <div className="space-y-4">
+                      <div className="h-4 bg-slate-200 dark:bg-neutral-800 w-3/4"></div>
+                      <div className="h-4 bg-slate-200 dark:bg-neutral-800 w-full"></div>
+                      <div className="h-4 bg-slate-200 dark:bg-neutral-800 w-5/6"></div>
+                      <div className="h-4 bg-slate-200 dark:bg-neutral-800 w-4/5"></div>
+                    </div>
+                  </div>
+                  <div className="border-t border-slate-200 dark:border-neutral-800 pt-6">
+                    <p className="text-xs font-bold text-red-600 uppercase tracking-[0.2em]">Read Full Story</p>
+                  </div>
+                </div>
+                {/* Decorative Elements */}
+                <div className="absolute -bottom-6 -left-6 w-full h-full border border-red-600/20 z-0"></div>
+                <div className="absolute top-12 -right-12 text-[120px] font-['Playfair_Display'] italic text-slate-100 dark:text-neutral-900 opacity-50 select-none pointer-events-none tracking-tighter">
+                  News.
+                </div>
               </motion.div>
             </div>
           </div>
@@ -465,17 +344,6 @@ const HomePage: React.FC = () => {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4 lg:gap-6">
               {categories.map((category, index) => {
-                const cardStyles = [
-                  'bg-gradient-to-br from-blue-500 to-indigo-600 shadow-[0_8px_30px_rgba(59,130,246,0.3)] hover:shadow-[0_8px_30px_rgba(59,130,246,0.6)] border-blue-400/30',
-                  'bg-gradient-to-br from-emerald-400 to-teal-500 shadow-[0_8px_30px_rgba(16,185,129,0.3)] hover:shadow-[0_8px_30px_rgba(16,185,129,0.6)] border-emerald-400/30',
-                  'bg-gradient-to-br from-amber-400 to-orange-500 shadow-[0_8px_30px_rgba(245,158,11,0.3)] hover:shadow-[0_8px_30px_rgba(245,158,11,0.6)] border-amber-400/30',
-                  'bg-gradient-to-br from-purple-500 to-pink-500 shadow-[0_8px_30px_rgba(168,85,247,0.3)] hover:shadow-[0_8px_30px_rgba(168,85,247,0.6)] border-purple-400/30',
-                  'bg-gradient-to-br from-rose-400 to-red-500 shadow-[0_8px_30px_rgba(244,63,94,0.3)] hover:shadow-[0_8px_30px_rgba(244,63,94,0.6)] border-rose-400/30',
-                  'bg-gradient-to-br from-cyan-400 to-blue-500 shadow-[0_8px_30px_rgba(6,182,212,0.3)] hover:shadow-[0_8px_30px_rgba(6,182,212,0.6)] border-cyan-400/30',
-                  'bg-gradient-to-br from-fuchsia-400 to-purple-500 shadow-[0_8px_30px_rgba(217,70,239,0.3)] hover:shadow-[0_8px_30px_rgba(217,70,239,0.6)] border-fuchsia-400/30'
-                ];
-                const cardStyle = cardStyles[index % cardStyles.length];
-                
                 return (
                   <motion.div
                     key={category.slug}
@@ -489,28 +357,21 @@ const HomePage: React.FC = () => {
                       className="group block h-full"
                     >
                       <motion.div
-                        className={`${cardStyle} rounded-3xl p-6 transition-all duration-500 border h-full relative overflow-hidden`}
-                        whileHover={{
-                          scale: 1.05,
-                          y: -5
-                        }}
+                        className="bg-white dark:bg-neutral-900 rounded-xl p-6 transition-all duration-300 border border-slate-200 dark:border-neutral-800 hover:border-red-600 dark:hover:border-red-600 shadow-sm hover:shadow-xl h-full relative overflow-hidden"
+                        whileHover={{ y: -5 }}
                       >
-                        <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        
-                        {/* Decorative circles */}
-                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-colors duration-500" />
-                        <div className="absolute -bottom-10 -left-10 w-24 h-24 bg-white/10 rounded-full blur-xl group-hover:bg-white/20 transition-colors duration-500" />
+                        <div className="absolute inset-0 bg-red-600 opacity-0 group-hover:opacity-5 dark:group-hover:opacity-10 transition-opacity duration-300" />
                         
                         <div className="flex flex-col items-center justify-center text-center space-y-4 relative z-10 h-full">
                           <motion.div 
-                            className="p-4 rounded-2xl bg-white/10 backdrop-blur-md shadow-inner border border-white/20 group-hover:bg-white/20 transition-all duration-300"
+                            className="p-4 rounded-full bg-slate-50 dark:bg-black border border-slate-100 dark:border-neutral-800 group-hover:bg-red-600 group-hover:border-red-600 transition-all duration-300"
                             whileHover={{ rotate: 10, scale: 1.1 }}
                           >
-                            <div className="text-white">
-                              {categoryIcons[category.name] || <ChevronDown size={24} className="text-white drop-shadow-md" />}
+                            <div className="text-slate-600 dark:text-slate-300 group-hover:text-white group-hover:invert-0 transition-colors">
+                              {categoryIcons[category.name] || <ChevronDown size={24} className="text-current" />}
                             </div>
                           </motion.div>
-                          <h3 className="font-bold text-white group-hover:text-white/90 transition-colors text-lg tracking-wide drop-shadow-sm">
+                          <h3 className="font-bold text-slate-900 dark:text-white group-hover:text-red-600 transition-colors text-sm uppercase tracking-widest">
                             {category.name}
                           </h3>
                         </div>
@@ -621,7 +482,7 @@ const HomePage: React.FC = () => {
           {/* Weekend Whispers & Jokes Preview */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <motion.section 
-              className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-2xl p-8 border border-red-200 dark:border-red-800/30"
+              className="bg-white dark:bg-black rounded-xl p-8 border border-slate-200 dark:border-neutral-800 hover:border-red-600 dark:hover:border-red-600 transition-colors shadow-sm"
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
@@ -629,31 +490,27 @@ const HomePage: React.FC = () => {
               whileHover={{ scale: 1.02 }}
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="h-6 w-1 bg-red-600 rounded-full"></div>
-                <h2 className="text-2xl font-black text-slate-900 dark:text-white font-display tracking-tight uppercase italic">
+                <div className="h-6 w-1 bg-red-600"></div>
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white font-['Playfair_Display'] tracking-tight italic">
                   Investigative Reports
                 </h2>
               </div>
-              <p className="text-neutral-700 dark:text-neutral-300 mb-6">
+              <p className="text-slate-600 dark:text-slate-400 mb-6 font-light">
                 Deep-dive investigations and exclusive reports that uncover the stories behind the headlines.
               </p>
               <Link to="/whispers">
                 <motion.button
-                  className="magnetic-btn relative px-6 py-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 overflow-hidden group bg-white dark:bg-neutral-800 rounded-xl shadow-md hover:shadow-lg"
-                  whileHover={{ y: -2 }}
-                  whileTap={{ y: 0 }}
+                  className="px-6 py-2.5 text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest border border-slate-200 dark:border-neutral-800 hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors flex items-center group"
+                  whileHover={{ x: 5 }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-                  <span className="relative z-10 flex items-center text-slate-700 dark:text-neutral-300 group-hover:text-white transition-colors duration-300 font-medium">
-                    Read Investigations
-                    <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-                  </span>
+                  Read Investigations
+                  <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </motion.button>
               </Link>
             </motion.section>
 
             <motion.section 
-              className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-2xl p-8 border border-red-200 dark:border-red-800/30"
+              className="bg-white dark:bg-black rounded-xl p-8 border border-slate-200 dark:border-neutral-800 hover:border-red-600 dark:hover:border-red-600 transition-colors shadow-sm"
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
@@ -661,59 +518,51 @@ const HomePage: React.FC = () => {
               whileHover={{ scale: 1.02 }}
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="h-6 w-1 bg-red-600 rounded-full"></div>
-                <h2 className="text-2xl font-black text-slate-900 dark:text-white font-display tracking-tight uppercase italic">
+                <div className="h-6 w-1 bg-red-600"></div>
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white font-['Playfair_Display'] tracking-tight italic">
                   News Digest & Analysis
                 </h2>
               </div>
-              <p className="text-neutral-700 dark:text-neutral-300 mb-6">
+              <p className="text-slate-600 dark:text-slate-400 mb-6 font-light">
                 Daily news summaries, expert analysis, and thought-provoking commentary on current events.
               </p>
               <Link to="/jokes-trivia">
                 <motion.button
-                  className="magnetic-btn relative px-6 py-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 overflow-hidden group bg-white dark:bg-neutral-800 rounded-xl shadow-md hover:shadow-lg"
-                  whileHover={{ y: -2 }}
-                  whileTap={{ y: 0 }}
+                  className="px-6 py-2.5 text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest border border-slate-200 dark:border-neutral-800 hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors flex items-center group"
+                  whileHover={{ x: 5 }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-                  <span className="relative z-10 flex items-center text-slate-700 dark:text-neutral-300 group-hover:text-white transition-colors duration-300 font-medium">
-                    Read Analysis
-                    <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-                  </span>
+                  Read Analysis
+                  <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </motion.button>
-                </Link>
+              </Link>
             </motion.section>
           </div>
 
           {/* Newsletter */}
           <motion.section 
-            className="relative overflow-hidden rounded-[2.5rem] p-1 shadow-2xl"
+            className="relative overflow-hidden border border-slate-200 dark:border-neutral-800 bg-white dark:bg-black"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            {/* Animated Gradient Border */}
-            <div className="absolute inset-0 bg-gradient-to-r from-red-600 via-orange-600 to-purple-600 opacity-80 animate-gradient-xy"></div>
-            
-            <div className="relative bg-white/90 dark:bg-neutral-950/90 backdrop-blur-3xl rounded-[2.4rem] p-12 md:p-16 lg:p-20 overflow-hidden shadow-2xl border border-slate-100 dark:border-white/10 transition-colors duration-500">
-              {/* Background Glows */}
-              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-600/20 rounded-full blur-[120px] pointer-events-none"></div>
-              <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+            <div className="relative p-12 md:p-16 lg:p-20 overflow-hidden">
+              {/* Background Glows (Red only) */}
+              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-600/5 dark:bg-red-600/10 rounded-full blur-[120px] pointer-events-none"></div>
               
               <div className="relative text-center max-w-4xl mx-auto z-10">
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5 }}
-                  className="inline-flex items-center justify-center p-3 bg-white/5 border border-white/10 rounded-2xl mb-8 backdrop-blur-sm"
+                  className="inline-flex items-center justify-center p-3 border border-red-600/20 bg-red-600/5 rounded-full mb-8"
                 >
-                  <Mail className="text-red-600 dark:text-red-400 mr-3" size={28} />
-                  <span className="text-slate-900 dark:text-white font-bold tracking-widest uppercase text-sm">Join The Inner Circle</span>
+                  <Mail className="text-red-600 mr-3" size={20} />
+                  <span className="text-red-600 font-bold tracking-widest uppercase text-xs">Join The Inner Circle</span>
                 </motion.div>
 
                 <motion.h2 
-                  className="text-4xl md:text-6xl font-black mb-6 font-display text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-red-600 to-slate-800 dark:from-white dark:via-red-100 dark:to-slate-300 drop-shadow-sm"
+                  className="text-4xl md:text-5xl lg:text-6xl font-['Playfair_Display'] italic text-slate-900 dark:text-white mb-6"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
@@ -722,7 +571,7 @@ const HomePage: React.FC = () => {
                   Never Miss Breaking News
                 </motion.h2>
                 <motion.p 
-                  className="mb-12 text-lg md:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto"
+                  className="mb-12 text-lg text-slate-600 dark:text-slate-400 font-light leading-relaxed max-w-2xl mx-auto"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.4 }}
@@ -735,7 +584,7 @@ const HomePage: React.FC = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.6 }}
                   viewport={{ once: true }}
-                  className="p-2 bg-white/5 rounded-2xl backdrop-blur-md border border-white/10 shadow-2xl"
+                  className="max-w-md mx-auto"
                 >
                   <NewsletterForm />
                 </motion.div>
