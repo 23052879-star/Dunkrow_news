@@ -10,7 +10,7 @@ const Layout: React.FC = () => {
   const isHomePage = location.pathname === '/';
 
   return (
-    <div className="flex flex-col min-h-screen bg-neutral-100 dark:bg-neutral-900">
+    <div className="flex flex-col min-h-screen bg-black">
       <Header />
       <motion.main 
         className={`flex-grow ${isHomePage ? '' : 'max-w-screen-2xl mx-auto px-6 pt-24 pb-12 md:pt-32 w-full'}`}

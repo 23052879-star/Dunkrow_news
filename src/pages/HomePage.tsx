@@ -155,33 +155,47 @@ const HomePage: React.FC = () => {
       </Helmet>
 
       {/* Hero Section */}
-      <div ref={heroRef} className="relative min-h-screen overflow-hidden bg-white dark:bg-black transition-colors duration-500">
+      <div ref={heroRef} className="relative min-h-screen overflow-hidden bg-black transition-colors duration-500">
         {/* Subtle Grid Background */}
-        <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05] text-slate-900 dark:text-white pointer-events-none" style={{ backgroundImage: 'linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)', backgroundSize: '4rem 4rem' }}></div>
+        <div className="absolute inset-0 z-0 opacity-10 text-white pointer-events-none" style={{ backgroundImage: 'linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)', backgroundSize: '4rem 4rem' }}></div>
         
-        {/* Animated Background Elements */}
+        {/* Crazy Professional Aurora Background */}
         <motion.div
-          className="absolute inset-0 z-0 pointer-events-none"
+          className="absolute inset-0 z-0 pointer-events-none overflow-hidden"
           style={{ y: ySpring, opacity: opacitySpring, scale: scaleSpring }}
         >
-          {/* Particles */}
-          {[...Array(40)].map((_, i) => (
-            <div
-              key={i}
-              className="particle"
-              style={{
-                left: `${Math.random() * 100}%`,
-                width: `${Math.random() * 4 + 1}px`,
-                height: `${Math.random() * 4 + 1}px`,
-                background: Math.random() > 0.5 ? 'rgba(220, 38, 38, 0.4)' : 'rgba(150, 150, 150, 0.2)',
-                animationDuration: `${Math.random() * 15 + 15}s`,
-                animationDelay: `-${Math.random() * 10}s`
-              }}
-            />
-          ))}
-          {/* Subtle Glows */}
-          <div className="absolute top-1/4 left-1/4 w-[30rem] h-[30rem] bg-red-600/5 dark:bg-red-600/10 rounded-full blur-[100px]"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-[30rem] h-[30rem] bg-slate-900/5 dark:bg-white/5 rounded-full blur-[100px]"></div>
+          <motion.div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150vw] h-[150vw] sm:w-[120vw] sm:h-[120vw] rounded-[45%] blur-[120px] opacity-30 mix-blend-screen z-0"
+            style={{
+              background: 'radial-gradient(circle, rgba(220, 38, 38, 0.8) 0%, rgba(150, 0, 0, 0.2) 40%, rgba(0,0,0,0) 70%)',
+            }}
+            animate={{
+              rotate: [0, 360],
+              scale: [1, 1.1, 1],
+              borderRadius: ["40%", "45%", "50%", "40%"]
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
+          <motion.div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120vw] h-[120vw] sm:w-[90vw] sm:h-[90vw] rounded-[35%] blur-[100px] opacity-20 mix-blend-screen z-0"
+            style={{
+              background: 'radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(220, 38, 38, 0.4) 30%, rgba(0,0,0,0) 70%)',
+            }}
+            animate={{
+              rotate: [360, 0],
+              scale: [1.1, 0.9, 1.1],
+              borderRadius: ["35%", "50%", "40%", "35%"]
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
         </motion.div>
 
         {/* Main Hero Content */}
@@ -282,16 +296,12 @@ const HomePage: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Wave Transition Divider */}
-        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] z-10 pointer-events-none">
-          <svg className="relative block w-[calc(100%+1.3px)] h-[60px] md:h-[100px] lg:h-[150px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.08,130.83,115.15,198.81,104.9,240.59,98.66,281.8,77.22,321.39,56.44Z" className="fill-slate-50 dark:fill-slate-900"></path>
-          </svg>
-        </div>
+        {/* Sharp Red Divider */}
+        <div className="absolute bottom-0 left-0 w-full h-1 bg-red-600 z-20"></div>
       </div>
 
       {/* Main Content */}
-      <div id="main-content" className="bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 relative z-20">
+      <div id="main-content" className="bg-black relative z-20">
         <motion.div 
           className="max-w-screen-2xl mx-auto px-6 pt-12 pb-24 space-y-24"
           initial={{ opacity: 0 }}
