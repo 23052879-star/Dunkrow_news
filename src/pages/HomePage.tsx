@@ -16,13 +16,13 @@ interface Category {
 }
 
 const categoryIcons: Record<string, React.ReactNode> = {
-  'Politics': <img src="/logo-removebg-preview.png" alt="Politics" className="w-6 h-6 object-contain dark:filter dark:brightness-0 dark:invert" />,
-  'Technology': <Zap size={24} className="text-slate-900 dark:text-white" />,
-  'Business': <Briefcase size={24} className="text-slate-900 dark:text-white" />,
-  'Sports': <Football size={24} className="text-slate-900 dark:text-white" />,
-  'Entertainment': <Film size={24} className="text-slate-900 dark:text-white" />,
-  'Science': <Flask size={24} className="text-slate-900 dark:text-white" />,
-  'Health': <Heart size={24} className="text-slate-900 dark:text-white" />
+  'Politics': <img src="/logo-removebg-preview.png" alt="Politics" className="w-6 h-6 object-contain drop-shadow-md filter brightness-0 invert" />,
+  'Technology': <Zap size={24} className="text-white drop-shadow-md" />,
+  'Business': <Briefcase size={24} className="text-white drop-shadow-md" />,
+  'Sports': <Football size={24} className="text-white drop-shadow-md" />,
+  'Entertainment': <Film size={24} className="text-white drop-shadow-md" />,
+  'Science': <Flask size={24} className="text-white drop-shadow-md" />,
+  'Health': <Heart size={24} className="text-white drop-shadow-md" />
 };
 
 // 3D Revolving Logo Component
@@ -311,13 +311,13 @@ const HomePage: React.FC = () => {
               className="mb-8 lg:mb-12"
             >
               <motion.h1 
-                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-slate-900 dark:text-white mb-6 lg:mb-8 tracking-tight font-display"
+                className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-slate-900 dark:text-white mb-4 lg:mb-6 tracking-normal font-['Dancing_Script']"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.3 }}
               >
-                <span className="text-shimmer bg-clip-text text-transparent">
-                  DUNKROW
+                <span className="text-shimmer bg-clip-text text-transparent pb-4">
+                  Dunkrow
                 </span>
               </motion.h1>
               
@@ -486,16 +486,16 @@ const HomePage: React.FC = () => {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4 lg:gap-6">
               {categories.map((category, index) => {
-                const gradients = [
-                  'from-blue-500/20 to-indigo-600/20 border-blue-500/30 group-hover:border-blue-500',
-                  'from-emerald-500/20 to-teal-600/20 border-emerald-500/30 group-hover:border-emerald-500',
-                  'from-amber-500/20 to-orange-600/20 border-amber-500/30 group-hover:border-amber-500',
-                  'from-purple-500/20 to-pink-600/20 border-purple-500/30 group-hover:border-purple-500',
-                  'from-rose-500/20 to-red-600/20 border-rose-500/30 group-hover:border-rose-500',
-                  'from-cyan-500/20 to-blue-600/20 border-cyan-500/30 group-hover:border-cyan-500',
-                  'from-fuchsia-500/20 to-purple-600/20 border-fuchsia-500/30 group-hover:border-fuchsia-500'
+                const cardStyles = [
+                  'bg-gradient-to-br from-blue-500 to-indigo-600 shadow-[0_8px_30px_rgba(59,130,246,0.3)] hover:shadow-[0_8px_30px_rgba(59,130,246,0.6)] border-blue-400/30',
+                  'bg-gradient-to-br from-emerald-400 to-teal-500 shadow-[0_8px_30px_rgba(16,185,129,0.3)] hover:shadow-[0_8px_30px_rgba(16,185,129,0.6)] border-emerald-400/30',
+                  'bg-gradient-to-br from-amber-400 to-orange-500 shadow-[0_8px_30px_rgba(245,158,11,0.3)] hover:shadow-[0_8px_30px_rgba(245,158,11,0.6)] border-amber-400/30',
+                  'bg-gradient-to-br from-purple-500 to-pink-500 shadow-[0_8px_30px_rgba(168,85,247,0.3)] hover:shadow-[0_8px_30px_rgba(168,85,247,0.6)] border-purple-400/30',
+                  'bg-gradient-to-br from-rose-400 to-red-500 shadow-[0_8px_30px_rgba(244,63,94,0.3)] hover:shadow-[0_8px_30px_rgba(244,63,94,0.6)] border-rose-400/30',
+                  'bg-gradient-to-br from-cyan-400 to-blue-500 shadow-[0_8px_30px_rgba(6,182,212,0.3)] hover:shadow-[0_8px_30px_rgba(6,182,212,0.6)] border-cyan-400/30',
+                  'bg-gradient-to-br from-fuchsia-400 to-purple-500 shadow-[0_8px_30px_rgba(217,70,239,0.3)] hover:shadow-[0_8px_30px_rgba(217,70,239,0.6)] border-fuchsia-400/30'
                 ];
-                const gradient = gradients[index % gradients.length];
+                const cardStyle = cardStyles[index % cardStyles.length];
                 
                 return (
                   <motion.div
@@ -510,23 +510,28 @@ const HomePage: React.FC = () => {
                       className="group block h-full"
                     >
                       <motion.div
-                        className={`bg-white dark:bg-slate-800/80 backdrop-blur-md rounded-3xl p-6 shadow-sm hover:shadow-2xl transition-all duration-500 border h-full relative overflow-hidden ${gradient}`}
+                        className={`${cardStyle} rounded-3xl p-6 transition-all duration-500 border h-full relative overflow-hidden`}
                         whileHover={{
                           scale: 1.05,
                           y: -5
                         }}
                       >
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        <div className="flex flex-col items-center text-center space-y-4 relative z-10">
+                        <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        
+                        {/* Decorative circles */}
+                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-colors duration-500" />
+                        <div className="absolute -bottom-10 -left-10 w-24 h-24 bg-white/10 rounded-full blur-xl group-hover:bg-white/20 transition-colors duration-500" />
+                        
+                        <div className="flex flex-col items-center justify-center text-center space-y-4 relative z-10 h-full">
                           <motion.div 
-                            className="p-4 rounded-2xl bg-white dark:bg-slate-700 shadow-md group-hover:shadow-lg transition-all duration-300 border border-slate-100 dark:border-slate-600"
+                            className="p-4 rounded-2xl bg-white/10 backdrop-blur-md shadow-inner border border-white/20 group-hover:bg-white/20 transition-all duration-300"
                             whileHover={{ rotate: 10, scale: 1.1 }}
                           >
-                            <div className="text-slate-800 dark:text-white">
-                              {categoryIcons[category.name] || <ChevronDown size={24} />}
+                            <div className="text-white">
+                              {categoryIcons[category.name] || <ChevronDown size={24} className="text-white drop-shadow-md" />}
                             </div>
                           </motion.div>
-                          <h3 className="font-bold text-slate-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors text-lg">
+                          <h3 className="font-bold text-white group-hover:text-white/90 transition-colors text-lg tracking-wide drop-shadow-sm">
                             {category.name}
                           </h3>
                         </div>

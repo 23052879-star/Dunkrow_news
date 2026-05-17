@@ -106,23 +106,22 @@ const Header: React.FC = () => {
       <div className="max-w-screen-2xl mx-auto px-6">
         <div className="flex justify-between items-center h-16 lg:h-20 gap-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 lg:space-x-3 group flex-shrink-0 min-w-0">
+          <Link to="/" className="flex items-center space-x-3 lg:space-x-4 group flex-shrink-0 min-w-0">
             <motion.div 
-              className="relative"
-              whileHover={{ scale: 1.1, rotate: 5 }}
+              className="relative flex items-center justify-center p-2 rounded-xl bg-gradient-to-br from-red-600 to-orange-500 shadow-[0_0_15px_rgba(220,38,38,0.5)] border border-white/20 overflow-hidden"
+              whileHover={{ scale: 1.1, rotate: 10, boxShadow: "0 0 25px rgba(220,38,38,0.7)" }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
+              <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <img 
                 src="/logo-removebg-preview.png" 
                 alt="Dunkrow Logo" 
-                className={`h-10 w-10 lg:h-12 lg:w-12 object-contain drop-shadow-md transition-all duration-300 ${
-                  theme === 'light' && isScrolled ? 'filter brightness-0' : ''
-                }`}
+                className="h-8 w-8 lg:h-9 lg:w-9 object-contain drop-shadow-md filter brightness-0 invert relative z-10"
               />
             </motion.div>
             <div className="flex flex-col min-w-0 justify-center">
               <motion.span 
-                className="text-xl lg:text-2xl font-black text-slate-900 dark:text-white font-display tracking-tight whitespace-nowrap leading-none"
+                className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white font-['Dancing_Script'] tracking-normal whitespace-nowrap leading-none"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
@@ -136,9 +135,9 @@ const Header: React.FC = () => {
                     repeat: Infinity, 
                     ease: "linear" 
                   }}
-                  className="bg-gradient-to-r from-red-600 via-red-500 to-red-600 bg-[length:200%_100%] bg-clip-text text-transparent dark:from-white dark:via-red-100 dark:to-white"
+                  className="bg-gradient-to-r from-red-600 via-red-500 to-red-600 bg-[length:200%_100%] bg-clip-text text-transparent dark:from-white dark:via-red-100 dark:to-white block"
                 >
-                  DUNKROW
+                  Dunkrow
                 </motion.span>
               </motion.span>
               <motion.span 
