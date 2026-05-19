@@ -33,24 +33,19 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ redirectTo = '/' }) => {
     setIsLoading(true);
     setErrorMessage(null);
     
-    console.log('Attempting registration for:', data.email);
-    
     try {
-      const { error, session } = await registerUser(data.email, data.password, data.username);
+      const { error, needsConfirmation } = await registerUser(data.email, data.password, data.username);
       
       if (error) {
-        console.error('Registration failed in component:', error);
         setErrorMessage(error.message || 'Registration failed. Please try again.');
+      } else if (needsConfirmation) {
+        // Email confirmation is required — show success message
+        setIsSuccess(true);
       } else {
-        console.log('Registration call successful. Session:', session ? 'Found' : 'Null (Expected if email confirmation is on)');
-        if (session) {
-          navigate(redirectTo);
-        } else {
-          setIsSuccess(true);
-        }
+        // Auto-confirmed — go straight to the app
+        navigate(redirectTo);
       }
     } catch (error: any) {
-      console.error('Unexpected error in RegisterForm onSubmit:', error);
       setErrorMessage(error.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -61,7 +56,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ redirectTo = '/' }) => {
     setIsGoogleLoading(true);
     setErrorMessage(null);
     try {
-      const { error } = await signInWithGoogle();
+      const { error } = await signInWithGoogle('register');
       if (error) {
         setErrorMessage(error.message || 'Failed to sign up with Google');
         setIsGoogleLoading(false);

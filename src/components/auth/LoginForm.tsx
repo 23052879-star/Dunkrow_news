@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
@@ -24,6 +24,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectTo = '/' }) => {
   const navigate = useNavigate();
   const { login, signInWithGoogle } = useAuth();
 
+  // Check for Google auth error (no account found) on mount
+  useEffect(() => {
+    const authError = sessionStorage.getItem('auth_error');
+    if (authError === 'no_account') {
+      setErrorMessage('No account found with this Google account. Please create an account first.');
+      sessionStorage.removeItem('auth_error');
+    }
+  }, []);
+
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     setErrorMessage(null);
@@ -32,7 +41,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectTo = '/' }) => {
       const { error } = await login(data.email, data.password);
       
       if (error) {
-        setErrorMessage('Invalid email or password. Please try again.');
+        setErrorMessage(error.message || 'Login failed. Please try again.');
       } else {
         navigate(redirectTo);
       }
@@ -47,12 +56,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectTo = '/' }) => {
     setIsGoogleLoading(true);
     setErrorMessage(null);
     try {
-      const { error } = await signInWithGoogle();
+      const { error } = await signInWithGoogle('login');
       if (error) {
         setErrorMessage(error.message || 'Failed to sign in with Google');
         setIsGoogleLoading(false);
       }
-      // If successful, Supabase redirects to Google, so we don't navigate manually here.
+      // If successful, Supabase redirects to Google — no manual navigation.
     } catch (error) {
       setErrorMessage('An unexpected error occurred during Google sign in.');
       setIsGoogleLoading(false);

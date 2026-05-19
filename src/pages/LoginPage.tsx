@@ -1,12 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Newspaper } from 'lucide-react';
 import { motion } from 'framer-motion';
 import LoginForm from '../components/auth/LoginForm';
 import Card from '../components/ui/Card';
+import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage: React.FC = () => {
+  const { user } = useAuth();
+
+  // If already logged in & onboarded, redirect to home
+  if (user && user.onboarded) {
+    return <Navigate to="/" replace />;
+  }
+
   return (
     <>
       <Helmet>

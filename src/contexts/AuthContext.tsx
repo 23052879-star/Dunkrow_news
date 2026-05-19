@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { User } from '../types';
 import { supabase } from '../lib/supabase';
 import LoadingScreen from '../components/ui/LoadingScreen';
@@ -8,302 +8,286 @@ type AuthContextType = {
   isLoading: boolean;
   isAdmin: boolean;
   login: (email: string, password: string) => Promise<{ error: any }>;
-  register: (email: string, password: string, username: string) => Promise<{ error: any; session: any }>;
-  signInWithGoogle: () => Promise<{ error: any }>;
+  register: (email: string, password: string, username: string) => Promise<{ error: any; needsConfirmation: boolean }>;
+  signInWithGoogle: (intent?: 'login' | 'register') => Promise<{ error: any }>;
   logout: () => Promise<void>;
+  completeOnboarding: (username: string) => Promise<{ error: any }>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
+};
+
+const isSupabaseConfigured = () => {
+  const url = import.meta.env.VITE_SUPABASE_URL;
+  const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  return !!(url && key && url.startsWith('https://') && url.includes('.supabase.co') &&
+    !url.includes('undefined') && !key.includes('undefined') &&
+    url !== 'your-supabase-url' && key !== 'your-supabase-anon-key');
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const processingRef = useRef(false);
 
-  const fetchOrCreateProfile = async (sessionUser: any) => {
+  const fetchProfile = useCallback(async (sessionUser: any): Promise<User> => {
     try {
-      // 1. Try to fetch existing profile
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', sessionUser.id)
-        .single();
+      // Try fetching profile with a small retry for race conditions
+      // (e.g. trigger hasn't finished creating profile yet after email confirm)
+      let profile = null;
+      let fetchError = null;
       
-      if (!profileError && profile) {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const { data, error } = await supabase
+          .from('profiles').select('*').eq('id', sessionUser.id).single();
+        
+        if (!error && data) {
+          profile = data;
+          break;
+        }
+        fetchError = error;
+        
+        // Only retry if it's a "not found" error (PGRST116), not a real error
+        if (error?.code !== 'PGRST116') break;
+        
+        // Wait a bit before retrying (trigger may still be running)
+        if (attempt < 2) {
+          await new Promise(resolve => setTimeout(resolve, 800));
+        }
+      }
+
+      if (profile) {
         return {
           id: profile.id,
           username: profile.username,
           avatarUrl: profile.avatar_url,
           role: profile.role,
-          email: sessionUser.email
+          email: sessionUser.email,
+          onboarded: true,
         };
       }
 
-      // 2. Profile doesn't exist or error fetching — attempt to create one
-      // Extract base username from various metadata sources
-      let baseUsername = sessionUser.user_metadata?.username
-        || sessionUser.user_metadata?.full_name 
+      // No profile found → user needs onboarding (Google/OAuth user without profile)
+      const name = sessionUser.user_metadata?.full_name 
         || sessionUser.user_metadata?.name 
         || sessionUser.email?.split('@')[0] 
         || 'user';
-
-      // Sanitize username: lowercase, replace non-alphanumeric with underscores
-      baseUsername = baseUsername.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '');
-      if (!baseUsername) baseUsername = 'user';
-
-      const avatarUrl = sessionUser.user_metadata?.avatar_url 
+      const avatar = sessionUser.user_metadata?.avatar_url 
         || sessionUser.user_metadata?.picture 
-        || `https://ui-avatars.com/api/?name=${encodeURIComponent(baseUsername)}&background=random`;
-
-      // 3. Handle potential username conflicts (retry loop)
-      let finalUsername = baseUsername;
-      let counter = 0;
-      let profileCreated = false;
-      let lastError = null;
-
-      // Try up to 5 times with different usernames if there's a conflict
-      while (counter < 5 && !profileCreated) {
-        const { data: newProfile, error: insertError } = await supabase.from('profiles').upsert({
-          id: sessionUser.id,
-          username: finalUsername,
-          avatar_url: avatarUrl,
-          role: 'user'
-        }).select().single();
-
-        if (!insertError && newProfile) {
-          profileCreated = true;
-          return {
-            id: newProfile.id,
-            username: newProfile.username,
-            avatarUrl: newProfile.avatar_url,
-            role: newProfile.role,
-            email: sessionUser.email
-          };
-        }
-
-        // Log the exact error for debugging
-        if (insertError) {
-          console.error(`Profile creation attempt ${counter + 1} failed:`, {
-            code: insertError.code,
-            message: insertError.message,
-            details: insertError.details,
-            hint: insertError.hint
-          });
-        }
-
-        // If error is a unique constraint violation on username, increment and retry
-        if (insertError?.code === '23505' && insertError?.message?.includes('username')) {
-          counter++;
-          finalUsername = `${baseUsername}${counter}`;
-        } else {
-          lastError = insertError;
-          break; // Stop if it's a different error
-        }
-      }
-
-      if (lastError) {
-        console.error('Failed to create profile after retries:', lastError);
-      }
-
-      // Return a temporary local user object even if DB insert failed
-      // so the app remains functional for the session
+        || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
+      
       return {
         id: sessionUser.id,
-        username: finalUsername,
-        avatarUrl,
-        role: 'user' as const,
-        email: sessionUser.email
+        username: name,
+        avatarUrl: avatar,
+        role: 'user',
+        email: sessionUser.email,
+        onboarded: false,
       };
-    } catch (error) {
-      console.error('Unexpected error in fetchOrCreateProfile:', error);
+    } catch (err) {
+      console.error('fetchProfile error:', err);
       return {
         id: sessionUser.id,
         username: sessionUser.email?.split('@')[0] || 'user',
         avatarUrl: '',
-        role: 'user' as const,
-        email: sessionUser.email
+        role: 'user',
+        email: sessionUser.email,
+        onboarded: false,
       };
     }
-  };
+  }, []);
 
   useEffect(() => {
     let mounted = true;
+    if (!isSupabaseConfigured()) { setIsLoading(false); return; }
 
-    const checkSession = async () => {
-      // Check if Supabase is properly configured
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const safetyTimeout = setTimeout(() => { if (mounted) setIsLoading(false); }, 10000);
+
+    const handleSession = async (session: any | null) => {
+      if (!mounted) return;
       
-      if (!supabaseUrl || !supabaseKey || 
-          supabaseUrl === 'your-supabase-url' || 
-          supabaseKey === 'your-supabase-anon-key' ||
-          supabaseUrl.includes('your-project-id') ||
-          supabaseUrl.includes('undefined') ||
-          supabaseKey.includes('undefined') ||
-          !supabaseUrl.startsWith('https://') ||
-          !supabaseUrl.includes('.supabase.co')) {
-        console.warn('Supabase not configured properly. Authentication disabled.');
-        if (mounted) {
-          setIsLoading(false);
-        }
-        return;
-      }
+      // Prevent duplicate processing
+      if (processingRef.current) return;
+      processingRef.current = true;
 
       try {
-        // Log the URL to see if we have a hash token
-        console.log('Current URL on checkSession:', window.location.href);
-        if (window.location.hash.includes('access_token')) {
-          console.log('Hash contains access_token, Supabase should process this.');
-        } else if (window.location.search.includes('error=')) {
-          console.error('URL contains error:', window.location.search);
-        }
-
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          if (mounted) {
-            setIsLoading(false);
+        if (session?.user) {
+          const userData = await fetchProfile(session.user);
+          
+          // Check if this was a Google LOGIN attempt for a non-existent account
+          const intent = localStorage.getItem('auth_intent');
+          
+          if (intent) {
+            localStorage.removeItem('auth_intent');
+            
+            if (!userData.onboarded && intent === 'login') {
+              // No profile found — user was trying to LOGIN with Google but has no account
+              // Sign them out and set an error flag
+              await supabase.auth.signOut();
+              if (mounted) {
+                setUser(null);
+                setIsLoading(false);
+                // Store error for LoginPage to pick up
+                sessionStorage.setItem('auth_error', 'no_account');
+              }
+              return;
+            }
           }
-          return;
+          
+          if (mounted) setUser(userData);
+        } else {
+          if (mounted) setUser(null);
         }
-        
-        if (session?.user && mounted) {
-          const userData = await fetchOrCreateProfile(session.user);
-          setUser(userData);
-        }
-      } catch (error) {
-        console.error('Error checking session:', error);
+        if (mounted) setIsLoading(false);
       } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
+        processingRef.current = false;
       }
     };
-    
-    checkSession();
 
-    // Only set up auth listener if Supabase is configured
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    
-    let subscription: any = null;
-    
-    if (supabaseUrl && supabaseKey && 
-        supabaseUrl !== 'your-supabase-url' && 
-        supabaseKey !== 'your-supabase-anon-key' &&
-        !supabaseUrl.includes('your-project-id') &&
-        !supabaseUrl.includes('undefined') &&
-        !supabaseKey.includes('undefined') &&
-        supabaseUrl.startsWith('https://') &&
-        supabaseUrl.includes('.supabase.co')) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
       
-      const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-        if (!mounted) return;
-        
-        console.log(`Auth event: ${event}`, session ? 'Session found' : 'No session');
+      if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        await handleSession(session);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setIsLoading(false);
+        processingRef.current = false;
+      }
+    });
 
-        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
-          try {
-            const userData = await fetchOrCreateProfile(session.user);
-            setUser(userData);
-          } catch (err) {
-            console.error('Error in fetchOrCreateProfile during auth change:', err);
-          } finally {
-            setIsLoading(false);
-          }
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null);
-          setIsLoading(false);
-        }
-      });
-      
-      subscription = authSubscription;
-    }
-    
-    return () => {
-      mounted = false;
-      if (subscription) subscription.unsubscribe();
-    };
-  }, []);
-  
-  const login = async (email: string, password: string) => {
+    return () => { mounted = false; clearTimeout(safetyTimeout); subscription.unsubscribe(); };
+  }, [fetchProfile]);
+
+  const login = useCallback(async (email: string, password: string) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) console.error('Login error:', error);
-      return { error };
-    } catch (error) {
-      console.error('Unexpected login error:', error);
-      return { error };
-    }
-  };
-  
-  const register = async (email: string, password: string, username: string) => {
-    try {
-      const { data, error } = await supabase.auth.signUp({ 
-        email, 
-        password,
-        options: {
-          data: { username }
-        }
-      });
-      
       if (error) {
-        console.error('Supabase registration error:', error);
-        return { error, session: null };
+        // Map Supabase error messages to user-friendly messages
+        let userMessage = error.message;
+        if (error.message?.includes('Invalid login credentials')) {
+          userMessage = 'Invalid email or password. Please check your credentials and try again.';
+        } else if (error.message?.includes('Email not confirmed')) {
+          userMessage = 'Please confirm your email address before logging in. Check your inbox for the verification link.';
+        }
+        return { error: { ...error, message: userMessage } };
       }
-      
-      return { error: null, session: data?.session || null };
+      return { error: null };
     } catch (error: any) {
-      console.error('Unexpected registration error:', error);
-      return { error: error, session: null };
+      return { error: { message: error.message || 'An unexpected error occurred.' } };
     }
-  };
+  }, []);
 
-  const signInWithGoogle = async () => {
+  const register = useCallback(async (email: string, password: string, username: string) => {
     try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { username } },
+      });
+
+      if (error) {
+        let userMessage = error.message;
+        if (error.message?.includes('already registered') || error.message?.includes('already been registered')) {
+          userMessage = 'This email is already registered. Please sign in instead.';
+        } else if (error.message?.includes('valid email')) {
+          userMessage = 'Please enter a valid email address.';
+        } else if (error.message?.includes('at least')) {
+          userMessage = 'Password must be at least 6 characters long.';
+        }
+        return { error: { ...error, message: userMessage }, needsConfirmation: false };
+      }
+
+      // Check if email confirmation is required
+      // Supabase returns a session if auto-confirm is ON, null session if confirmation is needed
+      const needsConfirmation = !data?.session;
+
+      if (data?.session && data?.user) {
+        // Auto-confirmed: the DB trigger should create the profile.
+        // But as a safety net, try to create it directly too if the trigger hasn't run yet.
+        const { data: existingProfile } = await supabase
+          .from('profiles').select('id').eq('id', data.user.id).single();
+        
+        if (!existingProfile) {
+          // Trigger hasn't created the profile yet — create it manually
+          await supabase.from('profiles').upsert({
+            id: data.user.id,
+            username,
+            avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random`,
+            role: 'user',
+          });
+        }
+      }
+
+      return { error: null, needsConfirmation };
+    } catch (error: any) {
+      return { error: { message: error.message || 'An unexpected error occurred.' }, needsConfirmation: false };
+    }
+  }, []);
+
+  const signInWithGoogle = useCallback(async (intent: 'login' | 'register' = 'register') => {
+    try {
+      localStorage.setItem('auth_intent', intent);
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: window.location.origin,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
-        }
+          queryParams: { access_type: 'offline', prompt: 'consent' },
+        },
       });
+      if (error) {
+        localStorage.removeItem('auth_intent');
+      }
       return { error };
     } catch (error) {
+      localStorage.removeItem('auth_intent');
       return { error };
     }
-  };
-  
-  const logout = async () => {
+  }, []);
+
+  const logout = useCallback(async () => {
     await supabase.auth.signOut();
     setUser(null);
-  };
-  
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
-  
+    localStorage.removeItem('auth_intent');
+  }, []);
+
+  const completeOnboarding = useCallback(async (username: string) => {
+    if (!user) return { error: new Error('Not logged in') };
+    
+    try {
+      const avatarUrl = user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random`;
+      
+      const { error: profileError } = await supabase.from('profiles').upsert({
+        id: user.id,
+        username,
+        avatar_url: avatarUrl,
+        role: 'user',
+      });
+
+      if (profileError) {
+        if (profileError.code === '23505') {
+          return { error: new Error('Username is already taken. Please choose a different one.') };
+        }
+        console.error('Profile upsert error:', profileError);
+        return { error: new Error(profileError.message || 'Failed to create profile.') };
+      }
+
+      setUser({ ...user, username, avatarUrl, onboarded: true });
+      return { error: null };
+    } catch (error: any) {
+      return { error: new Error(error.message || 'An unexpected error occurred.') };
+    }
+  }, [user]);
+
+  if (isLoading) return <LoadingScreen />;
+
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isLoading, 
-      isAdmin: user?.role === 'admin',
-      login, 
-      register,
-      signInWithGoogle,
-      logout 
-    }}>
+    <AuthContext.Provider value={{ user, isLoading, isAdmin: user?.role === 'admin', login, register, signInWithGoogle, logout, completeOnboarding }}>
       {children}
     </AuthContext.Provider>
   );

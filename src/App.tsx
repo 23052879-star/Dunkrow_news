@@ -18,6 +18,7 @@ import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
 import CategoryPage from './pages/CategoryPage';
+import OnboardingPage from './pages/OnboardingPage';
 
 // Admin pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -45,6 +46,7 @@ function App() {
               <Route path="jokes-trivia" element={<JokesTriviasPage />} />
               <Route path="login" element={<LoginPage />} />
               <Route path="register" element={<RegisterPage />} />
+              <Route path="onboarding" element={<OnboardingPage />} />
               
               {/* Protected routes */}
               <Route path="profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />

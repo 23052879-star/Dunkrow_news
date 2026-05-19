@@ -4,6 +4,7 @@ export type User = {
   username: string;
   avatarUrl: string;
   role: 'admin' | 'user';
+  onboarded?: boolean;
 };
 
 export type Article = {
