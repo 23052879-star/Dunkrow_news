@@ -185,6 +185,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = useCallback(async (email: string, password: string, username: string) => {
     try {
+      // 1. Pre-check: Check if username already exists in profiles
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('username', username)
+        .maybeSingle();
+
+      if (existingProfile) {
+        return {
+          error: { message: 'Username is already taken. Please choose another one.' },
+          needsConfirmation: false,
+        };
+      }
+
+      // 2. Perform Supabase registration
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -203,6 +218,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: { ...error, message: userMessage }, needsConfirmation: false };
       }
 
+      // 3. Post-check: If email confirmation is enabled, Supabase returns 200 OK for already-registered emails
+      // but leaves the identities array empty []. Let's catch this case.
+      const userIdentities = data?.user?.identities;
+      if (data?.user && (!userIdentities || userIdentities.length === 0)) {
+        return {
+          error: { message: 'This email is already registered. Please sign in instead.' },
+          needsConfirmation: false,
+        };
+      }
+
       // Check if email confirmation is required
       // Supabase returns a session if auto-confirm is ON, null session if confirmation is needed
       const needsConfirmation = !data?.session;
@@ -210,10 +235,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data?.session && data?.user) {
         // Auto-confirmed: the DB trigger should create the profile.
         // But as a safety net, try to create it directly too if the trigger hasn't run yet.
-        const { data: existingProfile } = await supabase
+        const { data: profileCheck } = await supabase
           .from('profiles').select('id').eq('id', data.user.id).single();
         
-        if (!existingProfile) {
+        if (!profileCheck) {
           // Trigger hasn't created the profile yet — create it manually
           await supabase.from('profiles').upsert({
             id: data.user.id,
