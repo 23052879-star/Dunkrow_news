@@ -27,13 +27,13 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
           id={textAreaId}
           rows={rows}
           className={clsx(
-            'block px-3 py-2 bg-white dark:bg-neutral-950 border rounded-md shadow-sm placeholder-neutral-400 text-sm sm:text-base',
+            'block px-3 py-2 bg-white dark:bg-neutral-800 border rounded-md shadow-sm placeholder-neutral-400 text-sm sm:text-base',
             'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500',
             'disabled:bg-neutral-100 disabled:text-neutral-500 disabled:border-neutral-200 disabled:shadow-none',
-            'dark:text-white dark:border-neutral-800 dark:placeholder-neutral-500',
+            'dark:text-white dark:border-neutral-700 dark:placeholder-neutral-500',
             error 
               ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
-              : 'border-neutral-300 dark:border-neutral-800',
+              : 'border-neutral-300 dark:border-neutral-700',
             fullWidth && 'w-full',
             className
           )}

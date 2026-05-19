@@ -19,7 +19,7 @@ const Card: React.FC<CardProps> = ({
   hover = false,
   animate = false
 }) => {
-  const baseStyles = "rounded-xl bg-white dark:bg-neutral-900 overflow-hidden transition-all duration-300 border border-slate-100 dark:border-neutral-800/50";
+  const baseStyles = "rounded-xl bg-white dark:bg-slate-800 overflow-hidden transition-all duration-300 border border-slate-100 dark:border-slate-700";
 
   const paddingStyles = {
     none: "",
