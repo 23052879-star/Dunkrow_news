@@ -33,13 +33,27 @@ const LoginPage: React.FC = () => {
             whileHover={{ scale: 1.05, rotate: 5 }}
             className="flex justify-center"
           >
-            <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-slate-900 dark:bg-white border-2 border-red-600 dark:border-red-500 shadow-xl shadow-red-600/10">
+            <motion.div 
+              className="relative flex items-center justify-center w-20 h-20 rounded-full bg-red-600 border border-red-500 shadow-xl overflow-hidden"
+              animate={{
+                boxShadow: [
+                  "0 0 0 0px rgba(239, 68, 68, 0.4), 0 10px 15px -3px rgba(239, 68, 68, 0.3)",
+                  "0 0 0 12px rgba(239, 68, 68, 0), 0 20px 25px -5px rgba(239, 68, 68, 0.4)",
+                  "0 0 0 0px rgba(239, 68, 68, 0), 0 10px 15px -3px rgba(239, 68, 68, 0.3)"
+                ]
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
               <img 
                 src="/logo-removebg-preview.png" 
                 alt="Dunkrow Logo" 
-                className="h-9 w-9 object-contain filter invert dark:invert-0"
+                className="h-11 w-11 object-contain filter brightness-0 invert"
               />
-            </div>
+            </motion.div>
           </motion.div>
           <h1 className="text-4xl font-black text-slate-900 dark:text-white mt-6 font-['Playfair_Display'] tracking-tight italic">
             Welcome back.
