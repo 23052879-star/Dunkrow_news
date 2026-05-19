@@ -99,7 +99,7 @@ const Header: React.FC = () => {
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-500 border-b ${
         isScrolled
-          ? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-slate-200/50 dark:border-slate-700/50 shadow-lg shadow-slate-900/5 dark:shadow-black/20 py-2'
+          ? 'bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border-slate-200/50 dark:border-neutral-800/50 shadow-lg shadow-slate-900/5 dark:shadow-black/20 py-2'
           : 'bg-transparent border-transparent py-4'
       }`}
     >
