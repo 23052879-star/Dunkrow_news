@@ -30,19 +30,24 @@ const RegisterPage: React.FC = () => {
           className="text-center mb-8"
         >
           <motion.div 
-            whileHover={{ scale: 1.1, rotate: 5 }}
+            whileHover={{ scale: 1.05, rotate: 5 }}
             className="flex justify-center"
           >
-            <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
-              <Newspaper className="h-10 w-10 text-red-600 dark:text-red-500" />
+            <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-slate-900 dark:bg-white border-2 border-red-600 dark:border-red-500 shadow-xl shadow-red-600/10">
+              <img 
+                src="/logo-removebg-preview.png" 
+                alt="Dunkrow Logo" 
+                className="h-9 w-9 object-contain filter invert dark:invert-0"
+              />
             </div>
           </motion.div>
-          <h1 className="text-3xl font-bold text-neutral-900 dark:text-white mt-6 font-display tracking-tight">
-            Join Dunkrow
+          <h1 className="text-4xl font-black text-slate-900 dark:text-white mt-6 font-['Playfair_Display'] tracking-tight italic">
+            Join Dunkrow.
           </h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mt-2">
+          <p className="text-xs font-light uppercase tracking-widest text-slate-500 dark:text-slate-400 mt-3 max-w-sm mx-auto leading-relaxed">
             Create an account for exclusive investigations and features
           </p>
+          <div className="w-12 h-1 bg-red-600 mx-auto mt-4 rounded-full shadow-[0_0_10px_rgba(220,38,38,0.5)]"></div>
         </motion.div>
 
         <motion.div
