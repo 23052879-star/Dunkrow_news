@@ -9,10 +9,24 @@ interface CommentState {
   error: string | null;
   fetchComments: (articleId: string) => Promise<void>;
   fetchPendingComments: () => Promise<void>;
-  addComment: (comment: Omit<Comment, 'id' | 'createdAt'>) => Promise<Comment | null>;
+  fetchAllComments: () => Promise<void>;
+  addComment: (comment: Omit<Comment, 'id' | 'createdAt' | 'approved'>) => Promise<Comment | null>;
   approveComment: (id: string) => Promise<boolean>;
   deleteComment: (id: string) => Promise<boolean>;
+  bulkApprove: (ids: string[]) => Promise<boolean>;
+  bulkDelete: (ids: string[]) => Promise<boolean>;
 }
+
+const mapDbCommentToComment = (item: any): Comment => ({
+  id: item.id,
+  createdAt: item.created_at,
+  articleId: item.article_id,
+  userId: item.user_id,
+  username: item.profiles?.username || 'Guest',
+  content: item.content,
+  approved: item.approved,
+  articleTitle: item.articles?.title || undefined
+});
 
 export const useCommentStore = create<CommentState>((set, get) => ({
   comments: [],
@@ -31,23 +45,15 @@ export const useCommentStore = create<CommentState>((set, get) => ({
         `)
         .eq('article_id', articleId)
         .eq('approved', true)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: true });
 
       if (error) throw error;
 
-      const comments = data.map(comment => ({
-        id: comment.id,
-        createdAt: comment.created_at,
-        articleId: comment.article_id,
-        userId: comment.user_id,
-        username: comment.profiles?.username,
-        content: comment.content,
-        approved: comment.approved
-      }));
-
+      const comments = data?.map(mapDbCommentToComment) || [];
       set({ comments, isLoading: false });
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+    } catch (err: any) {
+      console.error('Error fetching comments:', err);
+      set({ error: err.message, isLoading: false, comments: [] });
     }
   },
 
@@ -66,20 +72,37 @@ export const useCommentStore = create<CommentState>((set, get) => ({
 
       if (error) throw error;
 
-      const pendingComments = data.map(comment => ({
-        id: comment.id,
-        createdAt: comment.created_at,
-        articleId: comment.article_id,
-        userId: comment.user_id,
-        username: comment.profiles?.username,
-        content: comment.content,
-        approved: comment.approved,
-        articleTitle: comment.articles?.title
-      }));
-
+      const pendingComments = data?.map(mapDbCommentToComment) || [];
       set({ pendingComments, isLoading: false });
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+    } catch (err: any) {
+      console.error('Error fetching pending comments:', err);
+      set({ error: err.message, isLoading: false, pendingComments: [] });
+    }
+  },
+
+  fetchAllComments: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .select(`
+          *,
+          profiles(username),
+          articles(title)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const allComments = data?.map(mapDbCommentToComment) || [];
+      set({
+        comments: allComments,
+        pendingComments: allComments.filter(c => !c.approved),
+        isLoading: false
+      });
+    } catch (err: any) {
+      console.error('Error fetching all comments:', err);
+      set({ error: err.message, isLoading: false });
     }
   },
 
@@ -92,7 +115,7 @@ export const useCommentStore = create<CommentState>((set, get) => ({
           article_id: comment.articleId,
           user_id: comment.userId,
           content: comment.content,
-          approved: false // All comments need approval
+          approved: false // All comments require moderation by default
         })
         .select(`
           *,
@@ -102,20 +125,15 @@ export const useCommentStore = create<CommentState>((set, get) => ({
 
       if (error) throw error;
 
-      const newComment: Comment = {
-        id: data.id,
-        createdAt: data.created_at,
-        articleId: data.article_id,
-        userId: data.user_id,
-        username: data.profiles?.username,
-        content: data.content,
-        approved: data.approved
-      };
-
-      set({ isLoading: false });
+      const newComment = mapDbCommentToComment(data);
+      set({
+        pendingComments: [newComment, ...get().pendingComments],
+        isLoading: false
+      });
       return newComment;
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+    } catch (err: any) {
+      console.error('Error adding comment:', err);
+      set({ error: err.message, isLoading: false });
       return null;
     }
   },
@@ -130,14 +148,25 @@ export const useCommentStore = create<CommentState>((set, get) => ({
 
       if (error) throw error;
 
-      const pendingComments = get().pendingComments.filter(
-        comment => comment.id !== id
-      );
+      const approved = get().pendingComments.find(c => c.id === id);
+      const remainingPending = get().pendingComments.filter(c => c.id !== id);
       
-      set({ pendingComments, isLoading: false });
+      let comments = get().comments;
+      if (approved) {
+        comments = [...comments, { ...approved, approved: true }].sort(
+          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+      }
+
+      set({
+        pendingComments: remainingPending,
+        comments,
+        isLoading: false
+      });
       return true;
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+    } catch (err: any) {
+      console.error('Error approving comment:', err);
+      set({ error: err.message, isLoading: false });
       return false;
     }
   },
@@ -152,15 +181,69 @@ export const useCommentStore = create<CommentState>((set, get) => ({
 
       if (error) throw error;
 
-      const comments = get().comments.filter(comment => comment.id !== id);
-      const pendingComments = get().pendingComments.filter(
-        comment => comment.id !== id
-      );
-      
-      set({ comments, pendingComments, isLoading: false });
+      set({
+        comments: get().comments.filter(c => c.id !== id),
+        pendingComments: get().pendingComments.filter(c => c.id !== id),
+        isLoading: false
+      });
       return true;
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+    } catch (err: any) {
+      console.error('Error deleting comment:', err);
+      set({ error: err.message, isLoading: false });
+      return false;
+    }
+  },
+
+  bulkApprove: async (ids) => {
+    if (!ids.length) return true;
+    set({ isLoading: true, error: null });
+    try {
+      const { error } = await supabase
+        .from('comments')
+        .update({ approved: true })
+        .in('id', ids);
+
+      if (error) throw error;
+
+      const approvedItems = get().pendingComments.filter(c => ids.includes(c.id));
+      const remainingPending = get().pendingComments.filter(c => !ids.includes(c.id));
+
+      const comments = [...get().comments, ...approvedItems.map(c => ({ ...c, approved: true }))]
+        .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+      set({
+        pendingComments: remainingPending,
+        comments,
+        isLoading: false
+      });
+      return true;
+    } catch (err: any) {
+      console.error('Error bulk approving comments:', err);
+      set({ error: err.message, isLoading: false });
+      return false;
+    }
+  },
+
+  bulkDelete: async (ids) => {
+    if (!ids.length) return true;
+    set({ isLoading: true, error: null });
+    try {
+      const { error } = await supabase
+        .from('comments')
+        .delete()
+        .in('id', ids);
+
+      if (error) throw error;
+
+      set({
+        comments: get().comments.filter(c => !ids.includes(c.id)),
+        pendingComments: get().pendingComments.filter(c => !ids.includes(c.id)),
+        isLoading: false
+      });
+      return true;
+    } catch (err: any) {
+      console.error('Error bulk deleting comments:', err);
+      set({ error: err.message, isLoading: false });
       return false;
     }
   }

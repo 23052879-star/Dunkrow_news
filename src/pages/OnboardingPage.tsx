@@ -15,7 +15,7 @@ const OnboardingPage: React.FC = () => {
   const { register, handleSubmit, formState: { errors } } = useForm<OnboardingFormValues>();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { user, completeOnboarding } = useAuth();
+  const { user, completeOnboarding, logout } = useAuth();
   const navigate = useNavigate();
 
   const onSubmit = async (data: OnboardingFormValues) => {
@@ -97,14 +97,27 @@ const OnboardingPage: React.FC = () => {
               })}
             />
 
-            <Button
-              type="submit"
-              fullWidth
-              isLoading={isLoading}
-              className="mt-4"
-            >
-              Complete Profile
-            </Button>
+            <div className="space-y-3">
+              <Button
+                type="submit"
+                fullWidth
+                isLoading={isLoading}
+                className="mt-4"
+              >
+                Complete Profile
+              </Button>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  await logout();
+                  navigate('/login');
+                }}
+                className="w-full text-center text-sm font-semibold text-neutral-500 hover:text-red-600 dark:text-neutral-400 dark:hover:text-red-400 transition-colors py-2 focus:outline-none"
+              >
+                Sign out & try another account
+              </button>
+            </div>
           </form>
         </div>
       </motion.div>

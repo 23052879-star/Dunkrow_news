@@ -9,10 +9,19 @@ interface JokeTriviaState {
   isLoading: boolean;
   error: string | null;
   fetchJokesTrivia: () => Promise<void>;
-  createJokeTrivia: (jokeTrivia: Omit<JokeTrivia, 'id' | 'createdAt'>) => Promise<JokeTrivia | null>;
+  fetchAllJokesTrivia: () => Promise<void>;
+  createJokeTrivia: (item: Omit<JokeTrivia, 'id' | 'createdAt'>) => Promise<JokeTrivia | null>;
   updateJokeTrivia: (id: string, updates: Partial<JokeTrivia>) => Promise<JokeTrivia | null>;
   deleteJokeTrivia: (id: string) => Promise<boolean>;
 }
+
+const mapDbToJokeTrivia = (item: any): JokeTrivia => ({
+  id: item.id,
+  createdAt: item.created_at,
+  content: item.content,
+  type: item.type,
+  published: item.published
+});
 
 export const useJokeTriviaStore = create<JokeTriviaState>((set, get) => ({
   jokesTrivia: [],
@@ -32,58 +41,66 @@ export const useJokeTriviaStore = create<JokeTriviaState>((set, get) => ({
 
       if (error) throw error;
 
-      const jokesTrivia = data.map(item => ({
-        id: item.id,
-        createdAt: item.created_at,
-        content: item.content,
-        type: item.type,
-        published: item.published
-      }));
-
+      const jokesTrivia = data?.map(mapDbToJokeTrivia) || [];
       const jokes = jokesTrivia.filter(item => item.type === 'joke');
       const trivia = jokesTrivia.filter(item => item.type === 'trivia');
 
       set({ jokesTrivia, jokes, trivia, isLoading: false });
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+    } catch (err: any) {
+      console.error('Error fetching jokes/trivia:', err);
+      set({ error: err.message, isLoading: false, jokesTrivia: [], jokes: [], trivia: [] });
     }
   },
 
-  createJokeTrivia: async (jokeTrivia) => {
+  fetchAllJokesTrivia: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const { data, error } = await supabase
+        .from('jokes_trivia')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const jokesTrivia = data?.map(mapDbToJokeTrivia) || [];
+      const jokes = jokesTrivia.filter(item => item.type === 'joke');
+      const trivia = jokesTrivia.filter(item => item.type === 'trivia');
+
+      set({ jokesTrivia, jokes, trivia, isLoading: false });
+    } catch (err: any) {
+      console.error('Error fetching all jokes/trivia:', err);
+      set({ error: err.message, isLoading: false, jokesTrivia: [], jokes: [], trivia: [] });
+    }
+  },
+
+  createJokeTrivia: async (item) => {
     set({ isLoading: true, error: null });
     try {
       const { data, error } = await supabase
         .from('jokes_trivia')
         .insert({
-          content: jokeTrivia.content,
-          type: jokeTrivia.type,
-          published: jokeTrivia.published
+          content: item.content,
+          type: item.type,
+          published: item.published
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      const newJokeTrivia: JokeTrivia = {
-        id: data.id,
-        createdAt: data.created_at,
-        content: data.content,
-        type: data.type,
-        published: data.published
-      };
-
-      const jokesTrivia = [...get().jokesTrivia, newJokeTrivia];
-      const jokes = jokeTrivia.type === 'joke' 
-        ? [...get().jokes, newJokeTrivia] 
-        : get().jokes;
-      const trivia = jokeTrivia.type === 'trivia' 
-        ? [...get().trivia, newJokeTrivia] 
-        : get().trivia;
-
-      set({ jokesTrivia, jokes, trivia, isLoading: false });
-      return newJokeTrivia;
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+      const newItem = mapDbToJokeTrivia(data);
+      const jokesTrivia = [newItem, ...get().jokesTrivia];
+      
+      set({
+        jokesTrivia,
+        jokes: jokesTrivia.filter(i => i.type === 'joke'),
+        trivia: jokesTrivia.filter(i => i.type === 'trivia'),
+        isLoading: false
+      });
+      return newItem;
+    } catch (err: any) {
+      console.error('Error creating joke/trivia:', err);
+      set({ error: err.message, isLoading: false });
       return null;
     }
   },
@@ -91,38 +108,33 @@ export const useJokeTriviaStore = create<JokeTriviaState>((set, get) => ({
   updateJokeTrivia: async (id, updates) => {
     set({ isLoading: true, error: null });
     try {
+      const dbUpdates: any = {};
+      if (updates.content !== undefined) dbUpdates.content = updates.content;
+      if (updates.type !== undefined) dbUpdates.type = updates.type;
+      if (updates.published !== undefined) dbUpdates.published = updates.published;
+
       const { data, error } = await supabase
         .from('jokes_trivia')
-        .update({
-          content: updates.content,
-          type: updates.type,
-          published: updates.published
-        })
+        .update(dbUpdates)
         .eq('id', id)
         .select()
         .single();
 
       if (error) throw error;
 
-      const updatedJokeTrivia: JokeTrivia = {
-        id: data.id,
-        createdAt: data.created_at,
-        content: data.content,
-        type: data.type,
-        published: data.published
-      };
+      const updatedItem = mapDbToJokeTrivia(data);
+      const jokesTrivia = get().jokesTrivia.map(item => item.id === id ? updatedItem : item);
 
-      const jokesTrivia = get().jokesTrivia.map(item => 
-        item.id === id ? updatedJokeTrivia : item
-      );
-      
-      const jokes = jokesTrivia.filter(item => item.type === 'joke');
-      const trivia = jokesTrivia.filter(item => item.type === 'trivia');
-      
-      set({ jokesTrivia, jokes, trivia, isLoading: false });
-      return updatedJokeTrivia;
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+      set({
+        jokesTrivia,
+        jokes: jokesTrivia.filter(i => i.type === 'joke'),
+        trivia: jokesTrivia.filter(i => i.type === 'trivia'),
+        isLoading: false
+      });
+      return updatedItem;
+    } catch (err: any) {
+      console.error('Error updating joke/trivia:', err);
+      set({ error: err.message, isLoading: false });
       return null;
     }
   },
@@ -130,21 +142,20 @@ export const useJokeTriviaStore = create<JokeTriviaState>((set, get) => ({
   deleteJokeTrivia: async (id) => {
     set({ isLoading: true, error: null });
     try {
-      const { error } = await supabase
-        .from('jokes_trivia')
-        .delete()
-        .eq('id', id);
-
+      const { error } = await supabase.from('jokes_trivia').delete().eq('id', id);
       if (error) throw error;
 
       const jokesTrivia = get().jokesTrivia.filter(item => item.id !== id);
-      const jokes = get().jokes.filter(item => item.id !== id);
-      const trivia = get().trivia.filter(item => item.id !== id);
-      
-      set({ jokesTrivia, jokes, trivia, isLoading: false });
+      set({
+        jokesTrivia,
+        jokes: jokesTrivia.filter(i => i.type === 'joke'),
+        trivia: jokesTrivia.filter(i => i.type === 'trivia'),
+        isLoading: false
+      });
       return true;
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+    } catch (err: any) {
+      console.error('Error deleting joke/trivia:', err);
+      set({ error: err.message, isLoading: false });
       return false;
     }
   }

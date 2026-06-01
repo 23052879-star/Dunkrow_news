@@ -10,9 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/supabase-js": "^2.39.7",
+    "@tiptap/extension-image": "^3.24.0",
+    "@tiptap/extension-link": "^3.24.0",
+    "@tiptap/extension-placeholder": "^3.24.0",
+    "@tiptap/extension-table": "^3.24.0",
+    "@tiptap/extension-youtube": "^3.24.0",
+    "@tiptap/react": "^3.24.0",
+    "@tiptap/starter-kit": "^3.24.0",
+    "browser-image-compression": "^2.0.2",
     "clsx": "^2.1.0",
     "date-fns": "^3.6.0",
     "framer-motion": "^11.0.8",

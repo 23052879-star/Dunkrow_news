@@ -47,6 +47,8 @@ const HomePage: React.FC = () => {
   const opacitySpring = useSpring(opacity, springConfig);
   const scaleSpring = useSpring(scale, springConfig);
   
+  const [debugError, setDebugError] = React.useState<string | null>(null);
+
   useEffect(() => {
     fetchFeaturedArticles();
     fetchArticles(6);
@@ -71,28 +73,23 @@ const HomePage: React.FC = () => {
     }
 
     try {
-      const { data: categories } = await supabase
+      const { data: categories, error } = await supabase
         .from('categories')
         .select('name, slug')
         .order('name');
       
-      if (categories) {
+      if (error) {
+        setDebugError(`Categories Query Error: ${error.message} (Code: ${error.code})`);
+        console.error('Error fetching categories:', error);
+      } else if (!categories || categories.length === 0) {
+        setDebugError('Categories Query returned 0 rows!');
+      } else {
         setCategories(categories);
         fetchCategoryArticles(categories);
       }
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      // Use demo categories as fallback
-      const demoCategories = [
-        { name: 'Politics', slug: 'politics' },
-        { name: 'Technology', slug: 'technology' },
-        { name: 'Business', slug: 'business' },
-        { name: 'Sports', slug: 'sports' },
-        { name: 'Entertainment', slug: 'entertainment' },
-        { name: 'Science', slug: 'science' },
-        { name: 'Health', slug: 'health' }
-      ];
-      setCategories(demoCategories);
+    } catch (err: any) {
+      setDebugError(`Categories Catch: ${err.message}`);
+      console.error('Catch error fetching categories:', err);
     }
   };
 
@@ -332,17 +329,25 @@ const HomePage: React.FC = () => {
         <motion.div 
           className="max-w-screen-2xl mx-auto px-6 pt-12 pb-24 space-y-24"
           initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
         >
+          {debugError && (
+            <div className="p-6 rounded-3xl bg-red-950/20 border border-red-500/20 text-red-400 text-sm flex flex-col space-y-2">
+              <span className="font-bold text-lg uppercase tracking-wider">⚠️ Supabase Query Diagnostic Banner</span>
+              <p className="text-xs opacity-90 leading-relaxed font-mono bg-black/40 p-4 rounded-xl border border-neutral-800">
+                {debugError}
+              </p>
+              <span className="text-[10px] text-neutral-500">This banner is displayed because the browser failed to retrieve categories. It lists the exact API error.</span>
+            </div>
+          )}
+
           {/* Featured Article */}
           {!isLoading && featuredArticles.length > 0 && (
             <motion.section
               initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
                 <div className="flex items-center gap-4">
@@ -360,9 +365,8 @@ const HomePage: React.FC = () => {
           {/* Categories Grid */}
           <motion.section
             initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            viewport={{ once: true }}
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
               <div className="flex items-center gap-4">
@@ -377,9 +381,8 @@ const HomePage: React.FC = () => {
                   <motion.div
                     key={category.slug}
                     initial={{ opacity: 0, y: 30, scale: 0.9 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ duration: 0.5, delay: index * 0.1, type: "spring", stiffness: 100 }}
-                    viewport={{ once: true, margin: "-50px" }}
                   >
                     <Link
                       to={`/category/${category.slug}`}
@@ -417,9 +420,8 @@ const HomePage: React.FC = () => {
             <motion.section 
               key={category.slug}
               initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: sectionIndex * 0.1 }}
-              viewport={{ once: true }}
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
                 <div className="flex items-center gap-4">
@@ -469,9 +471,8 @@ const HomePage: React.FC = () => {
           {/* Latest Stories Section */}
           <motion.section
             initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
               <div className="flex items-center gap-4">
@@ -513,9 +514,8 @@ const HomePage: React.FC = () => {
             <motion.section 
               className="bg-white dark:bg-black rounded-xl p-8 border border-slate-200 dark:border-neutral-800 hover:border-red-600 dark:hover:border-red-600 transition-colors shadow-sm"
               initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
               whileHover={{ scale: 1.02 }}
             >
               <div className="flex items-center gap-3 mb-4">
@@ -541,9 +541,8 @@ const HomePage: React.FC = () => {
             <motion.section 
               className="bg-white dark:bg-black rounded-xl p-8 border border-slate-200 dark:border-neutral-800 hover:border-red-600 dark:hover:border-red-600 transition-colors shadow-sm"
               initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
               whileHover={{ scale: 1.02 }}
             >
               <div className="flex items-center gap-3 mb-4">
@@ -571,9 +570,8 @@ const HomePage: React.FC = () => {
           <motion.section 
             className="relative overflow-hidden border border-slate-200 dark:border-neutral-800 bg-white dark:bg-black"
             initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
           >
             <div className="relative p-12 md:p-16 lg:p-20 overflow-hidden">
               {/* Background Glows (Red only) */}
@@ -582,7 +580,7 @@ const HomePage: React.FC = () => {
               <div className="relative text-center max-w-4xl mx-auto z-10">
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
+                  animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5 }}
                   className="inline-flex items-center justify-center p-3 border border-red-600/20 bg-red-600/5 rounded-full mb-8"
                 >
@@ -593,26 +591,23 @@ const HomePage: React.FC = () => {
                 <motion.h2 
                   className="text-4xl md:text-5xl lg:text-6xl font-['Playfair_Display'] italic text-slate-900 dark:text-white mb-6"
                   initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
-                  viewport={{ once: true }}
                 >
                   Never Miss Breaking News
                 </motion.h2>
                 <motion.p 
                   className="mb-12 text-lg text-slate-600 dark:text-slate-400 font-light leading-relaxed max-w-2xl mx-auto"
                   initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.4 }}
-                  viewport={{ once: true }}
                 >
                   Join over 500,000 subscribers who trust Dunkrow for daily news briefings, exclusive investigations, and real-time alerts.
                 </motion.p>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.6 }}
-                  viewport={{ once: true }}
                   className="max-w-md mx-auto"
                 >
                   <NewsletterForm />

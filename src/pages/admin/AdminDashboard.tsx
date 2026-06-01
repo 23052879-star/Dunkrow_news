@@ -1,305 +1,339 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Newspaper, Users, MessageSquare, Eye, FileEdit, Trash2, Mail } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import Card from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
+import { 
+  Newspaper, 
+  Users, 
+  MessageSquare, 
+  Eye, 
+  Mail, 
+  Sparkles, 
+  Clock, 
+  Plus, 
+  ExternalLink,
+  Flame,
+  Smile,
+  HelpCircle,
+  Megaphone
+} from 'lucide-react';
+import { useArticleStore } from '../../store/articleStore';
+import { useCommentStore } from '../../store/commentStore';
+import { useAnalyticsStore } from '../../store/analyticsStore';
+import { useNotificationStore } from '../../store/notificationStore';
+import MiniChart from '../../components/admin/MiniChart';
 
-interface DashboardStats {
-  articles: number;
-  users: number;
-  comments: number;
-  pendingComments: number;
-  whispers: number;
-  jokesTrivia: number;
-  newsletterSubscriptions: number;
-}
-
-interface RecentArticle {
-  id: string;
-  title: string;
-  created_at: string;
-  slug: string;
-}
-
-const AdminDashboard: React.FC = () => {
-  const [stats, setStats] = useState<DashboardStats>({
-    articles: 0,
-    users: 0,
-    comments: 0,
-    pendingComments: 0,
-    whispers: 0,
-    jokesTrivia: 0,
-    newsletterSubscriptions: 0
-  });
-  
-  const [recentArticles, setRecentArticles] = useState<RecentArticle[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+export const AdminDashboard: React.FC = () => {
+  const { articles, fetchAllArticles, isLoading: articlesLoading } = useArticleStore();
+  const { pendingComments, fetchPendingComments, isLoading: commentsLoading } = useCommentStore();
+  const { overview, popularArticles, fetchAnalytics, isLoading: analyticsLoading } = useAnalyticsStore();
+  const { notifications, fetchNotifications } = useNotificationStore();
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      setIsLoading(true);
-      
-      try {
-        // Fetch stats counts
-        const [
-          articlesRes,
-          usersRes,
-          commentsRes,
-          pendingCommentsRes,
-          whispersRes,
-          jokesTriviasRes,
-          newsletterRes
-        ] = await Promise.all([
-          supabase.from('articles').select('id', { count: 'exact', head: true }),
-          supabase.from('profiles').select('id', { count: 'exact', head: true }),
-          supabase.from('comments').select('id', { count: 'exact', head: true }),
-          supabase.from('comments').select('id', { count: 'exact', head: true }).eq('approved', false),
-          supabase.from('whispers').select('id', { count: 'exact', head: true }),
-          supabase.from('jokes_trivia').select('id', { count: 'exact', head: true }),
-          supabase.from('newsletter_subscriptions').select('id', { count: 'exact', head: true }).eq('is_active', true)
-        ]);
-        
-        setStats({
-          articles: articlesRes.count || 0,
-          users: usersRes.count || 0,
-          comments: commentsRes.count || 0,
-          pendingComments: pendingCommentsRes.count || 0,
-          whispers: whispersRes.count || 0,
-          jokesTrivia: jokesTriviasRes.count || 0,
-          newsletterSubscriptions: newsletterRes.count || 0
-        });
-        
-        // Fetch recent articles
-        const { data: articles } = await supabase
-          .from('articles')
-          .select('id, title, created_at, slug')
-          .order('created_at', { ascending: false })
-          .limit(5);
-        
-        if (articles) {
-          setRecentArticles(articles);
-        }
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchDashboardData();
-  }, []);
+    fetchAllArticles();
+    fetchPendingComments();
+    fetchAnalytics();
+    fetchNotifications();
+  }, [fetchAllArticles, fetchPendingComments, fetchAnalytics, fetchNotifications]);
+
+  const draftCount = articles.filter(a => a.status === 'draft').length;
+  const publishedCount = articles.filter(a => a.status === 'published').length;
+  const scheduledCount = articles.filter(a => a.status === 'scheduled').length;
+
+  const quickStats = [
+    {
+      title: 'Total Page Views',
+      value: overview.totalViews.toLocaleString(),
+      trend: `+${overview.totalViewsTrend}%`,
+      trendType: 'up',
+      chartData: [45, 60, 55, 70, 65, 80, 95],
+      icon: Eye,
+      color: '#3B82F6', // Blue
+      bgColor: 'bg-blue-500/10'
+    },
+    {
+      title: 'Published Articles',
+      value: publishedCount,
+      trend: `${scheduledCount} Scheduled`,
+      trendType: 'neutral',
+      chartData: [2, 5, 3, 6, 8, 12, 15],
+      icon: Newspaper,
+      color: '#EF4444', // Red
+      bgColor: 'bg-red-500/10'
+    },
+    {
+      title: 'Pending Moderation',
+      value: pendingComments.length,
+      trend: pendingComments.length > 0 ? 'Action required' : 'Clear',
+      trendType: pendingComments.length > 0 ? 'down' : 'up',
+      chartData: [8, 5, 12, 7, 4, 9, pendingComments.length],
+      icon: MessageSquare,
+      color: '#F59E0B', // Amber
+      bgColor: 'bg-amber-500/10'
+    },
+    {
+      title: 'Active Readers',
+      value: overview.activeUsers,
+      trend: 'Live updates',
+      trendType: 'up',
+      chartData: [5, 12, 8, 15, 9, 11, overview.activeUsers],
+      icon: Users,
+      color: '#10B981', // Emerald
+      bgColor: 'bg-emerald-500/10'
+    }
+  ];
+
+  const quickActions = [
+    { label: 'New Article', path: '/admin/articles/new', icon: Plus, color: 'bg-red-600 hover:bg-red-700' },
+    { label: 'Weekend Whisper', path: '/admin/whispers', icon: Flame, color: 'bg-amber-600 hover:bg-amber-700' },
+    { label: 'Joke/Trivia', path: '/admin/jokes-trivia', icon: Smile, color: 'bg-pink-600 hover:bg-pink-700' },
+    { label: 'Create Poll', path: '/admin/polls', icon: HelpCircle, color: 'bg-blue-600 hover:bg-blue-700' }
+  ];
 
   return (
     <>
       <Helmet>
-        <title>Admin Dashboard | Dunkrow</title>
+        <title>CMS Dashboard | Dunkrow Admin</title>
       </Helmet>
 
-      <div className="space-y-8">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
-            Admin Dashboard
-          </h1>
+      <div className="space-y-8 animate-in fade-in duration-300">
+        {/* Welcome Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-white flex items-center">
+              Dashboard Overview <Sparkles className="text-red-500 ml-2 animate-pulse" size={24} />
+            </h1>
+            <p className="text-neutral-400 text-sm mt-1">
+              Real-time summary of Dunkrow's editorial operations, newsletter campaigns, and analytics.
+            </p>
+          </div>
           
-          <Link to="/admin/articles">
-            <Button>
-              Create New Article
-            </Button>
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            {quickActions.map((act, idx) => (
+              <Link key={idx} to={act.path}>
+                <button className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white transition-all active:scale-95 shadow-lg ${act.color}`}>
+                  <act.icon size={14} />
+                  <span>{act.label}</span>
+                </button>
+              </Link>
+            ))}
+          </div>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className={`${stats.pendingComments > 0 ? 'border-l-4 border-l-yellow-500' : ''}`}>
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-neutral-100 dark:bg-neutral-700">
-                <MessageSquare size={24} className="text-primary-600" />
+          {quickStats.map((stat, index) => {
+            const Icon = stat.icon;
+            return (
+              <div 
+                key={index} 
+                className="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-5 flex flex-col justify-between hover:border-neutral-700 transition-all group"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                    {stat.title}
+                  </span>
+                  <div className={`p-2 rounded-xl ${stat.bgColor} text-white`}>
+                    <Icon size={18} style={{ color: stat.color }} />
+                  </div>
+                </div>
+
+                <div className="mt-4 flex items-baseline space-x-2">
+                  <h3 className="text-2xl font-bold tracking-tight text-white">
+                    {stat.value}
+                  </h3>
+                  <span className={`text-xs font-semibold ${
+                    stat.trendType === 'up' ? 'text-green-500' :
+                    stat.trendType === 'down' ? 'text-red-500' : 'text-neutral-400'
+                  }`}>
+                    {stat.trend}
+                  </span>
+                </div>
+
+                {/* Sparkline mini chart */}
+                <div className="mt-6 flex justify-end h-10 overflow-hidden">
+                  <MiniChart data={stat.chartData} color={stat.color} />
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                  Comments
-                </p>
-                <h3 className="text-xl font-bold text-neutral-900 dark:text-white">
-                  {isLoading ? '...' : stats.comments}
-                </h3>
-                {stats.pendingComments > 0 && (
-                  <Link to="/admin/comments" className="text-sm text-yellow-600 dark:text-yellow-400 font-medium">
-                    {stats.pendingComments} pending approval
-                  </Link>
+            );
+          })}
+        </div>
+
+        {/* Dynamic Panels Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Columns - Popular Articles & Moderation */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Top performing content */}
+            <div className="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-6">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-lg font-bold text-white flex items-center">
+                    Top Articles This Week <Sparkles size={16} className="text-red-500 ml-1.5" />
+                  </h2>
+                  <p className="text-xs text-neutral-500">Ranked by organic search impressions and page views.</p>
+                </div>
+                <Link to="/admin/analytics" className="text-xs font-semibold text-red-500 hover:text-red-400">
+                  View Full Analytics
+                </Link>
+              </div>
+
+              <div className="divide-y divide-neutral-800">
+                {popularArticles.length > 0 ? (
+                  popularArticles.map((art, idx) => (
+                    <div key={art.id} className="py-3.5 flex items-center justify-between group">
+                      <div className="flex items-center space-x-3 overflow-hidden">
+                        <div className="w-6 h-6 rounded-md bg-neutral-800 text-neutral-400 font-bold text-xs flex items-center justify-center">
+                          {idx + 1}
+                        </div>
+                        <div className="overflow-hidden">
+                          <h4 className="font-semibold text-sm text-neutral-200 group-hover:text-white truncate transition-colors">
+                            {art.title}
+                          </h4>
+                          <div className="flex items-center space-x-3 text-xs text-neutral-500 mt-0.5">
+                            <span className="bg-neutral-800 text-neutral-400 px-1.5 py-0.5 rounded text-[10px] uppercase font-bold">
+                              {art.category}
+                            </span>
+                            <span>{art.avgReadTime}s avg. read</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-6">
+                        <div className="text-right">
+                          <span className="block text-sm font-bold text-white">{art.views}</span>
+                          <span className="text-[10px] text-neutral-500">Views</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="block text-sm font-bold text-neutral-400">{art.shares}</span>
+                          <span className="text-[10px] text-neutral-500">Shares</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="py-8 text-center text-neutral-500 text-xs">No analytics data recorded yet</p>
                 )}
               </div>
             </div>
-          </Card>
-          
-          <Card>
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-neutral-100 dark:bg-neutral-700">
-                <Newspaper size={24} className="text-primary-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                  Articles
-                </p>
-                <h3 className="text-xl font-bold text-neutral-900 dark:text-white">
-                  {isLoading ? '...' : stats.articles}
-                </h3>
-                <Link to="/admin/articles" className="text-sm text-primary-600 dark:text-primary-400 font-medium">
-                  Manage
-                </Link>
-              </div>
-            </div>
-          </Card>
-          
-          <Card>
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-neutral-100 dark:bg-neutral-700">
-                <Users size={24} className="text-primary-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                  Users
-                </p>
-                <h3 className="text-xl font-bold text-neutral-900 dark:text-white">
-                  {isLoading ? '...' : stats.users}
-                </h3>
-                <Link to="/admin/users" className="text-sm text-primary-600 dark:text-primary-400 font-medium">
-                  Manage
-                </Link>
-              </div>
-            </div>
-          </Card>
 
-          <Card>
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-neutral-100 dark:bg-neutral-700">
-                <Mail size={24} className="text-primary-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                  Newsletter
-                </p>
-                <h3 className="text-xl font-bold text-neutral-900 dark:text-white">
-                  {isLoading ? '...' : stats.newsletterSubscriptions}
-                </h3>
-                <Link to="/admin/newsletter" className="text-sm text-primary-600 dark:text-primary-400 font-medium">
-                  Manage
+            {/* Comments needing approval */}
+            <div className="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-6">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-lg font-bold text-white flex items-center">
+                    Pending Moderation Queue <Clock size={16} className="text-amber-500 ml-1.5" />
+                  </h2>
+                  <p className="text-xs text-neutral-500">Approve comments before they are visible on the website.</p>
+                </div>
+                <Link to="/admin/comments" className="text-xs font-semibold text-red-500 hover:text-red-400">
+                  Manage Moderation
                 </Link>
               </div>
-            </div>
-          </Card>
-        </div>
 
-        {/* Recent Articles */}
-        <Card>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
-              Recent Articles
-            </h2>
-            <Link to="/admin/articles" className="text-sm text-primary-600 dark:text-primary-400 font-medium">
-              View All
-            </Link>
-          </div>
-          
-          {isLoading ? (
-            <div className="space-y-4">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-10 bg-neutral-200 dark:bg-neutral-700 animate-pulse rounded-md"></div>
-              ))}
-            </div>
-          ) : (
-            <div className="divide-y divide-neutral-200 dark:divide-neutral-700">
-              {recentArticles.length > 0 ? (
-                recentArticles.map((article) => (
-                  <div key={article.id} className="py-3 flex justify-between items-center">
-                    <div>
-                      <h3 className="font-medium text-neutral-900 dark:text-white">
-                        {article.title}
-                      </h3>
-                      <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                        {new Date(article.created_at).toLocaleDateString()}
-                      </p>
+              <div className="divide-y divide-neutral-800">
+                {pendingComments.length > 0 ? (
+                  pendingComments.slice(0, 4).map((comment) => (
+                    <div key={comment.id} className="py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 group">
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-bold text-sm text-neutral-200">{comment.username}</span>
+                          <span className="text-neutral-600 text-xs">•</span>
+                          <span className="text-xs text-neutral-400 font-medium truncate max-w-[200px]" title={comment.articleTitle}>
+                            On: {comment.articleTitle}
+                          </span>
+                        </div>
+                        <p className="text-neutral-300 text-xs italic line-clamp-2 pr-6">
+                          "{comment.content}"
+                        </p>
+                      </div>
+                      <Link to="/admin/comments">
+                        <button className="self-start sm:self-center px-3 py-1.5 rounded-lg border border-neutral-700 bg-neutral-800 hover:bg-neutral-700 text-xs font-bold transition-all text-neutral-200">
+                          Moderate
+                        </button>
+                      </Link>
                     </div>
-                    <div className="flex space-x-2">
-                      <Link to={`/article/${article.slug}`} target="_blank">
-                        <Button size="sm" variant="ghost" aria-label="View">
-                          <Eye size={16} />
-                        </Button>
-                      </Link>
-                      <Link to={`/admin/articles?edit=${article.id}`}>
-                        <Button size="sm" variant="ghost" aria-label="Edit">
-                          <FileEdit size={16} />
-                        </Button>
-                      </Link>
-                      <Button size="sm" variant="ghost" aria-label="Delete">
-                        <Trash2 size={16} className="text-red-600" />
-                      </Button>
+                  ))
+                ) : (
+                  <p className="py-8 text-center text-neutral-500 text-xs">Comments queue is fully moderated. Good job!</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Live activity and stats */}
+          <div className="space-y-8">
+            {/* Live activity log */}
+            <div className="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-6 flex flex-col">
+              <h2 className="text-lg font-bold text-white mb-4">
+                Real-time System Logs
+              </h2>
+              
+              <div className="space-y-4 flex-1 overflow-y-auto max-h-[380px] pr-2 scrollbar-thin scrollbar-thumb-neutral-800">
+                {notifications.slice(0, 8).map((notif) => (
+                  <div key={notif.id} className="flex space-x-3 text-xs leading-relaxed group">
+                    <div className="mt-0.5 w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
+                    <div>
+                      <span className="text-neutral-400 font-semibold">{notif.title}: </span>
+                      <span className="text-neutral-300">{notif.message}</span>
+                      <span className="text-[10px] text-neutral-600 block mt-0.5">
+                        {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
                   </div>
-                ))
-              ) : (
-                <p className="py-4 text-neutral-600 dark:text-neutral-400 text-center">
-                  No articles found
-                </p>
-              )}
+                ))}
+                {notifications.length === 0 && (
+                  <p className="text-center text-neutral-500 text-xs py-8">No recent activity logs</p>
+                )}
+              </div>
             </div>
-          )}
-        </Card>
 
-        {/* Quick Links */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">
-              Content Management
-            </h2>
-            <div className="space-y-2">
-              <Link to="/admin/articles">
-                <Button fullWidth variant="outline" className="justify-start">
-                  <Newspaper size={16} className="mr-2" />
-                  Manage Articles
-                </Button>
-              </Link>
-              <Link to="/admin/whispers">
-                <Button fullWidth variant="outline" className="justify-start">
-                  <Newspaper size={16} className="mr-2" />
-                  Manage Weekend Whispers
-                </Button>
-              </Link>
-              <Link to="/admin/jokes-trivia">
-                <Button fullWidth variant="outline" className="justify-start">
-                  <Newspaper size={16} className="mr-2" />
-                  Manage Jokes & Trivia
-                </Button>
-              </Link>
+            {/* Dynamic editorial ratio */}
+            <div className="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-6">
+              <h2 className="text-lg font-bold text-white mb-4">
+                Editorial Pipeline
+              </h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-xs font-semibold text-neutral-400 mb-1.5">
+                    <span>Drafts in Progress</span>
+                    <span>{draftCount} articles</span>
+                  </div>
+                  <div className="w-full bg-neutral-800 h-2 rounded-full overflow-hidden">
+                    <div 
+                      className="bg-yellow-500 h-full transition-all duration-500" 
+                      style={{ width: `${(draftCount / Math.max(articles.length, 1)) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-semibold text-neutral-400 mb-1.5">
+                    <span>Scheduled to Publish</span>
+                    <span>{scheduledCount} articles</span>
+                  </div>
+                  <div className="w-full bg-neutral-800 h-2 rounded-full overflow-hidden">
+                    <div 
+                      className="bg-blue-500 h-full transition-all duration-500" 
+                      style={{ width: `${(scheduledCount / Math.max(articles.length, 1)) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-semibold text-neutral-400 mb-1.5">
+                    <span>Published Articles</span>
+                    <span>{publishedCount} articles</span>
+                  </div>
+                  <div className="w-full bg-neutral-800 h-2 rounded-full overflow-hidden">
+                    <div 
+                      className="bg-green-500 h-full transition-all duration-500" 
+                      style={{ width: `${(publishedCount / Math.max(articles.length, 1)) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-          </Card>
-          
-          <Card>
-            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">
-              User Management
-            </h2>
-            <div className="space-y-2">
-              <Link to="/admin/comments">
-                <Button fullWidth variant="outline" className="justify-start">
-                  <MessageSquare size={16} className="mr-2" />
-                  Manage Comments
-                </Button>
-              </Link>
-              <Link to="/admin/users">
-                <Button fullWidth variant="outline" className="justify-start">
-                  <Users size={16} className="mr-2" />
-                  Manage Users
-                </Button>
-              </Link>
-              <Link to="/admin/newsletter">
-                <Button fullWidth variant="outline" className="justify-start">
-                  <Mail size={16} className="mr-2" />
-                  Newsletter Subscriptions
-                </Button>
-              </Link>
-            </div>
-          </Card>
+          </div>
         </div>
       </div>
     </>

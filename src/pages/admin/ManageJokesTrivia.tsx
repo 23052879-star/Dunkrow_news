@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useForm } from 'react-hook-form';
-import { Pencil, Trash2, Plus, X, SmilePlus, Lightbulb } from 'lucide-react';
+import { 
+  Plus, 
+  Trash2, 
+  Pencil, 
+  Smile, 
+  X, 
+  HelpCircle,
+  AlertCircle
+} from 'lucide-react';
 import { useJokeTriviaStore } from '../../store/jokeTriviaStore';
 import Button from '../../components/ui/Button';
-import TextArea from '../../components/ui/TextArea';
 import Card from '../../components/ui/Card';
+import TextArea from '../../components/ui/TextArea';
+import ConfirmDialog from '../../components/admin/ConfirmDialog';
 
 interface JokeTriviaFormData {
   content: string;
@@ -13,40 +22,69 @@ interface JokeTriviaFormData {
   published: boolean;
 }
 
-const ManageJokesTrivia: React.FC = () => {
+export const ManageJokesTrivia: React.FC = () => {
+  const { 
+    jokesTrivia, 
+    isLoading, 
+    fetchAllJokesTrivia, 
+    createJokeTrivia, 
+    updateJokeTrivia, 
+    deleteJokeTrivia 
+  } = useJokeTriviaStore();
+
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<string | null>(null);
-  const { jokesTrivia, isLoading, fetchJokesTrivia, createJokeTrivia, updateJokeTrivia, deleteJokeTrivia } = useJokeTriviaStore();
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<JokeTriviaFormData>();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [currentTab, setCurrentTab] = useState<'all' | 'jokes' | 'trivia'>('all');
+
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<JokeTriviaFormData>({
+    defaultValues: {
+      type: 'joke',
+      published: true
+    }
+  });
 
   useEffect(() => {
-    fetchJokesTrivia();
-  }, [fetchJokesTrivia]);
+    fetchAllJokesTrivia();
+  }, [fetchAllJokesTrivia]);
 
   const handleEdit = (item: any) => {
-    setSelectedItem(item.id);
+    setSelectedId(item.id);
     setIsEditing(true);
     setValue('content', item.content);
     setValue('type', item.type);
     setValue('published', item.published);
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this item?')) {
-      await deleteJokeTrivia(id);
+  const handleDeleteConfirm = async () => {
+    if (deleteId) {
+      await deleteJokeTrivia(deleteId);
+      setDeleteId(null);
     }
   };
 
   const onSubmit = async (data: JokeTriviaFormData) => {
-    if (selectedItem) {
-      await updateJokeTrivia(selectedItem, data);
+    if (selectedId) {
+      await updateJokeTrivia(selectedId, data);
     } else {
       await createJokeTrivia(data);
     }
-    reset();
+    
+    reset({
+      content: '',
+      type: 'joke',
+      published: true
+    });
     setIsEditing(false);
-    setSelectedItem(null);
+    setSelectedId(null);
   };
+
+  // Tab Filtering
+  const filteredItems = jokesTrivia.filter(item => {
+    if (currentTab === 'jokes') return item.type === 'joke';
+    if (currentTab === 'trivia') return item.type === 'trivia';
+    return true;
+  });
 
   return (
     <>
@@ -54,148 +92,231 @@ const ManageJokesTrivia: React.FC = () => {
         <title>Manage Jokes & Trivia | Dunkrow Admin</title>
       </Helmet>
 
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
-            Manage Jokes & Trivia
-          </h1>
+      <div className="space-y-6 animate-in fade-in duration-300">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-850 pb-5">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center">
+              Jokes & Trivia Directory
+            </h1>
+            <p className="text-neutral-500 text-xs mt-0.5">
+              Create, organize, and publish lighthearted content blocks for readers.
+            </p>
+          </div>
+          
           {!isEditing && (
             <Button onClick={() => setIsEditing(true)} leftIcon={<Plus size={16} />}>
-              New Entry
+              Create New Block
             </Button>
           )}
         </div>
 
-        {isEditing ? (
-          <Card>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-neutral-900 dark:text-white">
-                {selectedItem ? 'Edit Entry' : 'New Entry'}
-              </h2>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setIsEditing(false);
-                  setSelectedItem(null);
-                  reset();
-                }}
-              >
-                <X size={16} />
-              </Button>
-            </div>
+        {/* Tab Filters */}
+        <div className="flex flex-wrap border-b border-neutral-850 gap-1">
+          {([
+            { id: 'all', label: 'All Content' },
+            { id: 'jokes', label: 'Jokes Only' },
+            { id: 'trivia', label: 'Trivia Scoops' }
+          ] as const).map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setCurrentTab(tab.id)}
+              className={`px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all ${
+                currentTab === tab.id
+                  ? 'border-red-500 text-white'
+                  : 'border-transparent text-neutral-500 hover:text-white'
+              }`}
+            >
+              {tab.label} ({
+                tab.id === 'all' ? jokesTrivia.length : 
+                jokesTrivia.filter(j => j.type === (tab.id === 'jokes' ? 'joke' : 'trivia')).length
+              })
+            </button>
+          ))}
+        </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                  Type
-                </label>
-                <select
-                  {...register('type', { required: 'Type is required' })}
-                  className="block w-full px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:text-white"
-                >
-                  <option value="joke">Joke</option>
-                  <option value="trivia">Trivia</option>
-                </select>
-                {errors.type && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-500">
-                    {errors.type.message}
-                  </p>
-                )}
-              </div>
-
-              <TextArea
-                label="Content"
-                rows={6}
-                error={errors.content?.message}
-                {...register('content', { required: 'Content is required' })}
-              />
-
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="published"
-                  {...register('published')}
-                  className="rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
-                />
-                <label htmlFor="published" className="text-sm text-neutral-700 dark:text-neutral-300">
-                  Published
-                </label>
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => {
-                    setIsEditing(false);
-                    setSelectedItem(null);
-                    reset();
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  {selectedItem ? 'Update Entry' : 'Create Entry'}
-                </Button>
-              </div>
-            </form>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {isLoading ? (
-              <div className="space-y-4">
-                {[...Array(3)].map((_, i) => (
-                  <Card key={i} className="h-24 animate-pulse" />
-                ))}
-              </div>
-            ) : jokesTrivia.length > 0 ? (
-              jokesTrivia.map((item) => (
-                <Card key={item.id} className="flex justify-between items-center">
-                  <div className="flex items-center space-x-4">
-                    <div className={`p-2 rounded-full ${
-                      item.type === 'joke'
-                        ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600'
-                        : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600'
-                    }`}>
-                      {item.type === 'joke' ? <SmilePlus size={20} /> : <Lightbulb size={20} />}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
-                        {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
-                      </p>
-                      <p className="text-neutral-900 dark:text-white line-clamp-1">
-                        {item.content}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleEdit(item)}
-                      aria-label="Edit entry"
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main List */}
+          <div className="lg:col-span-2 space-y-4">
+            <Card className="bg-neutral-900/40 border-neutral-850">
+              {isLoading ? (
+                <div className="py-20 flex flex-col items-center justify-center space-y-3">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-red-500"></div>
+                  <span className="text-neutral-500 text-xs">Querying directories...</span>
+                </div>
+              ) : filteredItems.length > 0 ? (
+                <div className="space-y-3">
+                  {filteredItems.map((item) => (
+                    <div 
+                      key={item.id}
+                      className="p-4 rounded-xl border border-neutral-850 flex items-center justify-between bg-neutral-950/80 hover:border-neutral-700 transition-all group"
                     >
-                      <Pencil size={16} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleDelete(item.id)}
-                      aria-label="Delete entry"
+                      <div className="flex items-center space-x-4 overflow-hidden pr-4">
+                        <div className={`p-2.5 rounded-xl flex items-center justify-center text-white ${
+                          item.type === 'joke' 
+                            ? 'bg-pink-500/10 text-pink-500 border border-pink-500/20' 
+                            : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'
+                        }`}>
+                          {item.type === 'joke' ? <Smile size={18} /> : <HelpCircle size={18} />}
+                        </div>
+                        <div className="overflow-hidden">
+                          <p className="font-semibold text-neutral-200 text-xs sm:text-sm line-clamp-2">
+                            {item.content}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-3.5 flex-shrink-0">
+                        {item.published ? (
+                          <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-green-500/10 border border-green-500/20 text-green-500 uppercase tracking-wide">
+                            Active
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-neutral-800 border border-neutral-700 text-neutral-500 uppercase tracking-wide">
+                            Draft
+                          </span>
+                        )}
+
+                        <div className="flex items-center space-x-1">
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="text-neutral-500 hover:text-white"
+                            onClick={() => handleEdit(item)}
+                            aria-label="Edit block"
+                          >
+                            <Pencil size={15} />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="text-neutral-500 hover:text-red-500"
+                            onClick={() => setDeleteId(item.id)}
+                            aria-label="Delete block"
+                          >
+                            <Trash2 size={15} />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-20 text-center space-y-2">
+                  <Smile size={40} className="text-neutral-700 mx-auto" />
+                  <h3 className="text-sm font-bold text-neutral-400">No Content Found</h3>
+                  <p className="text-neutral-600 text-xs">Write your first joke or fact scoop using the builder.</p>
+                </div>
+              )}
+            </Card>
+          </div>
+
+          {/* Builder Panel */}
+          <div>
+            {isEditing ? (
+              <Card className="bg-neutral-900/60 border-neutral-850 space-y-6">
+                <div className="flex justify-between items-center border-b border-neutral-800 pb-3">
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                    {selectedId ? 'Edit Content Block' : 'New Content Block'}
+                  </h3>
+                  <button 
+                    onClick={() => {
+                      setIsEditing(false);
+                      setSelectedId(null);
+                      reset({
+                        content: '',
+                        type: 'joke',
+                        published: true
+                      });
+                    }}
+                    className="text-neutral-500 hover:text-white transition-colors"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                  <div className="space-y-1">
+                    <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                      Block Type
+                    </label>
+                    <select
+                      {...register('type')}
+                      className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-sm text-neutral-300 focus:outline-none"
                     >
-                      <Trash2 size={16} className="text-red-600" />
+                      <option value="joke">Joke / Riddle</option>
+                      <option value="trivia">Fact / Trivia Scoop</option>
+                    </select>
+                  </div>
+
+                  <TextArea
+                    label="Content Text"
+                    placeholder="Enter the joke or interesting trivia details..."
+                    rows={6}
+                    error={errors.content?.message}
+                    className="bg-neutral-950 border-neutral-850 text-white"
+                    {...register('content', { required: 'Content is required' })}
+                  />
+
+                  <div className="flex items-center space-x-2 pt-2">
+                    <input
+                      type="checkbox"
+                      id="published"
+                      {...register('published')}
+                      className="rounded border-neutral-800 text-red-600 focus:ring-red-500 bg-neutral-950 w-4.5 h-4.5"
+                    />
+                    <label htmlFor="published" className="text-xs font-semibold text-neutral-400 uppercase tracking-wide">
+                      Show immediately in floating scopes
+                    </label>
+                  </div>
+
+                  <div className="pt-4 flex space-x-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="flex-1 text-neutral-400"
+                      onClick={() => {
+                        setIsEditing(false);
+                        setSelectedId(null);
+                        reset({
+                          content: '',
+                          type: 'joke',
+                          published: true
+                        });
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" className="flex-1">
+                      {selectedId ? 'Apply Update' : 'Publish Block'}
                     </Button>
                   </div>
-                </Card>
-              ))
+                </form>
+              </Card>
             ) : (
-              <Card>
-                <p className="text-center text-neutral-600 dark:text-neutral-400">
-                  No entries found
+              <Card className="bg-neutral-900/20 border-neutral-850 p-6 flex flex-col items-center justify-center text-center space-y-3 min-h-[300px]">
+                <Smile size={36} className="text-neutral-800" />
+                <h4 className="font-bold text-neutral-400 text-sm">Entertainment CMS</h4>
+                <p className="text-neutral-600 text-xs leading-relaxed max-w-xs">
+                  Publish jokes and trivia facts which readers access dynamically via bottom floating scopes on pages.
                 </p>
+                <Button onClick={() => setIsEditing(true)} size="sm">
+                  Write Content Block
+                </Button>
               </Card>
             )}
           </div>
-        )}
+        </div>
       </div>
+
+      {/* Delete confirm */}
+      <ConfirmDialog
+        isOpen={deleteId !== null}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Content Block"
+        message="Are you sure you want to permanently delete this joke/trivia block?"
+      />
     </>
   );
 };
