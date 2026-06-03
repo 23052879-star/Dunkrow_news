@@ -106,7 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let mounted = true;
     if (!isSupabaseConfigured()) { setIsLoading(false); return; }
 
-    const safetyTimeout = setTimeout(() => { if (mounted) setIsLoading(false); }, 10000);
+    const safetyTimeout = setTimeout(() => { if (mounted) setIsLoading(false); }, 2500);
 
     const handleSession = async (session: any | null) => {
       if (!mounted) return;

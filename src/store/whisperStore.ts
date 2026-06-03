@@ -29,6 +29,13 @@ export const useWhisperStore = create<WhisperState>((set, get) => ({
 
   fetchWhispers: async () => {
     set({ isLoading: true, error: null });
+    const safetyTimeout = setTimeout(() => {
+      if (get().isLoading) {
+        console.warn('fetchWhispers query timed out.');
+        set({ isLoading: false });
+      }
+    }, 5000);
+
     try {
       const { data, error } = await supabase
         .from('whispers')
@@ -36,11 +43,14 @@ export const useWhisperStore = create<WhisperState>((set, get) => ({
         .eq('published', true)
         .order('created_at', { ascending: false });
 
+      clearTimeout(safetyTimeout);
+
       if (error) throw error;
 
       const whispers = data?.map(mapDbWhisperToWhisper) || [];
       set({ whispers, isLoading: false });
     } catch (err: any) {
+      clearTimeout(safetyTimeout);
       console.error('Error fetching whispers:', err);
       set({ error: err.message, isLoading: false, whispers: [] });
     }
@@ -48,17 +58,27 @@ export const useWhisperStore = create<WhisperState>((set, get) => ({
 
   fetchAllWhispers: async () => {
     set({ isLoading: true, error: null });
+    const safetyTimeout = setTimeout(() => {
+      if (get().isLoading) {
+        console.warn('fetchAllWhispers query timed out.');
+        set({ isLoading: false });
+      }
+    }, 5000);
+
     try {
       const { data, error } = await supabase
         .from('whispers')
         .select('*')
         .order('created_at', { ascending: false });
 
+      clearTimeout(safetyTimeout);
+
       if (error) throw error;
 
       const whispers = data?.map(mapDbWhisperToWhisper) || [];
       set({ whispers, isLoading: false });
     } catch (err: any) {
+      clearTimeout(safetyTimeout);
       console.error('Error fetching all whispers:', err);
       set({ error: err.message, isLoading: false, whispers: [] });
     }

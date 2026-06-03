@@ -15,6 +15,19 @@ const CategoryPage: React.FC = () => {
   const [categoryName, setCategoryName] = useState<string>('');
 
   useEffect(() => {
+    let mounted = true;
+    
+    // Safety timeout of 2.5 seconds to prevent getting stuck on loading screen
+    const safetyTimeout = setTimeout(() => {
+      setIsLoading(prev => {
+        if (prev) {
+          console.warn('Category page loading timed out, disabling loading screen.');
+          return false;
+        }
+        return prev;
+      });
+    }, 2500);
+
     const fetchCategoryAndArticles = async () => {
       setIsLoading(true);
       
@@ -26,6 +39,8 @@ const CategoryPage: React.FC = () => {
           .eq('slug', slug)
           .single();
 
+        if (!mounted) return;
+
         const name = categoryData?.name || slug?.charAt(0).toUpperCase() + slug?.slice(1);
         setCategoryName(name);
 
@@ -36,6 +51,8 @@ const CategoryPage: React.FC = () => {
           .eq('category', name)
           .eq('published', true)
           .order('created_at', { ascending: false });
+
+        if (!mounted) return;
 
         if (articlesData) {
           // Transform keys to match Article type
@@ -60,13 +77,21 @@ const CategoryPage: React.FC = () => {
       } catch (error) {
         console.error('Error fetching category:', error);
       } finally {
-        setIsLoading(false);
+        clearTimeout(safetyTimeout);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     if (slug) {
       fetchCategoryAndArticles();
     }
+
+    return () => {
+      mounted = false;
+      clearTimeout(safetyTimeout);
+    };
   }, [slug]);
 
   // Determine a color theme based on category slug (for visual interest)

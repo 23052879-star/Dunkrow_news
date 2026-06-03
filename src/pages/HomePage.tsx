@@ -56,18 +56,19 @@ const HomePage: React.FC = () => {
   }, [fetchFeaturedArticles, fetchArticles]);
 
   const fetchCategories = async () => {
+    const demoCategories = [
+      { name: 'Politics', slug: 'politics' },
+      { name: 'Technology', slug: 'technology' },
+      { name: 'Business', slug: 'business' },
+      { name: 'Sports', slug: 'sports' },
+      { name: 'Entertainment', slug: 'entertainment' },
+      { name: 'Science', slug: 'science' },
+      { name: 'Health', slug: 'health' }
+    ];
+
     // Check if Supabase is configured
     if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_URL.includes('undefined')) {
       console.warn('Supabase not configured, using demo categories');
-      const demoCategories = [
-        { name: 'Politics', slug: 'politics' },
-        { name: 'Technology', slug: 'technology' },
-        { name: 'Business', slug: 'business' },
-        { name: 'Sports', slug: 'sports' },
-        { name: 'Entertainment', slug: 'entertainment' },
-        { name: 'Science', slug: 'science' },
-        { name: 'Health', slug: 'health' }
-      ];
       setCategories(demoCategories);
       return;
     }
@@ -78,11 +79,15 @@ const HomePage: React.FC = () => {
         .select('name, slug')
         .order('name');
       
-      if (error) {
-        setDebugError(`Categories Query Error: ${error.message} (Code: ${error.code})`);
-        console.error('Error fetching categories:', error);
-      } else if (!categories || categories.length === 0) {
-        setDebugError('Categories Query returned 0 rows!');
+      if (error || !categories || categories.length === 0) {
+        if (error) {
+          setDebugError(`Categories Query Error: ${error.message} (Code: ${error.code})`);
+          console.error('Error fetching categories:', error);
+        } else {
+          setDebugError('Categories Query returned 0 rows!');
+        }
+        setCategories(demoCategories);
+        fetchCategoryArticles(demoCategories);
       } else {
         setCategories(categories);
         fetchCategoryArticles(categories);
@@ -90,6 +95,8 @@ const HomePage: React.FC = () => {
     } catch (err: any) {
       setDebugError(`Categories Catch: ${err.message}`);
       console.error('Catch error fetching categories:', err);
+      setCategories(demoCategories);
+      fetchCategoryArticles(demoCategories);
     }
   };
 

@@ -30,6 +30,16 @@ const Header: React.FC = () => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
     
+    const defaultCategories = [
+      { name: 'Politics', slug: 'politics' },
+      { name: 'Technology', slug: 'technology' },
+      { name: 'Business', slug: 'business' },
+      { name: 'Sports', slug: 'sports' },
+      { name: 'Entertainment', slug: 'entertainment' },
+      { name: 'Science', slug: 'science' },
+      { name: 'Health', slug: 'health' }
+    ];
+
     if (!supabaseUrl || !supabaseKey || 
         supabaseUrl === 'your-supabase-url' || 
         supabaseKey === 'your-supabase-anon-key' ||
@@ -40,35 +50,26 @@ const Header: React.FC = () => {
         !supabaseUrl.includes('.supabase.co')) {
       console.warn('Supabase not configured properly, using demo categories');
       // Use demo categories when Supabase is not configured
-      setCategories([
-        { name: 'Politics', slug: 'politics' },
-        { name: 'Sports', slug: 'sports' },
-        { name: 'Technology', slug: 'technology' },
-        { name: 'Entertainment', slug: 'entertainment' },
-        { name: 'Business', slug: 'business' }
-      ]);
+      setCategories(defaultCategories);
       return;
     }
 
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('categories')
         .select('name, slug')
         .order('name');
       
-      if (data) {
+      if (error || !data || data.length === 0) {
+        if (error) console.error('Error fetching categories:', error);
+        setCategories(defaultCategories);
+      } else {
         setCategories(data);
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
       // Fallback to demo categories on error
-      setCategories([
-        { name: 'Politics', slug: 'politics' },
-        { name: 'Sports', slug: 'sports' },
-        { name: 'Technology', slug: 'technology' },
-        { name: 'Entertainment', slug: 'entertainment' },
-        { name: 'Business', slug: 'business' }
-      ]);
+      setCategories(defaultCategories);
     }
   };
 

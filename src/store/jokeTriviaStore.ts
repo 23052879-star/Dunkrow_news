@@ -32,6 +32,13 @@ export const useJokeTriviaStore = create<JokeTriviaState>((set, get) => ({
 
   fetchJokesTrivia: async () => {
     set({ isLoading: true, error: null });
+    const safetyTimeout = setTimeout(() => {
+      if (get().isLoading) {
+        console.warn('fetchJokesTrivia query timed out.');
+        set({ isLoading: false });
+      }
+    }, 5000);
+
     try {
       const { data, error } = await supabase
         .from('jokes_trivia')
@@ -39,6 +46,8 @@ export const useJokeTriviaStore = create<JokeTriviaState>((set, get) => ({
         .eq('published', true)
         .order('created_at', { ascending: false });
 
+      clearTimeout(safetyTimeout);
+
       if (error) throw error;
 
       const jokesTrivia = data?.map(mapDbToJokeTrivia) || [];
@@ -47,6 +56,7 @@ export const useJokeTriviaStore = create<JokeTriviaState>((set, get) => ({
 
       set({ jokesTrivia, jokes, trivia, isLoading: false });
     } catch (err: any) {
+      clearTimeout(safetyTimeout);
       console.error('Error fetching jokes/trivia:', err);
       set({ error: err.message, isLoading: false, jokesTrivia: [], jokes: [], trivia: [] });
     }
@@ -54,11 +64,20 @@ export const useJokeTriviaStore = create<JokeTriviaState>((set, get) => ({
 
   fetchAllJokesTrivia: async () => {
     set({ isLoading: true, error: null });
+    const safetyTimeout = setTimeout(() => {
+      if (get().isLoading) {
+        console.warn('fetchAllJokesTrivia query timed out.');
+        set({ isLoading: false });
+      }
+    }, 5000);
+
     try {
       const { data, error } = await supabase
         .from('jokes_trivia')
         .select('*')
         .order('created_at', { ascending: false });
+
+      clearTimeout(safetyTimeout);
 
       if (error) throw error;
 
@@ -68,6 +87,7 @@ export const useJokeTriviaStore = create<JokeTriviaState>((set, get) => ({
 
       set({ jokesTrivia, jokes, trivia, isLoading: false });
     } catch (err: any) {
+      clearTimeout(safetyTimeout);
       console.error('Error fetching all jokes/trivia:', err);
       set({ error: err.message, isLoading: false, jokesTrivia: [], jokes: [], trivia: [] });
     }

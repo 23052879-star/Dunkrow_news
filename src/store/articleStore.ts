@@ -71,6 +71,13 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
     }
 
     set({ isLoading: true, error: null });
+    const safetyTimeout = setTimeout(() => {
+      if (get().isLoading) {
+        console.warn('fetchArticles query timed out.');
+        set({ isLoading: false });
+      }
+    }, 5000);
+
     try {
       const { data, error } = await supabase
         .from('articles')
@@ -82,11 +89,14 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
         .order('created_at', { ascending: false })
         .limit(limit);
 
+      clearTimeout(safetyTimeout);
+
       if (error) throw error;
 
       const articles = data?.map(mapDbArticleToArticle) || [];
       set({ articles, isLoading: false });
     } catch (error: any) {
+      clearTimeout(safetyTimeout);
       console.error('Error fetching articles:', error);
       set({ error: error.message, isLoading: false, articles: [] });
     }
@@ -99,6 +109,13 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
     }
 
     set({ isLoading: true, error: null });
+    const safetyTimeout = setTimeout(() => {
+      if (get().isLoading) {
+        console.warn('fetchAllArticles query timed out.');
+        set({ isLoading: false });
+      }
+    }, 5000);
+
     try {
       const { data, error } = await supabase
         .from('articles')
@@ -108,11 +125,14 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
         `)
         .order('created_at', { ascending: false });
 
+      clearTimeout(safetyTimeout);
+
       if (error) throw error;
 
       const articles = data?.map(mapDbArticleToArticle) || [];
       set({ articles, isLoading: false });
     } catch (error: any) {
+      clearTimeout(safetyTimeout);
       console.error('Error fetching all articles for admin:', error);
       set({ error: error.message, isLoading: false, articles: [] });
     }
@@ -125,6 +145,13 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
     }
 
     set({ isLoading: true, error: null });
+    const safetyTimeout = setTimeout(() => {
+      if (get().isLoading) {
+        console.warn('fetchFeaturedArticles query timed out.');
+        set({ isLoading: false });
+      }
+    }, 5000);
+
     try {
       const { data, error } = await supabase
         .from('articles')
@@ -136,11 +163,14 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
         .order('created_at', { ascending: false })
         .limit(5);
 
+      clearTimeout(safetyTimeout);
+
       if (error) throw error;
 
       const featuredArticles = data?.map(mapDbArticleToArticle) || [];
       set({ featuredArticles, isLoading: false });
     } catch (error: any) {
+      clearTimeout(safetyTimeout);
       console.error('Error fetching featured articles:', error);
       set({ error: error.message, isLoading: false, featuredArticles: [] });
     }
@@ -150,6 +180,13 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
     if (!isSupabaseConfigured()) return null;
 
     set({ isLoading: true, error: null });
+    const safetyTimeout = setTimeout(() => {
+      if (get().isLoading) {
+        console.warn('fetchArticleBySlug query timed out.');
+        set({ isLoading: false });
+      }
+    }, 5000);
+
     try {
       const { data, error } = await supabase
         .from('articles')
@@ -160,11 +197,14 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
         .eq('slug', slug)
         .single();
 
+      clearTimeout(safetyTimeout);
+
       if (error) throw error;
 
       set({ isLoading: false });
       return mapDbArticleToArticle(data);
     } catch (error: any) {
+      clearTimeout(safetyTimeout);
       console.error('Error fetching article by slug:', error);
       set({ error: error.message, isLoading: false });
       return null;
