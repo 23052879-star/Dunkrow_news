@@ -1,0 +1,2 @@
+[functions.post-to-buffer]
+verify_jwt = false

@@ -33,7 +33,11 @@ const isSupabaseConfigured = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const processingRef = useRef(false);
+  // Latest-wins counter: each handleSession call gets a unique ID.
+  // Only the most recent call is allowed to commit state changes.
+  // This replaces the old processingRef guard which silently DROPPED
+  // concurrent auth events, causing desynchronized auth state.
+  const sessionCounterRef = useRef(0);
 
   const fetchProfile = useCallback(async (sessionUser: any): Promise<User> => {
     try {
@@ -106,18 +110,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let mounted = true;
     if (!isSupabaseConfigured()) { setIsLoading(false); return; }
 
-    const safetyTimeout = setTimeout(() => { if (mounted) setIsLoading(false); }, 2500);
+    const safetyTimeout = setTimeout(() => { if (mounted) setIsLoading(false); }, 5000);
 
     const handleSession = async (session: any | null) => {
       if (!mounted) return;
       
-      // Prevent duplicate processing
-      if (processingRef.current) return;
-      processingRef.current = true;
+      // Increment counter — this call is now the "latest"
+      const myId = ++sessionCounterRef.current;
 
       try {
         if (session?.user) {
           const userData = await fetchProfile(session.user);
+
+          // After await: check if a NEWER call has started; if so, bail out
+          if (myId !== sessionCounterRef.current || !mounted) return;
           
           // Check if this was a Google LOGIN attempt for a non-existent account
           const intent = localStorage.getItem('auth_intent');
@@ -129,7 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               // No profile found — user was trying to LOGIN with Google but has no account
               // Sign them out and set an error flag
               await supabase.auth.signOut();
-              if (mounted) {
+              if (mounted && myId === sessionCounterRef.current) {
                 setUser(null);
                 setIsLoading(false);
                 // Store error for LoginPage to pick up
@@ -139,13 +145,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
           }
           
-          if (mounted) setUser(userData);
+          if (mounted && myId === sessionCounterRef.current) setUser(userData);
         } else {
-          if (mounted) setUser(null);
+          if (mounted && myId === sessionCounterRef.current) setUser(null);
         }
-        if (mounted) setIsLoading(false);
-      } finally {
-        processingRef.current = false;
+        if (mounted && myId === sessionCounterRef.current) setIsLoading(false);
+      } catch (err) {
+        console.error('handleSession error:', err);
+        if (mounted && myId === sessionCounterRef.current) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -155,9 +164,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         await handleSession(session);
       } else if (event === 'SIGNED_OUT') {
+        // Increment counter so any in-flight handleSession calls bail out
+        ++sessionCounterRef.current;
         setUser(null);
         setIsLoading(false);
-        processingRef.current = false;
       }
     });
 

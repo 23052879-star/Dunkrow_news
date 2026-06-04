@@ -266,20 +266,19 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
         isLoading: false
       });
 
-      // Auto-post to Buffer when publishing
+      // Auto-post to Buffer when publishing (fire-and-forget so it
+      // doesn't block the publish response or trigger auth race conditions)
       if (published) {
-        try {
-          await postToBuffer({
-            id: newArticle.id,
-            title: newArticle.title,
-            excerpt: newArticle.excerpt ?? '',
-            slug: newArticle.slug ?? '',
-            category: newArticle.category ?? '',
-            featuredImage: newArticle.featuredImage,
-          });
-        } catch (bufferErr) {
+        postToBuffer({
+          id: newArticle.id,
+          title: newArticle.title,
+          excerpt: newArticle.excerpt ?? '',
+          slug: newArticle.slug ?? '',
+          category: newArticle.category ?? '',
+          featuredImage: newArticle.featuredImage,
+        }).catch(bufferErr => {
           console.warn('[Buffer] Post queuing failed (article was saved):', bufferErr);
-        }
+        });
       }
 
       return newArticle;
@@ -338,20 +337,19 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
       
       set({ articles, isLoading: false });
 
-      // Auto-post to Buffer when status changes to published
+      // Auto-post to Buffer when status changes to published (fire-and-forget
+      // so it doesn't block the update response or trigger auth race conditions)
       if (dbUpdates.published === true) {
-        try {
-          await postToBuffer({
-            id: updatedArticle.id,
-            title: updatedArticle.title,
-            excerpt: updatedArticle.excerpt ?? '',
-            slug: updatedArticle.slug ?? '',
-            category: updatedArticle.category ?? '',
-            featuredImage: updatedArticle.featuredImage,
-          });
-        } catch (bufferErr) {
+        postToBuffer({
+          id: updatedArticle.id,
+          title: updatedArticle.title,
+          excerpt: updatedArticle.excerpt ?? '',
+          slug: updatedArticle.slug ?? '',
+          category: updatedArticle.category ?? '',
+          featuredImage: updatedArticle.featuredImage,
+        }).catch(bufferErr => {
           console.warn('[Buffer] Post queuing failed (article was saved):', bufferErr);
-        }
+        });
       }
 
       return updatedArticle;
