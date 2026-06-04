@@ -270,6 +270,7 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
       if (published) {
         try {
           await postToBuffer({
+            id: newArticle.id,
             title: newArticle.title,
             excerpt: newArticle.excerpt ?? '',
             slug: newArticle.slug ?? '',
@@ -341,6 +342,7 @@ export const useArticleStore = create<ArticleState>((set, get) => ({
       if (dbUpdates.published === true) {
         try {
           await postToBuffer({
+            id: updatedArticle.id,
             title: updatedArticle.title,
             excerpt: updatedArticle.excerpt ?? '',
             slug: updatedArticle.slug ?? '',

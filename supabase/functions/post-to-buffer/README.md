@@ -20,6 +20,14 @@ your project service role key from Project Settings > API. Keep it private.
 supabase functions deploy post-to-buffer
 ```
 
+This function is used by a database webhook, so JWT verification must stay
+disabled. The repo includes this setting in `supabase/config.toml`:
+
+```toml
+[functions.post-to-buffer]
+verify_jwt = false
+```
+
 ## Webhook
 
 Create a Supabase Database Webhook:

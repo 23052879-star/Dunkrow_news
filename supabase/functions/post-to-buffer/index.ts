@@ -1,9 +1,9 @@
 type ArticleRecord = {
   id: string;
   title: string;
-  excerpt: string;
-  featured_image: string;
-  category: string;
+  excerpt: string | null;
+  featured_image: string | null;
+  category: string | null;
   slug: string;
   published: boolean;
   social_posted_at?: string | null;
@@ -42,6 +42,25 @@ function postText(article: ArticleRecord) {
     '',
     tags.join(' '),
   ].join('\n').trim();
+}
+
+async function fetchArticle(id: string): Promise<ArticleRecord | null> {
+  const response = await fetch(
+    `${supabaseUrl}/rest/v1/articles?id=eq.${id}&select=id,title,excerpt,featured_image,category,slug,published,social_posted_at`,
+    {
+      headers: {
+        'apikey': serviceRoleKey,
+        'Authorization': `Bearer ${serviceRoleKey}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch article social status: ${await response.text()}`);
+  }
+
+  const rows = await response.json() as ArticleRecord[];
+  return rows[0] ?? null;
 }
 
 async function createBufferPost(channelId: string, article: ArticleRecord) {
@@ -121,15 +140,24 @@ Deno.serve(async (request) => {
     return new Response('Method not allowed', { status: 405, headers: corsHeaders });
   }
 
+  let articleForError: ArticleRecord | undefined;
+
   try {
     if (!bufferApiKey || !channelIds.length || !supabaseUrl || !serviceRoleKey) {
       throw new Error('Missing required secrets');
     }
 
     const payload = await request.json() as WebhookPayload;
-    const article = payload.record;
+    const payloadArticle = payload.record;
 
-    if (!article?.id || !article.published || article.social_posted_at) {
+    if (!payloadArticle?.id) {
+      return Response.json({ skipped: true }, { headers: corsHeaders });
+    }
+
+    const article = await fetchArticle(payloadArticle.id);
+    articleForError = article ?? payloadArticle;
+
+    if (!article?.published || article.social_posted_at) {
       return Response.json({ skipped: true }, { headers: corsHeaders });
     }
 
@@ -152,6 +180,15 @@ Deno.serve(async (request) => {
     return Response.json({ ok: true, posts }, { headers: corsHeaders });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
+
+    if (articleForError?.id && supabaseUrl && serviceRoleKey) {
+      try {
+        await updateArticle(articleForError.id, { social_post_error: message });
+      } catch (statusError) {
+        console.error('Failed to record Buffer error:', statusError);
+      }
+    }
+
     return Response.json({ ok: false, error: message }, { status: 500, headers: corsHeaders });
   }
 });
