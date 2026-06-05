@@ -8,6 +8,8 @@ type ArticleRecord = {
   published: boolean;
   social_posted_at?: string | null;
   social_post_ids?: Record<string, string> | null;
+  social_post_attempt_count?: number | null;
+  social_post_next_retry_at?: string | null;
 };
 
 type WebhookPayload = {
@@ -47,17 +49,21 @@ function postText(article: ArticleRecord) {
   ].join('\n').trim();
 }
 
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 function isRateLimitError(message: string) {
   return /too many requests|rate limit|rate-limit|429/i.test(message);
 }
 
+function nextRetryAt(message: string, attemptCount: number) {
+  const minutes = isRateLimitError(message)
+    ? Math.min(240, 60 * Math.max(1, attemptCount))
+    : Math.min(60, 15 * Math.max(1, attemptCount));
+
+  return new Date(Date.now() + minutes * 60_000).toISOString();
+}
+
 async function fetchArticle(id: string): Promise<ArticleRecord | null> {
   const response = await fetch(
-    `${supabaseUrl}/rest/v1/articles?id=eq.${id}&select=id,title,excerpt,featured_image,category,slug,published,social_posted_at,social_post_ids`,
+    `${supabaseUrl}/rest/v1/articles?id=eq.${id}&select=id,title,excerpt,featured_image,category,slug,published,social_posted_at,social_post_ids,social_post_attempt_count,social_post_next_retry_at`,
     {
       headers: {
         'apikey': serviceRoleKey,
@@ -126,26 +132,6 @@ async function createBufferPost(channelId: string, article: ArticleRecord) {
   return result.post;
 }
 
-async function createBufferPostWithRetry(channelId: string, article: ArticleRecord) {
-  const delays = [1_500, 5_000, 15_000];
-  let lastError: Error | undefined;
-
-  for (let attempt = 0; attempt <= delays.length; attempt += 1) {
-    try {
-      return await createBufferPost(channelId, article);
-    } catch (error) {
-      lastError = error instanceof Error ? error : new Error('Buffer post failed');
-      if (!isRateLimitError(lastError.message) || attempt === delays.length) {
-        throw lastError;
-      }
-
-      await sleep(delays[attempt]);
-    }
-  }
-
-  throw lastError ?? new Error('Buffer post failed');
-}
-
 async function updateArticle(id: string, body: Record<string, unknown>) {
   const response = await fetch(`${supabaseUrl}/rest/v1/articles?id=eq.${id}`, {
     method: 'PATCH',
@@ -200,9 +186,26 @@ Deno.serve(async (request) => {
       return Response.json({ skipped: true }, { headers: corsHeaders });
     }
 
+    if (
+      article.social_post_next_retry_at
+      && new Date(article.social_post_next_retry_at).getTime() > Date.now()
+    ) {
+      return Response.json({
+        skipped: true,
+        nextRetryAt: article.social_post_next_retry_at,
+      }, { headers: corsHeaders });
+    }
+
     if (!article.title || !article.slug) {
       throw new Error('Article is missing title or slug');
     }
+
+    const attemptCount = (article.social_post_attempt_count ?? 0) + 1;
+    await updateArticle(article.id, {
+      social_post_attempted_at: new Date().toISOString(),
+      social_post_attempt_count: attemptCount,
+      social_post_next_retry_at: null,
+    });
 
     const posts: Record<string, string> = article.social_post_ids ?? {};
     for (const channelId of channelIds) {
@@ -210,7 +213,7 @@ Deno.serve(async (request) => {
         continue;
       }
 
-      const post = await createBufferPostWithRetry(channelId, article);
+      const post = await createBufferPost(channelId, article);
       posts[channelId] = post.id;
 
       await updateArticle(article.id, {
@@ -223,6 +226,7 @@ Deno.serve(async (request) => {
       social_posted_at: new Date().toISOString(),
       social_post_ids: posts,
       social_post_error: null,
+      social_post_next_retry_at: null,
     });
 
     return Response.json({ ok: true, posts }, { headers: corsHeaders });
@@ -231,7 +235,11 @@ Deno.serve(async (request) => {
 
     if (articleForError?.id && supabaseUrl && serviceRoleKey) {
       try {
-        await updateArticle(articleForError.id, { social_post_error: message });
+        const attemptCount = articleForError.social_post_attempt_count ?? 1;
+        await updateArticle(articleForError.id, {
+          social_post_error: message,
+          social_post_next_retry_at: nextRetryAt(message, attemptCount),
+        });
       } catch (statusError) {
         console.error('Failed to record Buffer error:', statusError);
       }
