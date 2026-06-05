@@ -7,6 +7,7 @@ type ArticleRecord = {
   slug: string;
   published: boolean;
   social_posted_at?: string | null;
+  social_post_ids?: Record<string, string> | null;
 };
 
 type WebhookPayload = {
@@ -22,7 +23,9 @@ const channelIds = (Deno.env.get('BUFFER_CHANNEL_IDS') ?? '')
   .filter(Boolean);
 const siteUrl = (Deno.env.get('SITE_URL') ?? 'https://www.dunkrow.in').replace(/\/$/, '');
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-const serviceRoleKey = Deno.env.get('SB_SERVICE_ROLE_KEY') ?? '';
+const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  ?? Deno.env.get('SB_SERVICE_ROLE_KEY')
+  ?? '';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -44,9 +47,17 @@ function postText(article: ArticleRecord) {
   ].join('\n').trim();
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRateLimitError(message: string) {
+  return /too many requests|rate limit|rate-limit|429/i.test(message);
+}
+
 async function fetchArticle(id: string): Promise<ArticleRecord | null> {
   const response = await fetch(
-    `${supabaseUrl}/rest/v1/articles?id=eq.${id}&select=id,title,excerpt,featured_image,category,slug,published,social_posted_at`,
+    `${supabaseUrl}/rest/v1/articles?id=eq.${id}&select=id,title,excerpt,featured_image,category,slug,published,social_posted_at,social_post_ids`,
     {
       headers: {
         'apikey': serviceRoleKey,
@@ -105,13 +116,34 @@ async function createBufferPost(channelId: string, article: ArticleRecord) {
     }),
   });
 
-  const data = await response.json();
+  const responseText = await response.text();
+  const data = responseText ? JSON.parse(responseText) : {};
   const result = data?.data?.createPost;
   if (!response.ok || data.errors?.length || result?.message) {
-    throw new Error(result?.message ?? data.errors?.[0]?.message ?? 'Buffer post failed');
+    throw new Error(result?.message ?? data.errors?.[0]?.message ?? `Buffer post failed (${response.status})`);
   }
 
   return result.post;
+}
+
+async function createBufferPostWithRetry(channelId: string, article: ArticleRecord) {
+  const delays = [1_500, 5_000, 15_000];
+  let lastError: Error | undefined;
+
+  for (let attempt = 0; attempt <= delays.length; attempt += 1) {
+    try {
+      return await createBufferPost(channelId, article);
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error('Buffer post failed');
+      if (!isRateLimitError(lastError.message) || attempt === delays.length) {
+        throw lastError;
+      }
+
+      await sleep(delays[attempt]);
+    }
+  }
+
+  throw lastError ?? new Error('Buffer post failed');
 }
 
 async function updateArticle(id: string, body: Record<string, unknown>) {
@@ -144,7 +176,14 @@ Deno.serve(async (request) => {
 
   try {
     if (!bufferApiKey || !channelIds.length || !supabaseUrl || !serviceRoleKey) {
-      throw new Error('Missing required secrets');
+      const missing = [
+        !bufferApiKey && 'BUFFER_API_KEY',
+        !channelIds.length && 'BUFFER_CHANNEL_IDS',
+        !supabaseUrl && 'SUPABASE_URL',
+        !serviceRoleKey && 'SUPABASE_SERVICE_ROLE_KEY',
+      ].filter(Boolean);
+
+      throw new Error(`Missing required secrets: ${missing.join(', ')}`);
     }
 
     const payload = await request.json() as WebhookPayload;
@@ -165,10 +204,19 @@ Deno.serve(async (request) => {
       throw new Error('Article is missing title or slug');
     }
 
-    const posts: Record<string, string> = {};
+    const posts: Record<string, string> = article.social_post_ids ?? {};
     for (const channelId of channelIds) {
-      const post = await createBufferPost(channelId, article);
+      if (posts[channelId]) {
+        continue;
+      }
+
+      const post = await createBufferPostWithRetry(channelId, article);
       posts[channelId] = post.id;
+
+      await updateArticle(article.id, {
+        social_post_ids: posts,
+        social_post_error: null,
+      });
     }
 
     await updateArticle(article.id, {

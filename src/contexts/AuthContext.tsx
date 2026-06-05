@@ -110,7 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let mounted = true;
     if (!isSupabaseConfigured()) { setIsLoading(false); return; }
 
-    const safetyTimeout = setTimeout(() => { if (mounted) setIsLoading(false); }, 5000);
+    const safetyTimeout = setTimeout(() => { if (mounted) setIsLoading(false); }, 10000);
 
     const handleSession = async (session: any | null) => {
       if (!mounted) return;
@@ -158,6 +158,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
 
+    supabase.auth.getSession()
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('getSession error:', error);
+          if (mounted) setIsLoading(false);
+          return;
+        }
+        return handleSession(data.session);
+      })
+      .catch((error) => {
+        console.error('getSession failed:', error);
+        if (mounted) setIsLoading(false);
+      });
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
       
@@ -176,8 +190,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = useCallback(async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      setIsLoading(true);
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
+        setIsLoading(false);
         // Map Supabase error messages to user-friendly messages
         let userMessage = error.message;
         if (error.message?.includes('Invalid login credentials')) {
@@ -187,11 +203,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         return { error: { ...error, message: userMessage } };
       }
+
+      if (data.user) {
+        const userData = await fetchProfile(data.user);
+        setUser(userData);
+      }
+
+      setIsLoading(false);
       return { error: null };
     } catch (error: any) {
+      setIsLoading(false);
       return { error: { message: error.message || 'An unexpected error occurred.' } };
     }
-  }, []);
+  }, [fetchProfile]);
 
   const register = useCallback(async (email: string, password: string, username: string) => {
     try {

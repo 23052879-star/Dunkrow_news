@@ -200,6 +200,7 @@ export interface Database {
           slug: string
           description: string | null
           created_at: string
+          display_order: number | null
         }
         Insert: {
           id?: string
@@ -207,6 +208,7 @@ export interface Database {
           slug: string
           description?: string | null
           created_at?: string
+          display_order?: number | null
         }
         Update: {
           id?: string
@@ -214,6 +216,7 @@ export interface Database {
           slug?: string
           description?: string | null
           created_at?: string
+          display_order?: number | null
         }
       }
       sections: {
