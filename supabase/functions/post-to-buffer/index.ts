@@ -18,6 +18,11 @@ type WebhookPayload = {
   old_record?: ArticleRecord;
 };
 
+type BufferChannel = {
+  id: string;
+  service: string;
+};
+
 const bufferApiKey = Deno.env.get('BUFFER_API_KEY') ?? '';
 const channelIds = (Deno.env.get('BUFFER_CHANNEL_IDS') ?? '')
   .split(',')
@@ -61,6 +66,29 @@ function nextRetryAt(message: string, attemptCount: number) {
   return new Date(Date.now() + minutes * 60_000).toISOString();
 }
 
+async function bufferGraphql<T>(
+  query: string,
+  variables: Record<string, unknown>,
+): Promise<T> {
+  const response = await fetch('https://api.buffer.com', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${bufferApiKey}`,
+    },
+    body: JSON.stringify({ query, variables }),
+  });
+
+  const responseText = await response.text();
+  const data = responseText ? JSON.parse(responseText) : {};
+
+  if (!response.ok || data.errors?.length) {
+    throw new Error(data.errors?.[0]?.message ?? `Buffer request failed (${response.status})`);
+  }
+
+  return data.data as T;
+}
+
 async function fetchArticle(id: string): Promise<ArticleRecord | null> {
   const response = await fetch(
     `${supabaseUrl}/rest/v1/articles?id=eq.${id}&select=id,title,excerpt,featured_image,category,slug,published,social_posted_at,social_post_ids,social_post_attempt_count,social_post_next_retry_at`,
@@ -78,6 +106,48 @@ async function fetchArticle(id: string): Promise<ArticleRecord | null> {
 
   const rows = await response.json() as ArticleRecord[];
   return rows[0] ?? null;
+}
+
+async function fetchChannel(channelId: string): Promise<BufferChannel> {
+  const query = `
+    query GetChannel($id: ChannelId!) {
+      channel(input: { id: $id }) {
+        id
+        service
+      }
+    }
+  `;
+
+  const data = await bufferGraphql<{ channel: BufferChannel }>(query, { id: channelId });
+  return data.channel;
+}
+
+function metadataForService(service: string) {
+  const typeMetadata = { type: 'post' };
+  const normalizedService = service.toLowerCase();
+
+  switch (normalizedService) {
+    case 'instagram':
+      return {
+        instagram: {
+          ...typeMetadata,
+          shouldShareToFeed: true,
+        },
+      };
+    case 'facebook':
+      return { facebook: typeMetadata };
+    case 'threads':
+      return { threads: typeMetadata };
+    case 'tiktok':
+      return { tiktok: typeMetadata };
+    case 'mastodon':
+    case 'twitter':
+    case 'x':
+    case 'linkedin':
+    case 'bluesky':
+    default:
+      return undefined;
+  }
 }
 
 async function createBufferPost(channelId: string, article: ArticleRecord) {
@@ -102,31 +172,24 @@ async function createBufferPost(channelId: string, article: ArticleRecord) {
     ? [{ image: { url: article.featured_image } }]
     : [];
 
-  const response = await fetch('https://api.buffer.com', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${bufferApiKey}`,
-    },
-    body: JSON.stringify({
-      query,
-      variables: {
-        input: {
-          text: postText(article),
-          channelId,
-          schedulingType: 'automatic',
-          mode: 'addToQueue',
-          assets,
-        },
-      },
-    }),
-  });
+  const channel = await fetchChannel(channelId);
+  const metadata = metadataForService(channel.service);
+  const input = {
+    text: postText(article),
+    channelId,
+    schedulingType: 'automatic',
+    mode: 'addToQueue',
+    ...(metadata ? { metadata } : {}),
+    assets,
+  };
 
-  const responseText = await response.text();
-  const data = responseText ? JSON.parse(responseText) : {};
-  const result = data?.data?.createPost;
-  if (!response.ok || data.errors?.length || result?.message) {
-    throw new Error(result?.message ?? data.errors?.[0]?.message ?? `Buffer post failed (${response.status})`);
+  const data = await bufferGraphql<{ createPost: { message?: string; post?: { id: string } } }>(
+    query,
+    { input },
+  );
+  const result = data.createPost;
+  if (result?.message || !result?.post) {
+    throw new Error(result?.message ?? 'Buffer post failed');
   }
 
   return result.post;
