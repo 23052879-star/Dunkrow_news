@@ -4,18 +4,28 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, User, LogOut, ChevronDown, Moon, Sun, Settings, LayoutDashboard, Sparkles, SmilePlus, MessageSquare } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { supabase } from '../../lib/supabase';
+import { isSupabaseConfigured, supabase, withTimeout } from '../../lib/supabase';
 
 interface Category {
   name: string;
   slug: string;
 }
 
+const defaultCategories: Category[] = [
+  { name: 'Politics', slug: 'politics' },
+  { name: 'Technology', slug: 'technology' },
+  { name: 'Business', slug: 'business' },
+  { name: 'Sports', slug: 'sports' },
+  { name: 'Entertainment', slug: 'entertainment' },
+  { name: 'Science', slug: 'science' },
+  { name: 'Health', slug: 'health' }
+];
+
 const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Category[]>(defaultCategories);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAdmin, logout } = useAuth();
@@ -23,42 +33,35 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     fetchCategories();
+
+    const refreshCategories = () => {
+      if (document.visibilityState === 'visible') {
+        fetchCategories();
+      }
+    };
+
+    document.addEventListener('visibilitychange', refreshCategories);
+    window.addEventListener('online', fetchCategories);
+
+    return () => {
+      document.removeEventListener('visibilitychange', refreshCategories);
+      window.removeEventListener('online', fetchCategories);
+    };
   }, []);
 
   const fetchCategories = async () => {
-    // Check if Supabase is configured
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    
-    const defaultCategories = [
-      { name: 'Politics', slug: 'politics' },
-      { name: 'Technology', slug: 'technology' },
-      { name: 'Business', slug: 'business' },
-      { name: 'Sports', slug: 'sports' },
-      { name: 'Entertainment', slug: 'entertainment' },
-      { name: 'Science', slug: 'science' },
-      { name: 'Health', slug: 'health' }
-    ];
-
-    if (!supabaseUrl || !supabaseKey || 
-        supabaseUrl === 'your-supabase-url' || 
-        supabaseKey === 'your-supabase-anon-key' ||
-        supabaseUrl.includes('your-project-id') ||
-        supabaseUrl.includes('undefined') ||
-        supabaseKey.includes('undefined') ||
-        !supabaseUrl.startsWith('https://') ||
-        !supabaseUrl.includes('.supabase.co')) {
+    if (!isSupabaseConfigured()) {
       console.warn('Supabase not configured properly, using demo categories');
-      // Use demo categories when Supabase is not configured
       setCategories(defaultCategories);
       return;
     }
 
     try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('name, slug')
-        .order('name');
+      const { data, error } = await withTimeout(
+        supabase.from('categories').select('name, slug').order('name'),
+        10000,
+        'Category navigation request timed out.'
+      );
       
       if (error || !data || data.length === 0) {
         if (error) console.error('Error fetching categories:', error);

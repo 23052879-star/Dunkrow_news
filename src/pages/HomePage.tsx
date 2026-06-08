@@ -8,7 +8,7 @@ import Button from '../components/ui/Button';
 import NewsletterForm from '../components/newsletter/NewsletterForm';
 import { ArrowRight, Zap, Briefcase, Award as Football, Film, Activity as Flask, Heart, ChevronDown, Globe, Users, TrendingUp, Play, BarChart3, Clock, Shield, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { isSupabaseConfigured, supabase, withTimeout } from '../lib/supabase';
 
 interface Category {
   name: string;
@@ -25,11 +25,21 @@ const categoryIcons: Record<string, React.ReactNode> = {
   'Health': <Heart size={24} />
 };
 
+const defaultCategories: Category[] = [
+  { name: 'Politics', slug: 'politics' },
+  { name: 'Technology', slug: 'technology' },
+  { name: 'Business', slug: 'business' },
+  { name: 'Sports', slug: 'sports' },
+  { name: 'Entertainment', slug: 'entertainment' },
+  { name: 'Science', slug: 'science' },
+  { name: 'Health', slug: 'health' }
+];
+
 // Removed RevolvingLogo and FloatingElement for a cleaner editorial layout
 
 const HomePage: React.FC = () => {
   const { articles, featuredArticles, isLoading, fetchArticles, fetchFeaturedArticles } = useArticleStore();
-  const [categories, setCategories] = React.useState<Category[]>([]);
+  const [categories, setCategories] = React.useState<Category[]>(defaultCategories);
   const [categoryArticles, setCategoryArticles] = React.useState<Record<string, any[]>>({});
   const heroRef = useRef<HTMLDivElement>(null);
   
@@ -53,31 +63,38 @@ const HomePage: React.FC = () => {
     fetchFeaturedArticles();
     fetchArticles(6);
     fetchCategories();
+
+    const refreshOnResume = () => {
+      if (document.visibilityState === 'visible') {
+        fetchCategories();
+        fetchFeaturedArticles();
+        fetchArticles(6);
+      }
+    };
+
+    document.addEventListener('visibilitychange', refreshOnResume);
+    window.addEventListener('online', refreshOnResume);
+
+    return () => {
+      document.removeEventListener('visibilitychange', refreshOnResume);
+      window.removeEventListener('online', refreshOnResume);
+    };
   }, [fetchFeaturedArticles, fetchArticles]);
 
   const fetchCategories = async () => {
-    const demoCategories = [
-      { name: 'Politics', slug: 'politics' },
-      { name: 'Technology', slug: 'technology' },
-      { name: 'Business', slug: 'business' },
-      { name: 'Sports', slug: 'sports' },
-      { name: 'Entertainment', slug: 'entertainment' },
-      { name: 'Science', slug: 'science' },
-      { name: 'Health', slug: 'health' }
-    ];
-
-    // Check if Supabase is configured
-    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_URL.includes('undefined')) {
+    if (!isSupabaseConfigured()) {
       console.warn('Supabase not configured, using demo categories');
-      setCategories(demoCategories);
+      setCategories(defaultCategories);
+      fetchCategoryArticles(defaultCategories);
       return;
     }
 
     try {
-      const { data: categories, error } = await supabase
-        .from('categories')
-        .select('name, slug')
-        .order('name');
+      const { data: categories, error } = await withTimeout(
+        supabase.from('categories').select('name, slug').order('name'),
+        10000,
+        'Homepage categories request timed out.'
+      );
       
       if (error || !categories || categories.length === 0) {
         if (error) {
@@ -86,8 +103,8 @@ const HomePage: React.FC = () => {
         } else {
           setDebugError('Categories Query returned 0 rows!');
         }
-        setCategories(demoCategories);
-        fetchCategoryArticles(demoCategories);
+        setCategories(defaultCategories);
+        fetchCategoryArticles(defaultCategories);
       } else {
         setCategories(categories);
         fetchCategoryArticles(categories);
@@ -95,8 +112,8 @@ const HomePage: React.FC = () => {
     } catch (err: any) {
       setDebugError(`Categories Catch: ${err.message}`);
       console.error('Catch error fetching categories:', err);
-      setCategories(demoCategories);
-      fetchCategoryArticles(demoCategories);
+      setCategories(defaultCategories);
+      fetchCategoryArticles(defaultCategories);
     }
   };
 
@@ -105,13 +122,17 @@ const HomePage: React.FC = () => {
     
     try {
       await Promise.all(categories.map(async (category) => {
-        const { data } = await supabase
-          .from('articles')
-          .select('*')
-          .eq('category', category.name)
-          .eq('published', true)
-          .order('created_at', { ascending: false })
-          .limit(3);
+        const { data } = await withTimeout(
+          supabase
+            .from('articles')
+            .select('*')
+            .eq('category', category.name)
+            .eq('published', true)
+            .order('created_at', { ascending: false })
+            .limit(3),
+          10000,
+          `Articles request for ${category.name} timed out.`
+        );
         
         if (data) {
           // Transform keys to match Article type

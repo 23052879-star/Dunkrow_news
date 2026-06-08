@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { User } from '../types';
-import { supabase } from '../lib/supabase';
+import { clearSupabaseAuthStorage, isSupabaseConfigured, supabase, withTimeout } from '../lib/supabase';
 import LoadingScreen from '../components/ui/LoadingScreen';
 
 type AuthContextType = {
@@ -22,14 +22,6 @@ export const useAuth = () => {
   return context;
 };
 
-const isSupabaseConfigured = () => {
-  const url = import.meta.env.VITE_SUPABASE_URL;
-  const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  return !!(url && key && url.startsWith('https://') && url.includes('.supabase.co') &&
-    !url.includes('undefined') && !key.includes('undefined') &&
-    url !== 'your-supabase-url' && key !== 'your-supabase-anon-key');
-};
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,8 +39,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let fetchError = null;
       
       for (let attempt = 0; attempt < 3; attempt++) {
-        const { data, error } = await supabase
-          .from('profiles').select('*').eq('id', sessionUser.id).single();
+        const { data, error } = await withTimeout(
+          supabase.from('profiles').select('*').eq('id', sessionUser.id).single(),
+          10000,
+          'Profile request timed out.'
+        );
         
         if (!error && data) {
           profile = data;
@@ -158,19 +153,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
 
-    supabase.auth.getSession()
-      .then(({ data, error }) => {
+    const refreshSession = async () => {
+      try {
+        const { data, error } = await withTimeout(
+          supabase.auth.getSession(),
+          15000,
+          'Session restore timed out.'
+        );
         if (error) {
           console.error('getSession error:', error);
-          if (mounted) setIsLoading(false);
+          if (mounted) {
+            setIsLoading(false);
+          }
           return;
         }
-        return handleSession(data.session);
-      })
-      .catch((error) => {
+        await handleSession(data.session);
+      } catch (error) {
         console.error('getSession failed:', error);
-        if (mounted) setIsLoading(false);
-      });
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    refreshSession();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshSession();
+      }
+    };
+
+    const handleOnline = () => {
+      refreshSession();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('focus', refreshSession);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
@@ -185,13 +205,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
-    return () => { mounted = false; clearTimeout(safetyTimeout); subscription.unsubscribe(); };
+    return () => {
+      mounted = false;
+      clearTimeout(safetyTimeout);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('focus', refreshSession);
+      subscription.unsubscribe();
+    };
   }, [fetchProfile]);
 
   const login = useCallback(async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await withTimeout(
+        supabase.auth.signInWithPassword({ email, password }),
+        15000,
+        'Login timed out. Please check your connection and try again.'
+      );
       if (error) {
         setIsLoading(false);
         // Map Supabase error messages to user-friendly messages

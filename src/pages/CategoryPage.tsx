@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { supabase } from '../lib/supabase';
+import { supabase, withTimeout } from '../lib/supabase';
 import ArticleCard from '../components/article/ArticleCard';
 import LoadingScreen from '../components/ui/LoadingScreen';
 import { FileQuestion, ArrowLeft } from 'lucide-react';
@@ -13,6 +13,7 @@ const CategoryPage: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [categoryName, setCategoryName] = useState<string>('');
+  const fallbackCategoryName = slug ? slug.charAt(0).toUpperCase() + slug.slice(1) : 'Category';
 
   useEffect(() => {
     let mounted = true;
@@ -30,27 +31,32 @@ const CategoryPage: React.FC = () => {
 
     const fetchCategoryAndArticles = async () => {
       setIsLoading(true);
+      setCategoryName(fallbackCategoryName);
       
       try {
         // Find category name from slug
-        const { data: categoryData } = await supabase
-          .from('categories')
-          .select('name')
-          .eq('slug', slug)
-          .single();
+        const { data: categoryData } = await withTimeout(
+          supabase.from('categories').select('name').eq('slug', slug).single(),
+          10000,
+          'Category request timed out.'
+        );
 
         if (!mounted) return;
 
-        const name = categoryData?.name || slug?.charAt(0).toUpperCase() + slug?.slice(1);
+        const name = categoryData?.name || fallbackCategoryName;
         setCategoryName(name);
 
         // Fetch articles for this category
-        const { data: articlesData } = await supabase
-          .from('articles')
-          .select('*')
-          .eq('category', name)
-          .eq('published', true)
-          .order('created_at', { ascending: false });
+        const { data: articlesData } = await withTimeout(
+          supabase
+            .from('articles')
+            .select('*')
+            .eq('category', name)
+            .eq('published', true)
+            .order('created_at', { ascending: false }),
+          10000,
+          'Category articles request timed out.'
+        );
 
         if (!mounted) return;
 
@@ -92,7 +98,7 @@ const CategoryPage: React.FC = () => {
       mounted = false;
       clearTimeout(safetyTimeout);
     };
-  }, [slug]);
+  }, [slug, fallbackCategoryName]);
 
   // Determine a color theme based on category slug (for visual interest)
   const getCategoryTheme = () => {
