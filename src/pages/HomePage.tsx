@@ -25,6 +25,16 @@ const categoryIcons: Record<string, React.ReactNode> = {
   'Health': <Heart size={24} />
 };
 
+const categoryGradients: Record<string, { bg: string, text: string, shadow: string, innerBg: string }> = {
+  'Politics': { bg: 'from-blue-500/10 to-indigo-500/10', text: 'group-hover:text-blue-600 dark:group-hover:text-blue-400', shadow: 'hover:shadow-blue-500/10', innerBg: 'group-hover:from-blue-500 group-hover:to-indigo-600 group-hover:border-blue-500' },
+  'Technology': { bg: 'from-purple-500/10 to-fuchsia-500/10', text: 'group-hover:text-purple-600 dark:group-hover:text-purple-400', shadow: 'hover:shadow-purple-500/10', innerBg: 'group-hover:from-purple-500 group-hover:to-fuchsia-600 group-hover:border-purple-500' },
+  'Business': { bg: 'from-emerald-500/10 to-teal-500/10', text: 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400', shadow: 'hover:shadow-emerald-500/10', innerBg: 'group-hover:from-emerald-500 group-hover:to-teal-600 group-hover:border-emerald-500' },
+  'Sports': { bg: 'from-orange-500/10 to-red-500/10', text: 'group-hover:text-orange-600 dark:group-hover:text-orange-400', shadow: 'hover:shadow-orange-500/10', innerBg: 'group-hover:from-orange-500 group-hover:to-red-600 group-hover:border-orange-500' },
+  'Entertainment': { bg: 'from-pink-500/10 to-rose-500/10', text: 'group-hover:text-pink-600 dark:group-hover:text-pink-400', shadow: 'hover:shadow-pink-500/10', innerBg: 'group-hover:from-pink-500 group-hover:to-rose-600 group-hover:border-pink-500' },
+  'Science': { bg: 'from-cyan-500/10 to-blue-500/10', text: 'group-hover:text-cyan-600 dark:group-hover:text-cyan-400', shadow: 'hover:shadow-cyan-500/10', innerBg: 'group-hover:from-cyan-500 group-hover:to-blue-600 group-hover:border-cyan-500' },
+  'Health': { bg: 'from-rose-500/10 to-red-500/10', text: 'group-hover:text-rose-600 dark:group-hover:text-rose-400', shadow: 'hover:shadow-rose-500/10', innerBg: 'group-hover:from-rose-500 group-hover:to-red-600 group-hover:border-rose-500' },
+};
+
 const defaultCategories: Category[] = [
   { name: 'Politics', slug: 'politics' },
   { name: 'Technology', slug: 'technology' },
@@ -417,21 +427,21 @@ const HomePage: React.FC = () => {
                       className="group block h-full"
                     >
                       <motion.div
-                        className="bg-white dark:bg-neutral-900/40 rounded-2xl p-6 transition-all duration-500 border border-slate-200/60 dark:border-neutral-800 hover:border-red-500/50 dark:hover:border-red-500/50 shadow-sm hover:shadow-2xl hover:shadow-red-500/10 h-full relative overflow-hidden group"
+                        className={`bg-white dark:bg-neutral-900/40 rounded-2xl p-6 transition-all duration-500 border border-slate-200/60 dark:border-neutral-800 shadow-sm hover:shadow-2xl ${categoryGradients[category.name]?.shadow || 'hover:shadow-red-500/10'} h-full relative overflow-hidden group`}
                         whileHover={{ y: -8 }}
                       >
-                        <div className="absolute inset-0 bg-gradient-to-br from-red-500/0 via-red-500/0 to-red-500/5 dark:to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <div className={`absolute inset-0 bg-gradient-to-br ${categoryGradients[category.name]?.bg || 'from-red-500/10 to-orange-500/10'} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                         
                         <div className="flex flex-col items-center justify-center text-center space-y-5 relative z-10 h-full">
                           <motion.div 
-                            className="p-4 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-neutral-800 dark:to-neutral-900 border border-slate-200/50 dark:border-neutral-700/50 group-hover:from-red-500 group-hover:to-red-600 group-hover:border-red-500 transition-all duration-500 shadow-inner"
+                            className={`p-4 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-neutral-800 dark:to-neutral-900 border border-slate-200/50 dark:border-neutral-700/50 ${categoryGradients[category.name]?.innerBg || 'group-hover:from-red-500 group-hover:to-red-600 group-hover:border-red-500'} transition-all duration-500 shadow-inner`}
                             whileHover={{ scale: 1.1, rotate: 5 }}
                           >
                             <div className="text-slate-600 dark:text-slate-400 group-hover:text-white transition-colors duration-500">
                               {categoryIcons[category.name] || <ChevronDown size={24} className="text-current" />}
                             </div>
                           </motion.div>
-                          <h3 className="font-bold text-slate-800 dark:text-slate-200 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors duration-300 text-sm tracking-[0.2em] uppercase">
+                          <h3 className={`font-bold text-slate-800 dark:text-slate-200 ${categoryGradients[category.name]?.text || 'group-hover:text-red-600 dark:group-hover:text-red-400'} transition-colors duration-300 text-sm tracking-[0.2em] uppercase`}>
                             {category.name}
                           </h3>
                         </div>
