@@ -11,6 +11,8 @@ const Layout: React.FC = () => {
   const { user } = useAuth();
   
   const isHomePage = location.pathname === '/';
+  const isWhispersPage = location.pathname === '/whispers';
+  const isFullWidthPage = isHomePage || isWhispersPage;
   const isOnboardingPage = location.pathname === '/onboarding';
 
   // Redirect to onboarding if logged in but not onboarded
@@ -32,7 +34,7 @@ const Layout: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-neutral-100 dark:bg-black">
       {!isOnboardingPage && <Header />}
       <motion.main 
-        className={`flex-grow ${isHomePage ? '' : 'max-w-screen-2xl mx-auto px-6 pt-24 pb-12 md:pt-32 w-full'}`}
+        className={`flex-grow ${isFullWidthPage ? '' : 'max-w-screen-2xl mx-auto px-6 pt-24 pb-12 md:pt-32 w-full'}`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}

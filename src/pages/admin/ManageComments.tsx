@@ -104,19 +104,19 @@ export const ManageComments: React.FC = () => {
 
       <div className="space-y-6 animate-in fade-in duration-300">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-850 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-neutral-800 pb-5">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center">
               Comment Moderation Queue
             </h1>
-            <p className="text-neutral-500 text-xs mt-0.5">
+            <p className="text-gray-400 dark:text-neutral-500 text-xs mt-0.5">
               Review reader feedback, approve comments for display, and purge toxic postings.
             </p>
           </div>
         </div>
 
         {/* Tab Filters */}
-        <div className="flex flex-wrap border-b border-neutral-850 gap-1">
+        <div className="flex flex-wrap border-b border-gray-200 dark:border-neutral-800 gap-1">
           {([
             { id: 'pending', label: 'Pending Moderation' },
             { id: 'approved', label: 'Approved Feedback' },
@@ -127,8 +127,8 @@ export const ManageComments: React.FC = () => {
               onClick={() => setCurrentTab(tab.id)}
               className={`px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all ${
                 currentTab === tab.id
-                  ? 'border-red-500 text-white'
-                  : 'border-transparent text-neutral-500 hover:text-white'
+                  ? 'border-red-500 text-gray-900 dark:text-white'
+                  : 'border-transparent text-gray-400 dark:text-neutral-500 hover:text-gray-900 dark:text-white'
               }`}
             >
               {tab.label} ({
@@ -149,14 +149,14 @@ export const ManageComments: React.FC = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search comments, usernames..."
-              className="w-full pl-10 pr-4 py-2 bg-neutral-900 border border-neutral-800 rounded-xl text-xs text-neutral-300 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-red-500"
+              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-xl text-xs text-gray-700 dark:text-neutral-300 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-red-500"
             />
           </div>
 
           {/* Bulk actions */}
           {selectedIds.length > 0 && (
             <div className="flex items-center space-x-2 w-full md:w-auto justify-end animate-in fade-in slide-in-from-right duration-150">
-              <span className="text-xs text-neutral-400 font-bold mr-2">
+              <span className="text-xs text-gray-500 dark:text-neutral-400 font-bold mr-2">
                 {selectedIds.length} comments selected
               </span>
               
@@ -164,7 +164,7 @@ export const ManageComments: React.FC = () => {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-neutral-850 hover:bg-neutral-800 text-white"
+                  className="border-gray-200 dark:border-neutral-800 hover:bg-gray-100 dark:bg-neutral-800 text-gray-900 dark:text-white"
                   onClick={() => setBulkAction('approve')}
                   leftIcon={<CheckCheck size={14} className="text-green-500" />}
                 >
@@ -185,23 +185,23 @@ export const ManageComments: React.FC = () => {
         </div>
 
         {/* Comments Listing Card */}
-        <Card className="bg-neutral-900/40 border-neutral-850 overflow-hidden">
+        <Card className="bg-white dark:bg-neutral-900/40 border-gray-200 dark:border-neutral-800 overflow-hidden">
           {isLoading ? (
             <div className="py-20 flex flex-col items-center justify-center space-y-3">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-red-500"></div>
-              <span className="text-neutral-500 text-xs">Accessing queue...</span>
+              <span className="text-gray-400 dark:text-neutral-500 text-xs">Accessing queue...</span>
             </div>
           ) : filteredComments.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm border-collapse">
                 <thead>
-                  <tr className="border-b border-neutral-800 text-neutral-500 text-xs font-semibold uppercase tracking-wider bg-neutral-900/80">
+                  <tr className="border-b border-gray-200 dark:border-neutral-800 text-gray-400 dark:text-neutral-500 text-xs font-semibold uppercase tracking-wider bg-white dark:bg-neutral-900/80">
                     <th className="p-4 w-12 text-center">
                       <input
                         type="checkbox"
                         checked={filteredComments.length > 0 && selectedIds.length === filteredComments.length}
                         onChange={(e) => handleSelectAll(e, filteredComments)}
-                        className="rounded border-neutral-800 text-red-650 focus:ring-red-500 bg-neutral-950 w-4 h-4"
+                        className="rounded border-gray-200 dark:border-neutral-800 text-red-650 focus:ring-red-500 bg-gray-50 dark:bg-neutral-950 w-4 h-4"
                       />
                     </th>
                     <th className="p-4 w-44">User</th>
@@ -214,15 +214,15 @@ export const ManageComments: React.FC = () => {
                   {filteredComments.map(c => {
                     const isSelected = selectedIds.includes(c.id);
                     return (
-                      <tr key={c.id} className={`hover:bg-neutral-900/40 transition-colors group ${
-                        isSelected ? 'bg-neutral-900/20' : ''
+                      <tr key={c.id} className={`hover:bg-white dark:bg-neutral-900/40 transition-colors group ${
+                        isSelected ? 'bg-white dark:bg-neutral-900/20' : ''
                       }`}>
                         <td className="p-4 text-center">
                           <input
                             type="checkbox"
                             checked={isSelected}
                             onChange={() => handleSelectRow(c.id)}
-                            className="rounded border-neutral-800 text-red-650 focus:ring-red-500 bg-neutral-950 w-4 h-4"
+                            className="rounded border-gray-200 dark:border-neutral-800 text-red-650 focus:ring-red-500 bg-gray-50 dark:bg-neutral-950 w-4 h-4"
                           />
                         </td>
                         <td className="p-4">
@@ -231,10 +231,10 @@ export const ManageComments: React.FC = () => {
                             {new Date(c.createdAt).toLocaleDateString()}
                           </span>
                         </td>
-                        <td className="p-4 text-neutral-300 text-xs italic font-medium max-w-md break-words">
+                        <td className="p-4 text-gray-700 dark:text-neutral-300 text-xs italic font-medium max-w-md break-words">
                           "{c.content}"
                         </td>
-                        <td className="p-4 text-neutral-400 font-semibold text-xs truncate max-w-xs" title={c.articleTitle}>
+                        <td className="p-4 text-gray-500 dark:text-neutral-400 font-semibold text-xs truncate max-w-xs" title={c.articleTitle}>
                           {c.articleTitle}
                         </td>
                         <td className="p-4 text-right">
@@ -253,7 +253,7 @@ export const ManageComments: React.FC = () => {
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="text-neutral-500 hover:text-red-500 p-1.5"
+                              className="text-gray-400 dark:text-neutral-500 hover:text-red-500 p-1.5"
                               onClick={() => setDeleteId(c.id)}
                               aria-label="Delete comment"
                             >
@@ -270,7 +270,7 @@ export const ManageComments: React.FC = () => {
           ) : (
             <div className="py-20 text-center space-y-2">
               <MessageSquare size={40} className="text-neutral-700 mx-auto" />
-              <h3 className="text-sm font-bold text-neutral-400">Comments Queue Clear</h3>
+              <h3 className="text-sm font-bold text-gray-500 dark:text-neutral-400">Comments Queue Clear</h3>
               <p className="text-neutral-600 text-xs">Everything has been successfully moderated.</p>
             </div>
           )}

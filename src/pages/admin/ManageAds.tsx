@@ -105,12 +105,12 @@ export const ManageAds: React.FC = () => {
 
       <div className="space-y-6 animate-in fade-in duration-300">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-850 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-neutral-800 pb-5">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center">
               Ad Campaign Server
             </h1>
-            <p className="text-neutral-500 text-xs mt-0.5">
+            <p className="text-gray-400 dark:text-neutral-500 text-xs mt-0.5">
               Serve display banner ads, sidebar campaigns, sponsored postings and track conversions.
             </p>
           </div>
@@ -125,11 +125,11 @@ export const ManageAds: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main List */}
           <div className="lg:col-span-2 space-y-4">
-            <Card className="bg-neutral-900/40 border-neutral-850">
+            <Card className="bg-white dark:bg-neutral-900/40 border-gray-200 dark:border-neutral-800">
               {isLoading ? (
                 <div className="py-20 flex flex-col items-center justify-center space-y-3">
                   <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-red-500"></div>
-                  <span className="text-neutral-500 text-xs">Querying server channels...</span>
+                  <span className="text-gray-400 dark:text-neutral-500 text-xs">Querying server channels...</span>
                 </div>
               ) : ads.length > 0 ? (
                 <div className="space-y-3">
@@ -138,7 +138,7 @@ export const ManageAds: React.FC = () => {
                     return (
                       <div 
                         key={ad.id}
-                        className="p-4 rounded-xl border border-neutral-850 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-neutral-950/80 hover:border-neutral-700 transition-all group"
+                        className="p-4 rounded-xl border border-gray-200 dark:border-neutral-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50 dark:bg-neutral-950/80 hover:border-gray-300 dark:border-neutral-700 transition-all group"
                       >
                         <div className="flex items-center space-x-4 overflow-hidden pr-2">
                           <img 
@@ -147,11 +147,11 @@ export const ManageAds: React.FC = () => {
                             className="w-16 h-10 rounded object-cover border border-neutral-900 flex-shrink-0"
                           />
                           <div className="overflow-hidden">
-                            <h4 className="font-semibold text-white truncate text-sm">
+                            <h4 className="font-semibold text-gray-900 dark:text-white truncate text-sm">
                               {ad.title}
                             </h4>
-                            <div className="flex items-center space-x-3 text-[10px] text-neutral-500 mt-1 uppercase font-bold tracking-wider">
-                              <span className="bg-neutral-900 border border-neutral-800 text-neutral-400 px-1.5 py-0.5 rounded text-[8px]">
+                            <div className="flex items-center space-x-3 text-[10px] text-gray-400 dark:text-neutral-500 mt-1 uppercase font-bold tracking-wider">
+                              <span className="bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-gray-500 dark:text-neutral-400 px-1.5 py-0.5 rounded text-[8px]">
                                 {ad.type}
                               </span>
                               <span>Position: {ad.position}</span>
@@ -163,15 +163,15 @@ export const ManageAds: React.FC = () => {
                         <div className="flex items-center justify-between sm:justify-end gap-6 border-t border-neutral-900 sm:border-t-0 pt-3 sm:pt-0">
                           <div className="flex space-x-4 text-center">
                             <div>
-                              <span className="block text-xs font-bold text-white flex items-center justify-center">
-                                <Eye size={12} className="mr-0.5 text-neutral-500" />
+                              <span className="block text-xs font-bold text-gray-900 dark:text-white flex items-center justify-center">
+                                <Eye size={12} className="mr-0.5 text-gray-400 dark:text-neutral-500" />
                                 {ad.impressions}
                               </span>
                               <span className="text-[9px] font-bold text-neutral-600 uppercase">Views</span>
                             </div>
                             <div>
-                              <span className="block text-xs font-bold text-neutral-400 flex items-center justify-center">
-                                <MousePointer size={12} className="mr-0.5 text-neutral-500" />
+                              <span className="block text-xs font-bold text-gray-500 dark:text-neutral-400 flex items-center justify-center">
+                                <MousePointer size={12} className="mr-0.5 text-gray-400 dark:text-neutral-500" />
                                 {ad.clicks}
                               </span>
                               <span className="text-[9px] font-bold text-neutral-600 uppercase">Clicks</span>
@@ -191,7 +191,7 @@ export const ManageAds: React.FC = () => {
                                 Active
                               </span>
                             ) : (
-                              <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-neutral-800 border border-neutral-700 text-neutral-500 uppercase tracking-wide">
+                              <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-gray-100 dark:bg-neutral-800 border border-gray-300 dark:border-neutral-700 text-gray-400 dark:text-neutral-500 uppercase tracking-wide">
                                 Paused
                               </span>
                             )}
@@ -200,7 +200,7 @@ export const ManageAds: React.FC = () => {
                               <Button 
                                 size="sm" 
                                 variant="ghost" 
-                                className="text-neutral-500 hover:text-white"
+                                className="text-gray-400 dark:text-neutral-500 hover:text-gray-900 dark:text-white"
                                 onClick={() => handleEdit(ad)}
                                 aria-label="Edit campaign"
                               >
@@ -209,7 +209,7 @@ export const ManageAds: React.FC = () => {
                               <Button 
                                 size="sm" 
                                 variant="ghost" 
-                                className="text-neutral-500 hover:text-red-500"
+                                className="text-gray-400 dark:text-neutral-500 hover:text-red-500"
                                 onClick={() => setDeleteId(ad.id)}
                                 aria-label="Delete campaign"
                               >
@@ -225,7 +225,7 @@ export const ManageAds: React.FC = () => {
               ) : (
                 <div className="py-20 text-center space-y-2">
                   <Megaphone size={40} className="text-neutral-700 mx-auto" />
-                  <h3 className="text-sm font-bold text-neutral-400">No Ads Active</h3>
+                  <h3 className="text-sm font-bold text-gray-500 dark:text-neutral-400">No Ads Active</h3>
                   <p className="text-neutral-600 text-xs">Serve your first advertiser display campaign using the builder.</p>
                 </div>
               )}
@@ -235,9 +235,9 @@ export const ManageAds: React.FC = () => {
           {/* Builder Panel */}
           <div>
             {isEditing ? (
-              <Card className="bg-neutral-900/60 border-neutral-850 space-y-6">
-                <div className="flex justify-between items-center border-b border-neutral-800 pb-3">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+              <Card className="bg-white dark:bg-neutral-900/60 border-gray-200 dark:border-neutral-800 space-y-6">
+                <div className="flex justify-between items-center border-b border-gray-200 dark:border-neutral-800 pb-3">
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
                     {selectedId ? 'Edit Ad Campaign' : 'New Ad Campaign'}
                   </h3>
                   <button 
@@ -252,7 +252,7 @@ export const ManageAds: React.FC = () => {
                         isActive: true
                       });
                     }}
-                    className="text-neutral-500 hover:text-white transition-colors"
+                    className="text-gray-400 dark:text-neutral-500 hover:text-gray-900 dark:text-white transition-colors"
                   >
                     <X size={18} />
                   </button>
@@ -263,17 +263,17 @@ export const ManageAds: React.FC = () => {
                     label="Campaign Title"
                     placeholder="e.g. Internshala Summer Ads"
                     error={errors.title?.message}
-                    className="bg-neutral-950 border-neutral-850 text-white"
+                    className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white"
                     {...register('title', { required: 'Title is required' })}
                   />
 
                   <div className="space-y-1">
-                    <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                       Ad Banner Layout Type
                     </label>
                     <select
                       {...register('type')}
-                      className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-sm text-neutral-300 focus:outline-none"
+                      className="w-full px-3 py-2 bg-gray-50 dark:bg-neutral-950 border border-gray-200 dark:border-neutral-800 rounded-xl text-sm text-gray-700 dark:text-neutral-300 focus:outline-none"
                     >
                       <option value="banner">Display Horizontal Banner</option>
                       <option value="sidebar">Sidebar Widget Ad</option>
@@ -285,7 +285,7 @@ export const ManageAds: React.FC = () => {
                   <Input
                     label="Position Code"
                     placeholder="e.g. homepage-top, sidebar-middle"
-                    className="bg-neutral-950 border-neutral-850 text-white"
+                    className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white"
                     {...register('position')}
                   />
 
@@ -293,7 +293,7 @@ export const ManageAds: React.FC = () => {
                     label="Creative Image Link"
                     placeholder="Public CDN banner URL..."
                     error={errors.imageUrl?.message}
-                    className="bg-neutral-950 border-neutral-850 text-white text-xs"
+                    className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white text-xs"
                     {...register('imageUrl', { required: 'Image URL is required' })}
                   />
 
@@ -301,7 +301,7 @@ export const ManageAds: React.FC = () => {
                     label="Target Link (Click redirect)"
                     placeholder="https://advertiser-site.com/campaign"
                     error={errors.targetUrl?.message}
-                    className="bg-neutral-950 border-neutral-850 text-white text-xs font-mono"
+                    className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white text-xs font-mono"
                     {...register('targetUrl', { required: 'Redirect link is required' })}
                   />
 
@@ -309,13 +309,13 @@ export const ManageAds: React.FC = () => {
                     <Input
                       type="datetime-local"
                       label="Start Date"
-                      className="bg-neutral-950 border-neutral-850 text-white text-xs"
+                      className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white text-xs"
                       {...register('startDate')}
                     />
                     <Input
                       type="datetime-local"
                       label="End Date"
-                      className="bg-neutral-950 border-neutral-850 text-white text-xs"
+                      className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white text-xs"
                       {...register('endDate')}
                     />
                   </div>
@@ -325,9 +325,9 @@ export const ManageAds: React.FC = () => {
                       type="checkbox"
                       id="isActive"
                       {...register('isActive')}
-                      className="rounded border-neutral-800 text-red-600 focus:ring-red-500 bg-neutral-950 w-4.5 h-4.5"
+                      className="rounded border-gray-200 dark:border-neutral-800 text-red-600 focus:ring-red-500 bg-gray-50 dark:bg-neutral-950 w-4.5 h-4.5"
                     />
-                    <label htmlFor="isActive" className="text-xs font-semibold text-neutral-400 uppercase tracking-wide">
+                    <label htmlFor="isActive" className="text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wide">
                       Serve campaign immediately
                     </label>
                   </div>
@@ -336,7 +336,7 @@ export const ManageAds: React.FC = () => {
                     <Button
                       type="button"
                       variant="ghost"
-                      className="flex-1 text-neutral-400"
+                      className="flex-1 text-gray-500 dark:text-neutral-400"
                       onClick={() => {
                         setIsEditing(false);
                         setSelectedId(null);
@@ -358,9 +358,9 @@ export const ManageAds: React.FC = () => {
                 </form>
               </Card>
             ) : (
-              <Card className="bg-neutral-900/20 border-neutral-850 p-6 flex flex-col items-center justify-center text-center space-y-3 min-h-[300px]">
+              <Card className="bg-white dark:bg-neutral-900/20 border-gray-200 dark:border-neutral-800 p-6 flex flex-col items-center justify-center text-center space-y-3 min-h-[300px]">
                 <Megaphone size={36} className="text-neutral-800" />
-                <h4 className="font-bold text-neutral-400 text-sm">Ad Placement Engine</h4>
+                <h4 className="font-bold text-gray-500 dark:text-neutral-400 text-sm">Ad Placement Engine</h4>
                 <p className="text-neutral-600 text-xs leading-relaxed max-w-xs">
                   Upload horizontal banners, sidebar frames, sponsored listings, and review click stats live.
                 </p>

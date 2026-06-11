@@ -118,7 +118,7 @@ const ManageNewsletterSubscriptions: React.FC = () => {
 
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-gray-900 dark:text-white">
             Newsletter Subscriptions
           </h1>
           <Button 
@@ -138,10 +138,10 @@ const ManageNewsletterSubscriptions: React.FC = () => {
                 <Users size={24} className="text-blue-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                <p className="text-sm text-gray-400 dark:text-neutral-500 dark:text-gray-500 dark:text-neutral-400">
                   Total Subscriptions
                 </p>
-                <h3 className="text-xl font-bold text-neutral-900 dark:text-white">
+                <h3 className="text-xl font-bold text-neutral-900 dark:text-gray-900 dark:text-white">
                   {stats.total}
                 </h3>
               </div>
@@ -154,10 +154,10 @@ const ManageNewsletterSubscriptions: React.FC = () => {
                 <Mail size={24} className="text-green-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                <p className="text-sm text-gray-400 dark:text-neutral-500 dark:text-gray-500 dark:text-neutral-400">
                   Active Subscriptions
                 </p>
-                <h3 className="text-xl font-bold text-neutral-900 dark:text-white">
+                <h3 className="text-xl font-bold text-neutral-900 dark:text-gray-900 dark:text-white">
                   {stats.active}
                 </h3>
               </div>
@@ -170,10 +170,10 @@ const ManageNewsletterSubscriptions: React.FC = () => {
                 <Mail size={24} className="text-red-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                <p className="text-sm text-gray-400 dark:text-neutral-500 dark:text-gray-500 dark:text-neutral-400">
                   Inactive Subscriptions
                 </p>
-                <h3 className="text-xl font-bold text-neutral-900 dark:text-white">
+                <h3 className="text-xl font-bold text-neutral-900 dark:text-gray-900 dark:text-white">
                   {stats.inactive}
                 </h3>
               </div>
@@ -193,17 +193,17 @@ const ManageNewsletterSubscriptions: React.FC = () => {
             ) : subscriptions.length > 0 ? (
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-neutral-200 dark:border-neutral-700">
-                    <th className="text-left py-3 px-4 font-medium text-neutral-900 dark:text-white">
+                  <tr className="border-b border-neutral-200 dark:border-gray-300 dark:border-neutral-700">
+                    <th className="text-left py-3 px-4 font-medium text-neutral-900 dark:text-gray-900 dark:text-white">
                       Email
                     </th>
-                    <th className="text-left py-3 px-4 font-medium text-neutral-900 dark:text-white">
+                    <th className="text-left py-3 px-4 font-medium text-neutral-900 dark:text-gray-900 dark:text-white">
                       Subscribed
                     </th>
-                    <th className="text-left py-3 px-4 font-medium text-neutral-900 dark:text-white">
+                    <th className="text-left py-3 px-4 font-medium text-neutral-900 dark:text-gray-900 dark:text-white">
                       Status
                     </th>
-                    <th className="text-right py-3 px-4 font-medium text-neutral-900 dark:text-white">
+                    <th className="text-right py-3 px-4 font-medium text-neutral-900 dark:text-gray-900 dark:text-white">
                       Actions
                     </th>
                   </tr>
@@ -212,17 +212,17 @@ const ManageNewsletterSubscriptions: React.FC = () => {
                   {subscriptions.map((subscription) => (
                     <tr 
                       key={subscription.id}
-                      className="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+                      className="border-b border-neutral-100 dark:border-gray-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-gray-100 dark:bg-neutral-800/50"
                     >
                       <td className="py-3 px-4">
                         <div className="flex items-center">
-                          <Mail size={16} className="text-neutral-400 mr-2" />
-                          <span className="text-neutral-900 dark:text-white">
+                          <Mail size={16} className="text-gray-500 dark:text-neutral-400 mr-2" />
+                          <span className="text-neutral-900 dark:text-gray-900 dark:text-white">
                             {subscription.email}
                           </span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-neutral-600 dark:text-neutral-400">
+                      <td className="py-3 px-4 text-neutral-600 dark:text-gray-500 dark:text-neutral-400">
                         {formatDistanceToNow(new Date(subscription.subscribed_at), { addSuffix: true })}
                       </td>
                       <td className="py-3 px-4">
@@ -258,7 +258,7 @@ const ManageNewsletterSubscriptions: React.FC = () => {
                 </tbody>
               </table>
             ) : (
-              <div className="text-center py-8 text-neutral-600 dark:text-neutral-400">
+              <div className="text-center py-8 text-neutral-600 dark:text-gray-500 dark:text-neutral-400">
                 No newsletter subscriptions found
               </div>
             )}

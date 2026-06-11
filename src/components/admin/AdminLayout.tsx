@@ -10,7 +10,7 @@ export const AdminLayout: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="h-screen w-screen bg-neutral-950 flex items-center justify-center text-white">
+      <div className="h-screen w-screen bg-gray-50 dark:bg-neutral-950 flex items-center justify-center text-gray-900 dark:text-white">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-red-500 mr-3"></div>
         <span>Loading Admin Workspace...</span>
       </div>
@@ -25,7 +25,7 @@ export const AdminLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-neutral-950 text-gray-800 dark:text-neutral-100 flex">
       {/* Sidebar */}
       <AdminSidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 

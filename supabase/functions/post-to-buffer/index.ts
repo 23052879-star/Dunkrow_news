@@ -150,7 +150,45 @@ function metadataForService(service: string) {
   }
 }
 
-async function createBufferPost(channelId: string, article: ArticleRecord) {
+/**
+ * Call the generate-social-image Edge Function to produce a branded
+ * template image for the article.  Returns the public URL of the PNG
+ * or null if generation fails (we fall back to the raw featured_image).
+ */
+async function generateSocialImage(article: ArticleRecord): Promise<string | null> {
+  try {
+    const fnUrl = `${supabaseUrl}/functions/v1/generate-social-image`;
+    const res = await fetch(fnUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${serviceRoleKey}`,
+      },
+      body: JSON.stringify({
+        id: article.id,
+        title: article.title,
+        excerpt: article.excerpt,
+        category: article.category,
+        featured_image: article.featured_image,
+        slug: article.slug,
+      }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error('generate-social-image failed:', res.status, text);
+      return null;
+    }
+
+    const data = await res.json() as { ok: boolean; url?: string };
+    return data.url ?? null;
+  } catch (err) {
+    console.error('generate-social-image error:', err);
+    return null;
+  }
+}
+
+async function createBufferPost(channelId: string, article: ArticleRecord, socialImageUrl?: string | null) {
   const query = `
     mutation CreatePost($input: CreatePostInput!) {
       createPost(input: $input) {
@@ -168,8 +206,10 @@ async function createBufferPost(channelId: string, article: ArticleRecord) {
     }
   `;
 
-  const assets = article.featured_image
-    ? [{ image: { url: article.featured_image } }]
+  // Prefer the generated template image; fall back to the raw featured image
+  const imageUrl = socialImageUrl || article.featured_image;
+  const assets = imageUrl
+    ? [{ image: { url: imageUrl } }]
     : [];
 
   const channel = await fetchChannel(channelId);
@@ -270,13 +310,21 @@ Deno.serve(async (request) => {
       social_post_next_retry_at: null,
     });
 
+    // Generate the branded template image before posting to any channel
+    const socialImageUrl = await generateSocialImage(article);
+    if (socialImageUrl) {
+      console.log('Generated social image:', socialImageUrl);
+    } else {
+      console.warn('Social image generation failed, falling back to raw featured image');
+    }
+
     const posts: Record<string, string> = article.social_post_ids ?? {};
     for (const channelId of channelIds) {
       if (posts[channelId]) {
         continue;
       }
 
-      const post = await createBufferPost(channelId, article);
+      const post = await createBufferPost(channelId, article, socialImageUrl);
       posts[channelId] = post.id;
 
       await updateArticle(article.id, {

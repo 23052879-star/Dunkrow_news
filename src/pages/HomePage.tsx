@@ -417,21 +417,21 @@ const HomePage: React.FC = () => {
                       className="group block h-full"
                     >
                       <motion.div
-                        className="bg-white dark:bg-neutral-900 rounded-xl p-6 transition-all duration-300 border border-slate-200 dark:border-neutral-800 hover:border-red-600 dark:hover:border-red-600 shadow-sm hover:shadow-xl h-full relative overflow-hidden"
-                        whileHover={{ y: -5 }}
+                        className="bg-white dark:bg-neutral-900/40 rounded-2xl p-6 transition-all duration-500 border border-slate-200/60 dark:border-neutral-800 hover:border-red-500/50 dark:hover:border-red-500/50 shadow-sm hover:shadow-2xl hover:shadow-red-500/10 h-full relative overflow-hidden group"
+                        whileHover={{ y: -8 }}
                       >
-                        <div className="absolute inset-0 bg-red-600 opacity-0 group-hover:opacity-5 dark:group-hover:opacity-10 transition-opacity duration-300" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-red-500/0 via-red-500/0 to-red-500/5 dark:to-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                         
-                        <div className="flex flex-col items-center justify-center text-center space-y-4 relative z-10 h-full">
+                        <div className="flex flex-col items-center justify-center text-center space-y-5 relative z-10 h-full">
                           <motion.div 
-                            className="p-4 rounded-full bg-slate-50 dark:bg-black border border-slate-100 dark:border-neutral-800 group-hover:bg-red-600 group-hover:border-red-600 transition-all duration-300"
-                            whileHover={{ rotate: 10, scale: 1.1 }}
+                            className="p-4 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-neutral-800 dark:to-neutral-900 border border-slate-200/50 dark:border-neutral-700/50 group-hover:from-red-500 group-hover:to-red-600 group-hover:border-red-500 transition-all duration-500 shadow-inner"
+                            whileHover={{ scale: 1.1, rotate: 5 }}
                           >
-                            <div className="text-slate-600 dark:text-slate-300 group-hover:text-white group-hover:invert-0 transition-colors">
+                            <div className="text-slate-600 dark:text-slate-400 group-hover:text-white transition-colors duration-500">
                               {categoryIcons[category.name] || <ChevronDown size={24} className="text-current" />}
                             </div>
                           </motion.div>
-                          <h3 className="font-bold text-slate-900 dark:text-white group-hover:text-red-600 transition-colors text-sm uppercase tracking-widest">
+                          <h3 className="font-bold text-slate-800 dark:text-slate-200 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors duration-300 text-sm tracking-[0.2em] uppercase">
                             {category.name}
                           </h3>
                         </div>

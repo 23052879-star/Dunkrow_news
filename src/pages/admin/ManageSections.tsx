@@ -139,12 +139,12 @@ export const ManageSections: React.FC = () => {
 
       <div className="space-y-6 animate-in fade-in duration-300">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-850 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-neutral-800 pb-5">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center">
               Dynamic Section Builder
             </h1>
-            <p className="text-neutral-500 text-xs mt-0.5">
+            <p className="text-gray-400 dark:text-neutral-500 text-xs mt-0.5">
               Create, configure, and reorder homepage layout modules dynamically without database code updates.
             </p>
           </div>
@@ -159,8 +159,8 @@ export const ManageSections: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main List Section */}
           <div className="lg:col-span-2 space-y-4">
-            <Card className="bg-neutral-900/40 border-neutral-850">
-              <div className="flex items-center space-x-2 text-neutral-400 text-xs bg-neutral-950 p-3.5 rounded-xl border border-neutral-900 mb-6">
+            <Card className="bg-white dark:bg-neutral-900/40 border-gray-200 dark:border-neutral-800">
+              <div className="flex items-center space-x-2 text-gray-500 dark:text-neutral-400 text-xs bg-gray-50 dark:bg-neutral-950 p-3.5 rounded-xl border border-neutral-900 mb-6">
                 <Info size={16} className="text-red-500 flex-shrink-0" />
                 <span>Adjust displaying sequence with Up/Down keys. These sections automatically populate the homepage dynamic blocks.</span>
               </div>
@@ -168,7 +168,7 @@ export const ManageSections: React.FC = () => {
               {isLoading ? (
                 <div className="py-20 flex flex-col items-center justify-center space-y-3">
                   <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-red-500"></div>
-                  <span className="text-neutral-500 text-xs">Querying dynamic templates...</span>
+                  <span className="text-gray-400 dark:text-neutral-500 text-xs">Querying dynamic templates...</span>
                 </div>
               ) : sections.length > 0 ? (
                 <div className="space-y-3">
@@ -179,8 +179,8 @@ export const ManageSections: React.FC = () => {
                     return (
                       <div 
                         key={sec.id}
-                        className={`p-4 rounded-xl border flex items-center justify-between bg-neutral-950/80 hover:border-neutral-700 transition-all ${
-                          sec.isActive ? 'border-neutral-850' : 'border-neutral-900 opacity-60'
+                        className={`p-4 rounded-xl border flex items-center justify-between bg-gray-50 dark:bg-neutral-950/80 hover:border-gray-300 dark:border-neutral-700 transition-all ${
+                          sec.isActive ? 'border-gray-200 dark:border-neutral-800' : 'border-neutral-900 opacity-60'
                         }`}
                       >
                         <div className="flex items-center space-x-4">
@@ -189,14 +189,14 @@ export const ManageSections: React.FC = () => {
                             <button 
                               onClick={() => moveSection(idx, 'up')}
                               disabled={idx === 0}
-                              className="p-1 rounded hover:bg-neutral-800 text-neutral-500 hover:text-white disabled:opacity-30 transition-all"
+                              className="p-1 rounded hover:bg-gray-100 dark:bg-neutral-800 text-gray-400 dark:text-neutral-500 hover:text-gray-900 dark:text-white disabled:opacity-30 transition-all"
                             >
                               <ChevronUp size={16} />
                             </button>
                             <button 
                               onClick={() => moveSection(idx, 'down')}
                               disabled={idx === sections.length - 1}
-                              className="p-1 rounded hover:bg-neutral-800 text-neutral-500 hover:text-white disabled:opacity-30 transition-all"
+                              className="p-1 rounded hover:bg-gray-100 dark:bg-neutral-800 text-gray-400 dark:text-neutral-500 hover:text-gray-900 dark:text-white disabled:opacity-30 transition-all"
                             >
                               <ChevronDown size={16} />
                             </button>
@@ -204,7 +204,7 @@ export const ManageSections: React.FC = () => {
 
                           {/* Icon representation */}
                           <div 
-                            className="p-2.5 rounded-xl flex items-center justify-center text-white"
+                            className="p-2.5 rounded-xl flex items-center justify-center text-gray-900 dark:text-white"
                             style={{ 
                               backgroundColor: `${sec.color}15`,
                               color: sec.color,
@@ -215,15 +215,15 @@ export const ManageSections: React.FC = () => {
                           </div>
 
                           <div>
-                            <h4 className="font-semibold text-white flex items-center space-x-2 text-sm">
+                            <h4 className="font-semibold text-gray-900 dark:text-white flex items-center space-x-2 text-sm">
                               <span>{sec.name}</span>
                               {!sec.isActive && (
-                                <span className="bg-neutral-800 text-neutral-500 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wide">
+                                <span className="bg-gray-100 dark:bg-neutral-800 text-gray-400 dark:text-neutral-500 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wide">
                                   Disabled
                                 </span>
                               )}
                             </h4>
-                            <p className="text-neutral-500 text-xs mt-0.5 line-clamp-1">{sec.description || 'No description provided'}</p>
+                            <p className="text-gray-400 dark:text-neutral-500 text-xs mt-0.5 line-clamp-1">{sec.description || 'No description provided'}</p>
                           </div>
                         </div>
 
@@ -232,7 +232,7 @@ export const ManageSections: React.FC = () => {
                           <Button 
                             size="sm" 
                             variant="ghost" 
-                            className="text-neutral-500 hover:text-white"
+                            className="text-gray-400 dark:text-neutral-500 hover:text-gray-900 dark:text-white"
                             onClick={() => handleEdit(sec)}
                             aria-label="Edit section"
                           >
@@ -241,7 +241,7 @@ export const ManageSections: React.FC = () => {
                           <Button 
                             size="sm" 
                             variant="ghost" 
-                            className="text-neutral-500 hover:text-red-500"
+                            className="text-gray-400 dark:text-neutral-500 hover:text-red-500"
                             onClick={() => setDeleteId(sec.id)}
                             aria-label="Delete section"
                           >
@@ -255,7 +255,7 @@ export const ManageSections: React.FC = () => {
               ) : (
                 <div className="py-20 text-center space-y-2">
                   <Layers size={40} className="text-neutral-700 mx-auto" />
-                  <h3 className="text-sm font-bold text-neutral-400">No Sections Configured</h3>
+                  <h3 className="text-sm font-bold text-gray-500 dark:text-neutral-400">No Sections Configured</h3>
                   <p className="text-neutral-600 text-xs">Create your first dynamic page widget using the creation panel.</p>
                 </div>
               )}
@@ -265,9 +265,9 @@ export const ManageSections: React.FC = () => {
           {/* Builder Panel / Edit Drawer */}
           <div>
             {isEditing ? (
-              <Card className="bg-neutral-900/60 border-neutral-850 space-y-6">
-                <div className="flex justify-between items-center border-b border-neutral-800 pb-3">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+              <Card className="bg-white dark:bg-neutral-900/60 border-gray-200 dark:border-neutral-800 space-y-6">
+                <div className="flex justify-between items-center border-b border-gray-200 dark:border-neutral-800 pb-3">
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
                     {selectedId ? 'Edit Section Template' : 'New Section Template'}
                   </h3>
                   <button 
@@ -283,7 +283,7 @@ export const ManageSections: React.FC = () => {
                         color: '#EF4444'
                       });
                     }}
-                    className="text-neutral-500 hover:text-white transition-colors"
+                    className="text-gray-400 dark:text-neutral-500 hover:text-gray-900 dark:text-white transition-colors"
                   >
                     <X size={18} />
                   </button>
@@ -294,7 +294,7 @@ export const ManageSections: React.FC = () => {
                     label="Section Name"
                     placeholder="e.g. Startup Stories"
                     error={errors.name?.message}
-                    className="bg-neutral-950 border-neutral-850 text-white"
+                    className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white"
                     {...register('name', { required: 'Section name is required' })}
                   />
 
@@ -302,7 +302,7 @@ export const ManageSections: React.FC = () => {
                     label="URL Slug (Auto-generated)"
                     placeholder="e.g. startup-stories"
                     error={errors.slug?.message}
-                    className="bg-neutral-950 border-neutral-850 text-white font-mono text-xs"
+                    className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white font-mono text-xs"
                     {...register('slug', { required: 'Slug is required' })}
                   />
 
@@ -310,7 +310,7 @@ export const ManageSections: React.FC = () => {
                     label="Description"
                     placeholder="Brief details about what goes in this dynamic block..."
                     rows={2}
-                    className="bg-neutral-950 border-neutral-850 text-white text-xs"
+                    className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white text-xs"
                     {...register('description')}
                   />
 
@@ -338,9 +338,9 @@ export const ManageSections: React.FC = () => {
                       type="checkbox"
                       id="isActive"
                       {...register('isActive')}
-                      className="rounded border-neutral-800 text-red-600 focus:ring-red-500 bg-neutral-950 w-4.5 h-4.5"
+                      className="rounded border-gray-200 dark:border-neutral-800 text-red-600 focus:ring-red-500 bg-gray-50 dark:bg-neutral-950 w-4.5 h-4.5"
                     />
-                    <label htmlFor="isActive" className="text-xs font-semibold text-neutral-400 uppercase tracking-wide">
+                    <label htmlFor="isActive" className="text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wide">
                       Show on homepage navigation
                     </label>
                   </div>
@@ -349,7 +349,7 @@ export const ManageSections: React.FC = () => {
                     <Button
                       type="button"
                       variant="ghost"
-                      className="flex-1 text-neutral-400"
+                      className="flex-1 text-gray-500 dark:text-neutral-400"
                       onClick={() => {
                         setIsEditing(false);
                         setSelectedId(null);
@@ -372,9 +372,9 @@ export const ManageSections: React.FC = () => {
                 </form>
               </Card>
             ) : (
-              <Card className="bg-neutral-900/20 border-neutral-850 p-6 flex flex-col items-center justify-center text-center space-y-3 min-h-[300px]">
+              <Card className="bg-white dark:bg-neutral-900/20 border-gray-200 dark:border-neutral-800 p-6 flex flex-col items-center justify-center text-center space-y-3 min-h-[300px]">
                 <Layers size={36} className="text-neutral-800" />
-                <h4 className="font-bold text-neutral-400 text-sm">Dynamic Homepage Layout</h4>
+                <h4 className="font-bold text-gray-500 dark:text-neutral-400 text-sm">Dynamic Homepage Layout</h4>
                 <p className="text-neutral-600 text-xs leading-relaxed max-w-xs">
                   Create sections and assign them custom colors and icons. Sections render automatically as custom grids on your online news platform.
                 </p>

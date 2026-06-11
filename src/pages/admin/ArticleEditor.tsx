@@ -258,16 +258,16 @@ export const ArticleEditor: React.FC = () => {
 
       <div className="space-y-6">
         {/* Navigation & Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-800 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-neutral-800 pb-5">
           <div className="flex items-center space-x-3">
-            <Link to="/admin/articles" className="p-2 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white transition-all">
+            <Link to="/admin/articles" className="p-2 rounded-lg bg-white dark:bg-neutral-900 hover:bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:text-white transition-all">
               <ArrowLeft size={18} />
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-white tracking-tight">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
                 {id ? 'Edit Article' : 'New Article'}
               </h1>
-              <p className="text-neutral-500 text-xs mt-0.5">
+              <p className="text-gray-400 dark:text-neutral-500 text-xs mt-0.5">
                 {saveStatus === 'saving' && 'Saving draft...'}
                 {saveStatus === 'saved' && 'All changes saved to database'}
                 {saveStatus === 'error' && 'Failed to save changes'}
@@ -278,23 +278,36 @@ export const ArticleEditor: React.FC = () => {
 
           <div className="flex items-center space-x-2">
             <Button
+              type="button"
               variant="outline"
               onClick={() => setIsPreview(!isPreview)}
-              className="border-neutral-800 text-neutral-300 hover:bg-neutral-900"
+              className="border-gray-200 dark:border-neutral-800 text-gray-700 dark:text-neutral-300 hover:bg-white dark:bg-neutral-900"
               leftIcon={<Eye size={16} />}
             >
               {isPreview ? 'Back to Editor' : 'Preview Mode'}
             </Button>
             <Button
+              type="submit"
+              variant="secondary"
+              onClick={() => {
+                if (!id) {
+                  setValue('status', 'draft');
+                }
+              }}
+              isLoading={isSaving && watch('status') === 'draft'}
+              disabled={isSaving}
+              leftIcon={<Save size={16} />}
+            >
+              Save Draft
+            </Button>
+            <Button
+              type="submit"
               variant="primary"
               onClick={() => {
-                const currentStatus = watch('status');
-                if (!id && currentStatus === 'draft') {
-                  setValue('status', 'published');
-                }
-                handleSubmit(onSubmit)();
+                setValue('status', 'published');
               }}
-              isLoading={isSaving}
+              isLoading={isSaving && watch('status') === 'published'}
+              disabled={isSaving}
               leftIcon={<Save size={16} />}
             >
               {id ? 'Save Updates' : 'Publish Article'}
@@ -314,25 +327,25 @@ export const ArticleEditor: React.FC = () => {
 
         {isPreview ? (
           /* Preview Canvas */
-          <div className="bg-neutral-950 border border-neutral-850 rounded-2xl p-6 sm:p-12 max-w-4xl mx-auto space-y-6 min-h-[500px]">
+          <div className="bg-gray-50 dark:bg-neutral-950 border border-gray-200 dark:border-neutral-800 rounded-2xl p-6 sm:p-12 max-w-4xl mx-auto space-y-6 min-h-[500px]">
             <span className="bg-red-500/10 text-red-500 border border-red-500/20 px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider">
               {watch('category')}
             </span>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
               {watch('title') || 'Untitled Article'}
             </h1>
-            <p className="text-neutral-400 text-lg leading-relaxed italic border-l-2 border-neutral-700 pl-4">
+            <p className="text-gray-500 dark:text-neutral-400 text-lg leading-relaxed italic border-l-2 border-gray-300 dark:border-neutral-700 pl-4">
               {watch('excerpt') || 'No excerpt written yet.'}
             </p>
             {watch('featuredImage') && (
               <img 
                 src={watch('featuredImage')} 
                 alt="Featured preview" 
-                className="w-full h-80 object-cover rounded-xl border border-neutral-850"
+                className="w-full h-80 object-cover rounded-xl border border-gray-200 dark:border-neutral-800"
               />
             )}
             <div 
-              className="prose prose-invert max-w-none text-neutral-300 leading-relaxed text-sm pt-4"
+              className="prose prose-invert max-w-none text-gray-700 dark:text-neutral-300 leading-relaxed text-sm pt-4"
               dangerouslySetInnerHTML={{ __html: watch('content') || '<i>No body content written yet.</i>' }}
             />
           </div>
@@ -341,18 +354,18 @@ export const ArticleEditor: React.FC = () => {
           <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Editor main panel */}
             <div className="lg:col-span-2 space-y-6">
-              <Card className="bg-neutral-900/40 border-neutral-850">
+              <Card className="bg-white dark:bg-neutral-900/40 border-gray-200 dark:border-neutral-800">
                 <div className="space-y-4">
                   <Input
                     label="Article Title"
                     placeholder="Enter an attention-grabbing headline..."
                     error={errors.title?.message}
-                    className="bg-neutral-950 border-neutral-850 text-white placeholder-neutral-600 text-lg font-bold"
+                    className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white placeholder-neutral-600 text-lg font-bold"
                     {...register('title', { required: 'Title is required' })}
                   />
 
                   <div className="space-y-1">
-                    <label className="block text-sm font-semibold text-neutral-400 mb-1">
+                    <label className="block text-sm font-semibold text-gray-500 dark:text-neutral-400 mb-1">
                       Body Content
                     </label>
                     <Controller
@@ -376,7 +389,7 @@ export const ArticleEditor: React.FC = () => {
                     label="Article Excerpt / Summary"
                     rows={3}
                     placeholder="Write a brief, compelling introduction summary for the homepage card..."
-                    className="bg-neutral-950 border-neutral-850 text-white text-sm"
+                    className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white text-sm"
                     error={errors.excerpt?.message}
                     {...register('excerpt', { required: 'Excerpt is required' })}
                   />
@@ -387,19 +400,19 @@ export const ArticleEditor: React.FC = () => {
             {/* Sidebar metadata panel */}
             <div className="space-y-6">
               {/* Publication controls */}
-              <Card className="bg-neutral-900/40 border-neutral-850">
-                <h3 className="text-sm font-bold text-white mb-4 flex items-center border-b border-neutral-800 pb-2">
+              <Card className="bg-white dark:bg-neutral-900/40 border-gray-200 dark:border-neutral-800">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4 flex items-center border-b border-gray-200 dark:border-neutral-800 pb-2">
                   <Sliders size={16} className="text-red-500 mr-2" /> Publication Info
                 </h3>
 
                 <div className="space-y-4">
                   <div className="space-y-1">
-                    <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                       Status
                     </label>
                     <select
                       {...register('status')}
-                      className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-sm text-neutral-300 focus:outline-none focus:ring-1 focus:ring-red-500"
+                      className="w-full px-3 py-2 bg-gray-50 dark:bg-neutral-950 border border-gray-200 dark:border-neutral-800 rounded-xl text-sm text-gray-700 dark:text-neutral-300 focus:outline-none focus:ring-1 focus:ring-red-500"
                     >
                       <option value="draft">Draft</option>
                       <option value="published">Published</option>
@@ -413,7 +426,7 @@ export const ArticleEditor: React.FC = () => {
                       type="datetime-local"
                       label="Publish Schedule Date"
                       error={errors.scheduledAt?.message}
-                      className="bg-neutral-950 border-neutral-850 text-white"
+                      className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white"
                       {...register('scheduledAt', { required: 'Schedule time is required for scheduled posts' })}
                     />
                   )}
@@ -422,29 +435,29 @@ export const ArticleEditor: React.FC = () => {
                     label="Slug (URL Path)"
                     placeholder="article-url-path"
                     error={errors.slug?.message}
-                    className="bg-neutral-950 border-neutral-850 text-white font-mono text-xs"
+                    className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white font-mono text-xs"
                     {...register('slug', { required: 'Slug is required' })}
                   />
 
                   <div className="space-y-1">
-                    <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                       Category
                     </label>
                     <select
                       {...register('category')}
-                      className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-sm text-neutral-300 focus:outline-none"
+                      className="w-full px-3 py-2 bg-gray-50 dark:bg-neutral-950 border border-gray-200 dark:border-neutral-800 rounded-xl text-sm text-gray-700 dark:text-neutral-300 focus:outline-none"
                     >
                       {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                       CMS Section (Dynamic Layout)
                     </label>
                     <select
                       {...register('sectionId')}
-                      className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-sm text-neutral-300 focus:outline-none"
+                      className="w-full px-3 py-2 bg-gray-50 dark:bg-neutral-950 border border-gray-200 dark:border-neutral-800 rounded-xl text-sm text-gray-700 dark:text-neutral-300 focus:outline-none"
                     >
                       <option value="">No Custom Section (Default)</option>
                       {sections.map(sec => <option key={sec.id} value={sec.id}>{sec.name}</option>)}
@@ -454,8 +467,8 @@ export const ArticleEditor: React.FC = () => {
               </Card>
 
               {/* Media & Tags */}
-              <Card className="bg-neutral-900/40 border-neutral-850">
-                <h3 className="text-sm font-bold text-white mb-4 flex items-center border-b border-neutral-800 pb-2">
+              <Card className="bg-white dark:bg-neutral-900/40 border-gray-200 dark:border-neutral-800">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4 flex items-center border-b border-gray-200 dark:border-neutral-800 pb-2">
                   <TagIcon size={16} className="text-red-500 mr-2" /> Media & Tags
                 </h3>
 
@@ -464,13 +477,13 @@ export const ArticleEditor: React.FC = () => {
                     label="Featured Image URL"
                     placeholder="https://unsplash.com/..."
                     error={errors.featuredImage?.message}
-                    className="bg-neutral-950 border-neutral-850 text-white text-xs"
+                    className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white text-xs"
                     {...register('featuredImage', { required: 'Featured image URL is required' })}
                   />
 
                   {/* Tags module */}
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                       Article Tags (Press Enter)
                     </label>
                     <input
@@ -479,17 +492,17 @@ export const ArticleEditor: React.FC = () => {
                       onChange={(e) => setTagInput(e.target.value)}
                       onKeyDown={addTag}
                       placeholder="Add tag and hit Enter..."
-                      className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-sm text-neutral-300 focus:outline-none focus:ring-1 focus:ring-red-500"
+                      className="w-full px-3 py-2 bg-gray-50 dark:bg-neutral-950 border border-gray-200 dark:border-neutral-800 rounded-xl text-sm text-gray-700 dark:text-neutral-300 focus:outline-none focus:ring-1 focus:ring-red-500"
                     />
                     
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {tags.map(tag => (
-                        <span key={tag} className="flex items-center space-x-1 px-2.5 py-1 rounded bg-neutral-900 border border-neutral-800 text-xs font-semibold text-neutral-300">
+                        <span key={tag} className="flex items-center space-x-1 px-2.5 py-1 rounded bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-xs font-semibold text-gray-700 dark:text-neutral-300">
                           <span>{tag}</span>
                           <button 
                             type="button" 
                             onClick={() => removeTag(tag)}
-                            className="text-neutral-500 hover:text-red-500 text-[10px] font-bold"
+                            className="text-gray-400 dark:text-neutral-500 hover:text-red-500 text-[10px] font-bold"
                           >
                             ×
                           </button>
@@ -501,8 +514,8 @@ export const ArticleEditor: React.FC = () => {
               </Card>
 
               {/* SEO Module */}
-              <Card className="bg-neutral-900/40 border-neutral-850">
-                <h3 className="text-sm font-bold text-white mb-4 flex items-center border-b border-neutral-800 pb-2">
+              <Card className="bg-white dark:bg-neutral-900/40 border-gray-200 dark:border-neutral-800">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4 flex items-center border-b border-gray-200 dark:border-neutral-800 pb-2">
                   <Globe size={16} className="text-red-500 mr-2" /> SEO Optimization
                 </h3>
 
@@ -510,7 +523,7 @@ export const ArticleEditor: React.FC = () => {
                   <Input
                     label="SEO Search Title"
                     placeholder="Custom Google result title..."
-                    className="bg-neutral-950 border-neutral-850 text-white text-xs"
+                    className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white text-xs"
                     {...register('seoTitle')}
                   />
 
@@ -518,14 +531,14 @@ export const ArticleEditor: React.FC = () => {
                     label="Meta Description"
                     placeholder="Custom snippet description for search engine summary index..."
                     rows={3}
-                    className="bg-neutral-950 border-neutral-850 text-white text-xs"
+                    className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white text-xs"
                     {...register('metaDescription')}
                   />
 
                   <Input
                     label="Canonical Link"
                     placeholder="https://dunkrow.in/..."
-                    className="bg-neutral-950 border-neutral-850 text-white text-xs font-mono"
+                    className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white text-xs font-mono"
                     {...register('canonicalUrl')}
                   />
                 </div>

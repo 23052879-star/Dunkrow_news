@@ -75,12 +75,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, setCollap
 
   return (
     <aside 
-      className={`fixed top-0 left-0 z-40 h-screen bg-neutral-950 border-r border-neutral-800 text-white transition-all duration-300 flex flex-col ${
+      className={`fixed top-0 left-0 z-40 h-screen bg-gray-50 dark:bg-neutral-950 border-r border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white transition-all duration-300 flex flex-col ${
         collapsed ? 'w-20' : 'w-64'
       }`}
     >
       {/* Brand Header */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-neutral-800">
+      <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-neutral-800">
         <Link to="/" className="flex items-center space-x-2 overflow-hidden">
           <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center font-bold text-lg shadow-lg shadow-red-900/50 flex-shrink-0">
             D
@@ -97,7 +97,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, setCollap
         </Link>
         <button 
           onClick={() => setCollapsed(!collapsed)}
-          className="hidden md:flex p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white"
+          className="hidden md:flex p-1.5 rounded-lg hover:bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:text-white"
         >
           {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </button>
@@ -108,7 +108,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, setCollap
         {menuGroups.map((group, groupIdx) => (
           <div key={groupIdx} className="space-y-1">
             {!collapsed && (
-              <h3 className="px-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">
+              <h3 className="px-3 text-xs font-semibold text-gray-400 dark:text-neutral-500 uppercase tracking-wider mb-2">
                 {group.title}
               </h3>
             )}
@@ -125,13 +125,13 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, setCollap
                       className={({ isActive }) =>
                         `flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-all ${
                           isActive 
-                            ? 'bg-red-600 text-white font-medium shadow-md shadow-red-900/20' 
-                            : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+                            ? 'bg-red-600 text-gray-900 dark:text-white font-medium shadow-md shadow-red-900/20' 
+                            : 'text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:text-white hover:bg-white dark:bg-neutral-900'
                         }`
                       }
                       title={collapsed ? item.label : undefined}
                     >
-                      <Icon size={20} className={isActive ? 'text-white' : 'text-neutral-400 group-hover:text-white'} />
+                      <Icon size={20} className={isActive ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-neutral-400 group-hover:text-gray-900 dark:text-white'} />
                       {!collapsed && (
                         <motion.span
                           initial={{ opacity: 0 }}
@@ -151,12 +151,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, setCollap
       </div>
 
       {/* User Footer */}
-      <div className="p-4 border-t border-neutral-800 flex items-center justify-between">
+      <div className="p-4 border-t border-gray-200 dark:border-neutral-800 flex items-center justify-between">
         <div className="flex items-center space-x-3 overflow-hidden">
           <img 
             src={user?.avatarUrl || `https://ui-avatars.com/api/?name=${user?.username || 'Admin'}&background=random`} 
             alt="Admin Avatar" 
-            className="w-10 h-10 rounded-full border border-neutral-700 object-cover flex-shrink-0"
+            className="w-10 h-10 rounded-full border border-gray-300 dark:border-neutral-700 object-cover flex-shrink-0"
           />
           {!collapsed && (
             <motion.div 
@@ -164,10 +164,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, setCollap
               animate={{ opacity: 1 }}
               className="text-left overflow-hidden"
             >
-              <h4 className="font-semibold text-sm truncate text-white">
+              <h4 className="font-semibold text-sm truncate text-gray-900 dark:text-white">
                 {user?.username}
               </h4>
-              <p className="text-xs text-neutral-500 capitalize truncate">
+              <p className="text-xs text-gray-400 dark:text-neutral-500 capitalize truncate">
                 {user?.role}
               </p>
             </motion.div>
@@ -176,7 +176,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ collapsed, setCollap
         {!collapsed && (
           <button 
             onClick={logout}
-            className="p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-red-500 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400 hover:text-red-500 transition-colors"
             title="Log Out"
           >
             <LogOut size={18} />

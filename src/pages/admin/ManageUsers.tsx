@@ -120,7 +120,7 @@ export const ManageUsers: React.FC = () => {
         );
       default:
         return (
-          <span className="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-neutral-800 border border-neutral-700 text-xs font-bold text-neutral-400 uppercase tracking-wide">
+          <span className="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-gray-100 dark:bg-neutral-800 border border-gray-300 dark:border-neutral-700 text-xs font-bold text-gray-500 dark:text-neutral-400 uppercase tracking-wide">
             <span>Reader</span>
           </span>
         );
@@ -139,12 +139,12 @@ export const ManageUsers: React.FC = () => {
 
       <div className="space-y-6 animate-in fade-in duration-300">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-850 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-neutral-800 pb-5">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center">
               User Directory & RBAC
             </h1>
-            <p className="text-neutral-500 text-xs mt-0.5">
+            <p className="text-gray-400 dark:text-neutral-500 text-xs mt-0.5">
               Review user profiles, assign editorial permissions (RBAC), and manage suspensions.
             </p>
           </div>
@@ -158,22 +158,22 @@ export const ManageUsers: React.FC = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search users by username..."
-            className="w-full pl-10 pr-4 py-2.5 bg-neutral-900 border border-neutral-800 rounded-xl text-sm text-neutral-300 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-red-500"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-xl text-sm text-gray-700 dark:text-neutral-300 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-red-500"
           />
         </div>
 
         {/* Users Card Table */}
-        <Card className="bg-neutral-900/40 border-neutral-850 overflow-hidden">
+        <Card className="bg-white dark:bg-neutral-900/40 border-gray-200 dark:border-neutral-800 overflow-hidden">
           {isLoading ? (
             <div className="py-20 flex flex-col items-center justify-center space-y-3">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-red-500"></div>
-              <span className="text-neutral-500 text-xs">Accessing user directory...</span>
+              <span className="text-gray-400 dark:text-neutral-500 text-xs">Accessing user directory...</span>
             </div>
           ) : filteredProfiles.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm border-collapse">
                 <thead>
-                  <tr className="border-b border-neutral-800 text-neutral-500 text-xs font-semibold uppercase tracking-wider bg-neutral-900/80">
+                  <tr className="border-b border-gray-200 dark:border-neutral-800 text-gray-400 dark:text-neutral-500 text-xs font-semibold uppercase tracking-wider bg-white dark:bg-neutral-900/80">
                     <th className="p-4">User</th>
                     <th className="p-4">Role Badge</th>
                     <th className="p-4">Assign Role Permission</th>
@@ -183,15 +183,15 @@ export const ManageUsers: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-neutral-900">
                   {filteredProfiles.map(p => (
-                    <tr key={p.id} className="hover:bg-neutral-900/50 transition-colors group">
+                    <tr key={p.id} className="hover:bg-white dark:bg-neutral-900/50 transition-colors group">
                       <td className="p-4 flex items-center space-x-3.5">
                         <img 
                           src={p.avatar_url || `https://ui-avatars.com/api/?name=${p.username}&background=random`} 
                           alt="Avatar" 
-                          className="w-9 h-9 rounded-full object-cover border border-neutral-800"
+                          className="w-9 h-9 rounded-full object-cover border border-gray-200 dark:border-neutral-800"
                         />
                         <div>
-                          <span className="block font-bold text-neutral-200 group-hover:text-white">{p.username}</span>
+                          <span className="block font-bold text-neutral-200 group-hover:text-gray-900 dark:text-white">{p.username}</span>
                           <span className="text-[10px] text-neutral-600 block truncate max-w-[200px]" title={p.bio}>
                             {p.bio || 'No bio written'}
                           </span>
@@ -204,7 +204,7 @@ export const ManageUsers: React.FC = () => {
                         <select
                           value={p.role}
                           onChange={(e) => handleRoleChange(p.id, e.target.value)}
-                          className="px-2.5 py-1.5 bg-neutral-950 border border-neutral-800 rounded-lg text-xs text-neutral-400 focus:outline-none focus:ring-1 focus:ring-red-500"
+                          className="px-2.5 py-1.5 bg-gray-50 dark:bg-neutral-950 border border-gray-200 dark:border-neutral-800 rounded-lg text-xs text-gray-500 dark:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-red-500"
                         >
                           <option value="user">Reader</option>
                           <option value="contributor">Contributor</option>
@@ -213,7 +213,7 @@ export const ManageUsers: React.FC = () => {
                           <option value="admin">Super Admin</option>
                         </select>
                       </td>
-                      <td className="p-4 text-neutral-400 font-medium">
+                      <td className="p-4 text-gray-500 dark:text-neutral-400 font-medium">
                         {new Date(p.created_at).toLocaleDateString()}
                       </td>
                       <td className="p-4 text-right">
@@ -233,7 +233,7 @@ export const ManageUsers: React.FC = () => {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-neutral-500 hover:text-red-500 font-bold text-xs"
+                            className="text-gray-400 dark:text-neutral-500 hover:text-red-500 font-bold text-xs"
                             onClick={() => {
                               setBanUserId(p.id);
                               setBanStatus(true);
@@ -251,7 +251,7 @@ export const ManageUsers: React.FC = () => {
           ) : (
             <div className="py-20 text-center space-y-2">
               <Users size={40} className="text-neutral-700 mx-auto" />
-              <h3 className="text-sm font-bold text-neutral-400">No Users Found</h3>
+              <h3 className="text-sm font-bold text-gray-500 dark:text-neutral-400">No Users Found</h3>
             </div>
           )}
         </Card>

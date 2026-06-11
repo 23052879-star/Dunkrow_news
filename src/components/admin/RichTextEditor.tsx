@@ -45,12 +45,12 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       }),
       Image.configure({
         HTMLAttributes: {
-          class: 'rounded-xl max-w-full mx-auto my-6 border border-neutral-800'
+          class: 'rounded-xl max-w-full mx-auto my-6 border border-gray-200 dark:border-neutral-800'
         }
       }),
       Youtube.configure({
         HTMLAttributes: {
-          class: 'rounded-xl w-full aspect-video my-6 border border-neutral-800'
+          class: 'rounded-xl w-full aspect-video my-6 border border-gray-200 dark:border-neutral-800'
         }
       }),
       Placeholder.configure({
@@ -72,7 +72,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   if (!editor) {
     return (
-      <div className="h-64 bg-neutral-900 border border-neutral-800 rounded-xl flex items-center justify-center text-neutral-500">
+      <div className="h-64 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-xl flex items-center justify-center text-gray-400 dark:text-neutral-500">
         <div className="animate-pulse flex items-center space-x-2">
           <div className="w-4 h-4 rounded-full bg-red-500"></div>
           <span>Loading Rich Text Editor...</span>
@@ -115,8 +115,8 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       title={title}
       className={`p-2 rounded-lg transition-all active:scale-95 ${
         active 
-          ? 'bg-red-600 text-white shadow shadow-red-950/20' 
-          : 'hover:bg-neutral-800 text-neutral-400 hover:text-white'
+          ? 'bg-red-600 text-gray-900 dark:text-white shadow shadow-red-950/20' 
+          : 'hover:bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:text-white'
       }`}
     >
       {children}
@@ -124,9 +124,9 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   );
 
   return (
-    <div className="border border-neutral-800 rounded-xl overflow-hidden bg-neutral-950 flex flex-col focus-within:ring-2 focus-within:ring-red-500/50 transition-all">
+    <div className="border border-gray-200 dark:border-neutral-800 rounded-xl overflow-hidden bg-gray-50 dark:bg-neutral-950 flex flex-col focus-within:ring-2 focus-within:ring-red-500/50 transition-all">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 p-2 bg-neutral-900 border-b border-neutral-800">
+      <div className="flex flex-wrap items-center gap-1 p-2 bg-white dark:bg-neutral-900 border-b border-gray-200 dark:border-neutral-800">
         <Button 
           onClick={() => editor.chain().focus().toggleBold().run()}
           active={editor.isActive('bold')}
@@ -141,7 +141,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         >
           <Italic size={16} />
         </Button>
-        <div className="w-px h-6 bg-neutral-800 mx-1"></div>
+        <div className="w-px h-6 bg-gray-100 dark:bg-neutral-800 mx-1"></div>
 
         <Button 
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
@@ -164,7 +164,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         >
           <Heading3 size={16} />
         </Button>
-        <div className="w-px h-6 bg-neutral-800 mx-1"></div>
+        <div className="w-px h-6 bg-gray-100 dark:bg-neutral-800 mx-1"></div>
 
         <Button 
           onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -180,7 +180,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         >
           <ListOrdered size={16} />
         </Button>
-        <div className="w-px h-6 bg-neutral-800 mx-1"></div>
+        <div className="w-px h-6 bg-gray-100 dark:bg-neutral-800 mx-1"></div>
 
         <Button 
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
@@ -196,7 +196,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         >
           <Code size={16} />
         </Button>
-        <div className="w-px h-6 bg-neutral-800 mx-1"></div>
+        <div className="w-px h-6 bg-gray-100 dark:bg-neutral-800 mx-1"></div>
 
         <Button onClick={addLink} active={editor.isActive('link')} title="Insert Link">
           <Link2 size={16} />
@@ -207,7 +207,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <Button onClick={addYoutube} title="Insert YouTube Video">
           <YoutubeIcon size={16} />
         </Button>
-        <div className="w-px h-6 bg-neutral-800 mx-1"></div>
+        <div className="w-px h-6 bg-gray-100 dark:bg-neutral-800 mx-1"></div>
 
         <Button 
           onClick={() => editor.chain().focus().undo().run()}
@@ -226,7 +226,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       </div>
 
       {/* Editor Content Workspace */}
-      <div className="p-4 min-h-[300px] max-h-[600px] overflow-y-auto prose prose-invert max-w-none text-neutral-300 focus:outline-none">
+      <div className="p-4 min-h-[300px] max-h-[600px] overflow-y-auto prose prose-invert max-w-none text-gray-700 dark:text-neutral-300 focus:outline-none">
         <EditorContent editor={editor} className="focus:outline-none" />
       </div>
     </div>

@@ -11,15 +11,16 @@ import Card from '../components/ui/Card';
 
 const ArticleDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { currentArticle: article, isLoading, fetchArticleBySlug } = useArticleStore();
+  const { isLoading, fetchArticleBySlug } = useArticleStore();
   const { comments, fetchComments, addComment, isSubmitting } = useCommentStore();
   const { user } = useAuth();
   
+  const [article, setArticle] = useState<any>(null);
   const [newComment, setNewComment] = useState('');
 
   useEffect(() => {
     if (slug) {
-      fetchArticleBySlug(slug);
+      fetchArticleBySlug(slug).then(data => setArticle(data));
     }
   }, [slug, fetchArticleBySlug]);
 

@@ -112,14 +112,14 @@ const Header: React.FC = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 lg:space-x-3 group flex-shrink-0 min-w-0">
             <motion.div 
-              className="relative flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-slate-900 dark:bg-white border border-slate-200 dark:border-white/20 shadow-sm"
+              className="relative flex items-center justify-center mr-1 lg:mr-2"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <img 
                 src="/logo-removebg-preview.png" 
                 alt="Dunkrow Logo" 
-                className="h-6 w-6 lg:h-7 lg:w-7 object-contain filter invert dark:invert-0"
+                className="h-10 w-10 lg:h-12 lg:w-12 object-contain dark:filter dark:invert"
               />
             </motion.div>
             <div className="flex flex-col min-w-0 justify-center">

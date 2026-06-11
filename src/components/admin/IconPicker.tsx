@@ -28,7 +28,7 @@ const AVAILABLE_ICONS = [
 export const IconPicker: React.FC<IconPickerProps> = ({ value, onChange }) => {
   return (
     <div className="space-y-3">
-      <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+      <label className="block text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
         Section Icon
       </label>
 
@@ -45,7 +45,7 @@ export const IconPicker: React.FC<IconPickerProps> = ({ value, onChange }) => {
               className={`p-3 rounded-xl border flex flex-col items-center justify-center space-y-1.5 transition-all active:scale-95 ${
                 isSelected 
                   ? 'bg-red-600/10 border-red-500 text-red-500 shadow-lg shadow-red-950/20' 
-                  : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white hover:border-neutral-700'
+                  : 'bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:text-white hover:border-gray-300 dark:border-neutral-700'
               }`}
               title={item.name}
             >

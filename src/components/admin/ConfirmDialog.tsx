@@ -34,10 +34,10 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       />
 
       {/* Content box */}
-      <div className="relative bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-md shadow-2xl p-6 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl w-full max-w-md shadow-2xl p-6 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 text-neutral-500 hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-gray-400 dark:text-neutral-500 hover:text-gray-900 dark:text-white transition-colors"
         >
           <X size={20} />
         </button>
@@ -51,8 +51,8 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             <AlertTriangle size={24} />
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-bold text-white tracking-tight">{title}</h3>
-            <p className="text-neutral-400 text-sm mt-2 leading-relaxed">{message}</p>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">{title}</h3>
+            <p className="text-gray-500 dark:text-neutral-400 text-sm mt-2 leading-relaxed">{message}</p>
           </div>
         </div>
 
@@ -60,7 +60,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <Button 
             variant="ghost" 
             onClick={onClose}
-            className="text-neutral-400 hover:text-white"
+            className="text-gray-500 dark:text-neutral-400 hover:text-gray-900 dark:text-white"
           >
             {cancelText}
           </Button>

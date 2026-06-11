@@ -113,12 +113,12 @@ export const ManagePolls: React.FC = () => {
 
       <div className="space-y-6 animate-in fade-in duration-300">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-850 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-neutral-800 pb-5">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center">
               Reader Polls Directory
             </h1>
-            <p className="text-neutral-500 text-xs mt-0.5">
+            <p className="text-gray-400 dark:text-neutral-500 text-xs mt-0.5">
               Create and publish interactive reader polls to boost website user engagement.
             </p>
           </div>
@@ -133,11 +133,11 @@ export const ManagePolls: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main List */}
           <div className="lg:col-span-2 space-y-4">
-            <Card className="bg-neutral-900/40 border-neutral-850">
+            <Card className="bg-white dark:bg-neutral-900/40 border-gray-200 dark:border-neutral-800">
               {isLoading ? (
                 <div className="py-20 flex flex-col items-center justify-center space-y-3">
                   <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-red-500"></div>
-                  <span className="text-neutral-500 text-xs">Querying polls...</span>
+                  <span className="text-gray-400 dark:text-neutral-500 text-xs">Querying polls...</span>
                 </div>
               ) : polls.length > 0 ? (
                 <div className="space-y-3">
@@ -146,17 +146,17 @@ export const ManagePolls: React.FC = () => {
                     return (
                       <div 
                         key={poll.id}
-                        className="p-4 rounded-xl border border-neutral-850 flex items-center justify-between bg-neutral-950/80 hover:border-neutral-700 transition-all group"
+                        className="p-4 rounded-xl border border-gray-200 dark:border-neutral-800 flex items-center justify-between bg-gray-50 dark:bg-neutral-950/80 hover:border-gray-300 dark:border-neutral-700 transition-all group"
                       >
                         <div className="flex items-center space-x-4 overflow-hidden pr-4">
                           <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-500">
                             <HelpCircle size={20} />
                           </div>
                           <div className="overflow-hidden">
-                            <h4 className="font-semibold text-white truncate text-sm">
+                            <h4 className="font-semibold text-gray-900 dark:text-white truncate text-sm">
                               {poll.question}
                             </h4>
-                            <div className="flex items-center space-x-3 text-[10px] text-neutral-500 mt-1">
+                            <div className="flex items-center space-x-3 text-[10px] text-gray-400 dark:text-neutral-500 mt-1">
                               <span className="font-bold uppercase tracking-wider">{totalPollVotes} Votes</span>
                               <span>•</span>
                               <span>Expires: {poll.expiresAt ? new Date(poll.expiresAt).toLocaleDateString() : 'Never'}</span>
@@ -170,7 +170,7 @@ export const ManagePolls: React.FC = () => {
                               Active
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-neutral-800 border border-neutral-700 text-neutral-500 uppercase tracking-wide">
+                            <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-gray-100 dark:bg-neutral-800 border border-gray-300 dark:border-neutral-700 text-gray-400 dark:text-neutral-500 uppercase tracking-wide">
                               Closed
                             </span>
                           )}
@@ -179,7 +179,7 @@ export const ManagePolls: React.FC = () => {
                             <Button 
                               size="sm" 
                               variant="ghost" 
-                              className="text-neutral-500 hover:text-white"
+                              className="text-gray-400 dark:text-neutral-500 hover:text-gray-900 dark:text-white"
                               onClick={() => setViewResultsId(poll.id)}
                               aria-label="View results"
                             >
@@ -188,7 +188,7 @@ export const ManagePolls: React.FC = () => {
                             <Button 
                               size="sm" 
                               variant="ghost" 
-                              className="text-neutral-500 hover:text-white"
+                              className="text-gray-400 dark:text-neutral-500 hover:text-gray-900 dark:text-white"
                               onClick={() => handleEdit(poll)}
                               aria-label="Edit poll"
                             >
@@ -197,7 +197,7 @@ export const ManagePolls: React.FC = () => {
                             <Button 
                               size="sm" 
                               variant="ghost" 
-                              className="text-neutral-500 hover:text-red-500"
+                              className="text-gray-400 dark:text-neutral-500 hover:text-red-500"
                               onClick={() => setDeleteId(poll.id)}
                               aria-label="Delete poll"
                             >
@@ -212,7 +212,7 @@ export const ManagePolls: React.FC = () => {
               ) : (
                 <div className="py-20 text-center space-y-2">
                   <HelpCircle size={40} className="text-neutral-700 mx-auto" />
-                  <h3 className="text-sm font-bold text-neutral-400">No Polls Active</h3>
+                  <h3 className="text-sm font-bold text-gray-500 dark:text-neutral-400">No Polls Active</h3>
                   <p className="text-neutral-600 text-xs">Create your first public feedback poll using the creation panel.</p>
                 </div>
               )}
@@ -222,9 +222,9 @@ export const ManagePolls: React.FC = () => {
           {/* Builder Panel */}
           <div>
             {isEditing ? (
-              <Card className="bg-neutral-900/60 border-neutral-850 space-y-6">
-                <div className="flex justify-between items-center border-b border-neutral-800 pb-3">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+              <Card className="bg-white dark:bg-neutral-900/60 border-gray-200 dark:border-neutral-800 space-y-6">
+                <div className="flex justify-between items-center border-b border-gray-200 dark:border-neutral-800 pb-3">
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
                     {selectedId ? 'Edit Survey Poll' : 'New Survey Poll'}
                   </h3>
                   <button 
@@ -240,7 +240,7 @@ export const ManagePolls: React.FC = () => {
                         ]
                       });
                     }}
-                    className="text-neutral-500 hover:text-white transition-colors"
+                    className="text-gray-400 dark:text-neutral-500 hover:text-gray-900 dark:text-white transition-colors"
                   >
                     <X size={18} />
                   </button>
@@ -251,13 +251,13 @@ export const ManagePolls: React.FC = () => {
                     label="Poll Question"
                     placeholder="Ask readers their thoughts..."
                     error={errors.question?.message}
-                    className="bg-neutral-950 border-neutral-850 text-white"
+                    className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white"
                     {...register('question', { required: 'Question is required' })}
                   />
 
                   {/* Dynamic choices array */}
                   <div className="space-y-2">
-                    <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                       Response Choices
                     </label>
                     
@@ -269,13 +269,13 @@ export const ManagePolls: React.FC = () => {
                             required
                             placeholder={`Choice ${idx + 1}...`}
                             {...register(`options.${idx}.text` as const)}
-                            className="flex-1 px-3 py-1.5 bg-neutral-950 border border-neutral-850 rounded-xl text-xs text-white placeholder-neutral-700 focus:outline-none"
+                            className="flex-1 px-3 py-1.5 bg-gray-50 dark:bg-neutral-950 border border-gray-200 dark:border-neutral-800 rounded-xl text-xs text-gray-900 dark:text-white placeholder-neutral-700 focus:outline-none"
                           />
                           {fields.length > 2 && (
                             <button
                               type="button"
                               onClick={() => remove(idx)}
-                              className="p-2 text-neutral-500 hover:text-red-500 transition-colors"
+                              className="p-2 text-gray-400 dark:text-neutral-500 hover:text-red-500 transition-colors"
                             >
                               <X size={16} />
                             </button>
@@ -297,7 +297,7 @@ export const ManagePolls: React.FC = () => {
                   <Input
                     type="datetime-local"
                     label="Expiration Date"
-                    className="bg-neutral-950 border-neutral-850 text-white"
+                    className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white"
                     {...register('expiresAt')}
                   />
 
@@ -306,9 +306,9 @@ export const ManagePolls: React.FC = () => {
                       type="checkbox"
                       id="isActive"
                       {...register('isActive')}
-                      className="rounded border-neutral-800 text-red-600 focus:ring-red-500 bg-neutral-950 w-4.5 h-4.5"
+                      className="rounded border-gray-200 dark:border-neutral-800 text-red-600 focus:ring-red-500 bg-gray-50 dark:bg-neutral-950 w-4.5 h-4.5"
                     />
-                    <label htmlFor="isActive" className="text-xs font-semibold text-neutral-400 uppercase tracking-wide">
+                    <label htmlFor="isActive" className="text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wide">
                       Accept responses immediately
                     </label>
                   </div>
@@ -317,7 +317,7 @@ export const ManagePolls: React.FC = () => {
                     <Button
                       type="button"
                       variant="ghost"
-                      className="flex-1 text-neutral-400"
+                      className="flex-1 text-gray-500 dark:text-neutral-400"
                       onClick={() => {
                         setIsEditing(false);
                         setSelectedId(null);
@@ -341,14 +341,14 @@ export const ManagePolls: React.FC = () => {
               </Card>
             ) : selectedPollForResults ? (
               /* Results dashboard drawer */
-              <Card className="bg-neutral-900/60 border-neutral-850 space-y-6">
-                <div className="flex justify-between items-center border-b border-neutral-800 pb-3">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+              <Card className="bg-white dark:bg-neutral-900/60 border-gray-200 dark:border-neutral-800 space-y-6">
+                <div className="flex justify-between items-center border-b border-gray-200 dark:border-neutral-800 pb-3">
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
                     Poll Statistics
                   </h3>
                   <button 
                     onClick={() => setViewResultsId(null)}
-                    className="text-neutral-500 hover:text-white transition-colors"
+                    className="text-gray-400 dark:text-neutral-500 hover:text-gray-900 dark:text-white transition-colors"
                   >
                     <X size={18} />
                   </button>
@@ -364,12 +364,12 @@ export const ManagePolls: React.FC = () => {
                       const percentage = totalVotes > 0 ? (opt.votes / totalVotes) * 100 : 0;
                       return (
                         <div key={opt.id} className="space-y-1 text-xs">
-                          <div className="flex justify-between font-semibold text-neutral-400">
+                          <div className="flex justify-between font-semibold text-gray-500 dark:text-neutral-400">
                             <span>{opt.text}</span>
                             <span>{opt.votes} ({percentage.toFixed(0)}%)</span>
                           </div>
                           
-                          <div className="w-full bg-neutral-950 h-2.5 border border-neutral-850 rounded-full overflow-hidden">
+                          <div className="w-full bg-gray-50 dark:bg-neutral-950 h-2.5 border border-gray-200 dark:border-neutral-800 rounded-full overflow-hidden">
                             <div 
                               className="bg-blue-500 h-full rounded-full transition-all duration-300"
                               style={{ width: `${percentage}%` }}
@@ -380,15 +380,15 @@ export const ManagePolls: React.FC = () => {
                     })}
                   </div>
 
-                  <div className="bg-neutral-950/40 p-3 rounded-xl border border-neutral-850 text-neutral-500 text-[10px] uppercase font-bold tracking-wider text-center mt-6">
+                  <div className="bg-gray-50 dark:bg-neutral-950/40 p-3 rounded-xl border border-gray-200 dark:border-neutral-800 text-gray-400 dark:text-neutral-500 text-[10px] uppercase font-bold tracking-wider text-center mt-6">
                     Total votes processed: {totalVotes}
                   </div>
                 </div>
               </Card>
             ) : (
-              <Card className="bg-neutral-900/20 border-neutral-850 p-6 flex flex-col items-center justify-center text-center space-y-3 min-h-[300px]">
+              <Card className="bg-white dark:bg-neutral-900/20 border-gray-200 dark:border-neutral-800 p-6 flex flex-col items-center justify-center text-center space-y-3 min-h-[300px]">
                 <HelpCircle size={36} className="text-neutral-800" />
-                <h4 className="font-bold text-neutral-400 text-sm">Engagement Surveys</h4>
+                <h4 className="font-bold text-gray-500 dark:text-neutral-400 text-sm">Engagement Surveys</h4>
                 <p className="text-neutral-600 text-xs leading-relaxed max-w-xs">
                   Review metrics breakdown, toggle choices, or launch real-time audience survey scopes.
                 </p>

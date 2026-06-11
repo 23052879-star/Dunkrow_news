@@ -21,7 +21,7 @@ const PRESET_COLORS = [
 export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => {
   return (
     <div className="space-y-3">
-      <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+      <label className="block text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
         Theme Color
       </label>
       
@@ -48,13 +48,13 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => 
 
       {/* Custom HEX code input */}
       <div className="flex items-center space-x-2 w-44">
-        <div className="w-8 h-8 rounded-lg border border-neutral-800" style={{ backgroundColor: value }} />
+        <div className="w-8 h-8 rounded-lg border border-gray-200 dark:border-neutral-800" style={{ backgroundColor: value }} />
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="#HEX"
-          className="flex-1 px-3 py-1.5 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-red-500 uppercase"
+          className="flex-1 px-3 py-1.5 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-red-500 uppercase"
         />
       </div>
     </div>
