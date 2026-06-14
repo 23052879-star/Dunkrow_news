@@ -11,7 +11,6 @@ type AuthContextType = {
   register: (email: string, password: string, username: string) => Promise<{ error: any; needsConfirmation: boolean }>;
   signInWithGoogle: (intent?: 'login' | 'register') => Promise<{ error: any }>;
   logout: () => Promise<void>;
-  completeOnboarding: (username: string) => Promise<{ error: any }>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -86,7 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         avatarUrl: avatar,
         role: 'user',
         email: sessionUser.email,
-        onboarded: false,
+        onboarded: true,
       };
     } catch (err) {
       console.error('fetchProfile error:', err);
@@ -96,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         avatarUrl: '',
         role: 'user',
         email: sessionUser.email,
-        onboarded: false,
+        onboarded: true,
       };
     }
   }, []);
@@ -346,37 +345,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('auth_intent');
   }, []);
 
-  const completeOnboarding = useCallback(async (username: string) => {
-    if (!user) return { error: new Error('Not logged in') };
-    
-    try {
-      const avatarUrl = user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random`;
-      
-      const { error: profileError } = await supabase.from('profiles').update({
-        username,
-        avatar_url: avatarUrl,
-        onboarded: true,
-      }).eq('id', user.id);
-
-      if (profileError) {
-        if (profileError.code === '23505') {
-          return { error: new Error('Username is already taken. Please choose a different one.') };
-        }
-        console.error('Profile update error:', profileError);
-        return { error: new Error(profileError.message || 'Failed to update profile.') };
-      }
-
-      setUser({ ...user, username, avatarUrl, onboarded: true });
-      return { error: null };
-    } catch (error: any) {
-      return { error: new Error(error.message || 'An unexpected error occurred.') };
-    }
-  }, [user]);
 
   if (isLoading) return <LoadingScreen />;
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAdmin: user?.role === 'admin', login, register, signInWithGoogle, logout, completeOnboarding }}>
+    <AuthContext.Provider value={{ user, isLoading, isAdmin: user?.role === 'admin', login, register, signInWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );
