@@ -34,7 +34,7 @@ const Footer: React.FC = () => {
               <span className="ml-3 text-2xl font-bold tracking-wide font-display text-slate-900 dark:text-white">DUNKROW</span>
             </Link>
             <p className="mt-4 text-slate-600 dark:text-neutral-400 text-sm">
-              Dunkrow stands as the world's leading digital news platform, delivering award-winning investigative journalism, real-time breaking news coverage, and expert analysis across global affairs. Our commitment to factual reporting, editorial independence, and journalistic excellence has earned the trust of millions of readers worldwide. From political developments and economic trends to technological innovations and cultural shifts, we provide comprehensive coverage that informs, educates, and empowers our global audience.
+              Your trusted source for breaking news, investigative journalism, and in-depth analysis — covering politics, tech, business, and more.
             </p>
             <div className="mt-6 flex space-x-4">
               <a 
@@ -69,11 +69,8 @@ const Footer: React.FC = () => {
             viewport={{ once: true }}
           >
             <h3 className="text-lg font-semibold mb-4 font-display text-slate-900 dark:text-white">About Dunkrow</h3>
-            <p className="text-slate-600 dark:text-neutral-400 text-sm mb-4">
-              Founded on principles of journalistic integrity and editorial independence, Dunkrow represents the evolution of modern news media. Our award-winning newsroom combines traditional investigative journalism with cutting-edge digital technology to deliver unparalleled news coverage. We specialize in breaking news alerts, in-depth political analysis, technology reporting, business intelligence, sports coverage, entertainment news, health journalism, and scientific discoveries. Our global network of correspondents and expert analysts ensures comprehensive coverage of international affairs, local news, and trending stories that shape our world.
-            </p>
             <p className="text-slate-600 dark:text-neutral-400 text-sm">
-              With real-time news updates, fact-checked reporting, and expert commentary, Dunkrow serves as your essential source for credible journalism in an era of information overload. Our commitment to truth, transparency, and public service journalism drives everything we do.
+              Dunkrow is an independent digital newsroom committed to fact-checked reporting and editorial transparency. We cover breaking news, politics, technology, business, sports, health, and entertainment — delivering stories that matter, when they matter.
             </p>
           </motion.div>
           
@@ -157,7 +154,7 @@ const Footer: React.FC = () => {
             </ul>
             <div className="mt-4">
               <p className="text-slate-500 dark:text-neutral-400 text-sm">
-                For press inquiries, news tips, editorial submissions, partnership opportunities, or technical support, our dedicated team is available 24/7 to assist you.
+                Have a news tip or press inquiry? Reach out — we're here to help.
               </p>
             </div>
           </motion.div>
