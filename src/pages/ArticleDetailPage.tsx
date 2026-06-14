@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { formatDistanceToNow } from 'date-fns';
 import { User, Calendar, MessageSquare, ArrowLeft, Loader2, Share2, Bookmark, BookmarkCheck, Clock, Mail, Check, Link2, Twitter, Facebook } from 'lucide-react';
@@ -11,6 +11,7 @@ import Card from '../components/ui/Card';
 
 const ArticleDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const { isLoading, fetchArticleBySlug } = useArticleStore();
   const { comments, fetchComments, addComment, isSubmitting } = useCommentStore();
   const { user } = useAuth();
@@ -41,6 +42,10 @@ const ArticleDetailPage: React.FC = () => {
   };
 
   const handleSave = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     setIsSaved(!isSaved);
   };
 
