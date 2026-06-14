@@ -288,6 +288,7 @@ export const ArticleEditor: React.FC = () => {
             </Button>
             <Button
               type="submit"
+              form="article-form"
               variant="secondary"
               onClick={() => {
                 if (!id) {
@@ -302,6 +303,7 @@ export const ArticleEditor: React.FC = () => {
             </Button>
             <Button
               type="submit"
+              form="article-form"
               variant="primary"
               onClick={() => {
                 setValue('status', 'published');
@@ -351,7 +353,7 @@ export const ArticleEditor: React.FC = () => {
           </div>
         ) : (
           /* Editing Panel */
-          <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <form id="article-form" onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Editor main panel */}
             <div className="lg:col-span-2 space-y-6">
               <Card className="bg-white dark:bg-neutral-900/40 border-gray-200 dark:border-neutral-800">
