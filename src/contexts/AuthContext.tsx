@@ -352,19 +352,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const avatarUrl = user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random`;
       
-      const { error: profileError } = await supabase.from('profiles').upsert({
-        id: user.id,
+      const { error: profileError } = await supabase.from('profiles').update({
         username,
         avatar_url: avatarUrl,
-        role: 'user',
-      });
+        onboarded: true,
+      }).eq('id', user.id);
 
       if (profileError) {
         if (profileError.code === '23505') {
           return { error: new Error('Username is already taken. Please choose a different one.') };
         }
-        console.error('Profile upsert error:', profileError);
-        return { error: new Error(profileError.message || 'Failed to create profile.') };
+        console.error('Profile update error:', profileError);
+        return { error: new Error(profileError.message || 'Failed to update profile.') };
       }
 
       setUser({ ...user, username, avatarUrl, onboarded: true });
