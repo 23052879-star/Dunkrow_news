@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { useArticleStore } from '../store/articleStore';
 import { useCommentStore } from '../store/commentStore';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import Card from '../components/ui/Card';
 
 const ArticleDetailPage: React.FC = () => {
@@ -17,6 +18,7 @@ const ArticleDetailPage: React.FC = () => {
   const { user } = useAuth();
   
   const [article, setArticle] = useState<any>(null);
+  const [relatedArticles, setRelatedArticles] = useState<any[]>([]);
   const [newComment, setNewComment] = useState('');
   const [isSaved, setIsSaved] = useState(false);
   const [showCopied, setShowCopied] = useState(false);
@@ -58,6 +60,28 @@ const ArticleDetailPage: React.FC = () => {
   useEffect(() => {
     if (article) {
       fetchComments(article.id);
+      // Fetch related articles by same category
+      supabase
+        .from('articles')
+        .select('*, profiles(username)')
+        .eq('category', article.category)
+        .eq('status', 'published')
+        .neq('id', article.id)
+        .order('created_at', { ascending: false })
+        .limit(4)
+        .then(({ data }) => {
+          if (data) {
+            setRelatedArticles(data.map((a: any) => ({
+              id: a.id,
+              title: a.title,
+              slug: a.slug,
+              category: a.category,
+              featuredImage: a.featured_image,
+              createdAt: a.created_at,
+              authorName: a.profiles?.username || 'Editorial Team',
+            })));
+          }
+        });
     }
   }, [article, fetchComments]);
 
@@ -145,8 +169,8 @@ const ArticleDetailPage: React.FC = () => {
         </div>
 
         {/* Content Layout */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
-          <div className="flex flex-col lg:flex-row gap-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 md:mt-12">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
 
             {/* Main Article Content */}
             <motion.div 
@@ -211,26 +235,27 @@ const ArticleDetailPage: React.FC = () => {
 
                 {/* Article Body */}
                 <style>{`
-                  .article-body { font-size: 1.125rem; line-height: 1.9; color: #334155; position: relative; z-index: 10; }
+                  .article-body { font-size: 1.125rem; line-height: 1.9; color: #1e293b; position: relative; z-index: 10; }
                   .dark .article-body { color: #cbd5e1; }
                   .article-body p { margin-bottom: 1.5em; }
-                  .article-body h1, .article-body h2, .article-body h3, .article-body h4 { font-weight: 800; margin-top: 2em; margin-bottom: 0.75em; line-height: 1.3; }
+                  .article-body h1, .article-body h2, .article-body h3, .article-body h4 { font-weight: 800; margin-top: 2em; margin-bottom: 0.75em; line-height: 1.3; color: #0f172a; }
                   .dark .article-body h1, .dark .article-body h2, .dark .article-body h3, .dark .article-body h4 { color: #f1f5f9; }
-                  .article-body h1 { color: #0f172a; font-size: 2rem; }
-                  .article-body h2 { color: #1e293b; font-size: 1.625rem; }
-                  .article-body h3 { color: #334155; font-size: 1.375rem; }
+                  .article-body h1 { font-size: 2rem; }
+                  .article-body h2 { font-size: 1.625rem; }
+                  .article-body h3 { font-size: 1.375rem; }
                   .article-body a { color: #dc2626; text-decoration: underline; text-underline-offset: 3px; }
                   .article-body a:hover { color: #b91c1c; }
-                  .article-body img { border-radius: 1rem; margin: 2em 0; max-width: 100%; height: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-                  .article-body blockquote { border-left: 4px solid #dc2626; padding: 1em 1.5em; margin: 2em 0; background: #f8fafc; border-radius: 0 0.75rem 0.75rem 0; font-style: italic; color: #475569; }
+                  .article-body img { border-radius: 1rem; margin: 2em 0; max-width: 100%; height: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+                  .article-body blockquote { border-left: 4px solid #dc2626; padding: 1em 1.5em; margin: 2em 0; background: #f1f5f9; border-radius: 0 0.75rem 0.75rem 0; font-style: italic; color: #334155; }
                   .dark .article-body blockquote { background: #1e293b; color: #94a3b8; }
                   .article-body ul, .article-body ol { padding-left: 1.5em; margin-bottom: 1.5em; }
-                  .article-body li { margin-bottom: 0.5em; }
+                  .article-body li { margin-bottom: 0.5em; color: #334155; }
+                  .dark .article-body li { color: #cbd5e1; }
                   .article-body strong { font-weight: 700; color: #0f172a; }
                   .dark .article-body strong { color: #f1f5f9; }
                   .article-body hr { border: none; border-top: 2px solid #e2e8f0; margin: 2.5em 0; }
                   .dark .article-body hr { border-color: #334155; }
-                  .article-body p:first-child { font-size: 1.25rem; line-height: 1.8; color: #1e293b; }
+                  .article-body p:first-child { font-size: 1.25rem; line-height: 1.8; color: #0f172a; }
                   .dark .article-body p:first-child { color: #e2e8f0; }
                   .article-body p:first-child::first-letter { font-size: 3.5em; font-weight: 800; float: left; line-height: 0.8; margin-right: 0.1em; margin-top: 0.05em; color: #dc2626; font-family: Georgia, serif; }
                 `}</style>
@@ -332,23 +357,28 @@ const ArticleDetailPage: React.FC = () => {
                   <span className="w-2 h-6 bg-red-600 rounded-full mr-3"></span>
                   More like this
                 </h3>
-                <div className="space-y-6">
-                  {/* Placeholder for related articles */}
-                  {[1, 2, 3].map((item) => (
-                    <div key={item} className="group flex gap-4 cursor-pointer">
-                      <div className="w-24 h-24 rounded-xl bg-slate-200 dark:bg-slate-700 flex-shrink-0 overflow-hidden">
-                        <img src={article.featuredImage} alt="Related" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                      </div>
-                      <div className="flex flex-col justify-center">
-                        <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-1">
-                          {article.category}
-                        </span>
-                        <h4 className="font-semibold text-slate-900 dark:text-white line-clamp-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
-                          {article.title}
-                        </h4>
-                      </div>
-                    </div>
-                  ))}
+                <div className="space-y-4">
+                  {relatedArticles.length > 0 ? (
+                    relatedArticles.map((related) => (
+                      <Link key={related.id} to={`/article/${related.slug}`} className="group flex gap-4">
+                        <div className="w-24 h-20 rounded-xl bg-slate-200 dark:bg-slate-700 flex-shrink-0 overflow-hidden">
+                          {related.featuredImage && (
+                            <img src={related.featuredImage} alt={related.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                          )}
+                        </div>
+                        <div className="flex flex-col justify-center min-w-0">
+                          <span className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-1">
+                            {related.category}
+                          </span>
+                          <h4 className="font-semibold text-sm text-slate-900 dark:text-white line-clamp-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors leading-snug">
+                            {related.title}
+                          </h4>
+                        </div>
+                      </Link>
+                    ))
+                  ) : (
+                    <p className="text-sm text-slate-500 dark:text-slate-400">No related articles found.</p>
+                  )}
                 </div>
                 
                 {/* Newsletter Box in Sidebar */}
