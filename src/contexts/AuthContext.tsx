@@ -161,7 +161,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         );
         if (error) {
           console.error('getSession error:', error);
-          if (mounted) {
+          // On initial load, mark loading as done but keep existing user
+          if (mounted && !user) {
             setIsLoading(false);
           }
           return;
@@ -169,7 +170,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await handleSession(data.session);
       } catch (error) {
         console.error('getSession failed:', error);
-        if (mounted) {
+        // Don't clear user on network errors - keep existing auth state
+        if (mounted && !user) {
           setIsLoading(false);
         }
       }
@@ -177,19 +179,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     refreshSession();
 
+    // Only refresh session on visibility change, not on every focus event
+    // to avoid aggressive re-fetches that can clear auth state
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        refreshSession();
+        // Silently refresh token without resetting user state on failure
+        supabase.auth.getSession().then(({ data, error }) => {
+          if (!mounted || error) return;
+          if (data.session?.user) {
+            // Token is still valid, optionally refresh profile
+            fetchProfile(data.session.user).then(userData => {
+              if (mounted) setUser(userData);
+            }).catch(() => { /* keep existing user */ });
+          }
+          // If no session and we previously had a user, the onAuthStateChange
+          // SIGNED_OUT event will handle cleanup — don't clear here
+        }).catch(() => { /* network error, keep existing state */ });
       }
     };
 
     const handleOnline = () => {
-      refreshSession();
+      // On reconnect, just validate the session silently
+      supabase.auth.getSession().catch(() => {});
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('online', handleOnline);
-    window.addEventListener('focus', refreshSession);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
@@ -209,7 +224,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       clearTimeout(safetyTimeout);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('online', handleOnline);
-      window.removeEventListener('focus', refreshSession);
       subscription.unsubscribe();
     };
   }, [fetchProfile]);
