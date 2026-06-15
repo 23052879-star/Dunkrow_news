@@ -22,6 +22,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import TextArea from '../../components/ui/TextArea';
 import Card from '../../components/ui/Card';
+import ImageUpload from '../../components/admin/ImageUpload';
 import { supabase } from '../../lib/supabase';
 
 interface ArticleFormData {
@@ -475,12 +476,18 @@ export const ArticleEditor: React.FC = () => {
                 </h3>
 
                 <div className="space-y-4">
-                  <Input
-                    label="Featured Image URL"
-                    placeholder="https://unsplash.com/..."
-                    error={errors.featuredImage?.message}
-                    className="bg-gray-50 dark:bg-neutral-950 border-gray-200 dark:border-neutral-800 text-gray-900 dark:text-white text-xs"
-                    {...register('featuredImage', { required: 'Featured image URL is required' })}
+                  <Controller
+                    name="featuredImage"
+                    control={control}
+                    rules={{ required: 'Featured image is required' }}
+                    render={({ field }) => (
+                      <ImageUpload
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        label="Featured Image"
+                        error={errors.featuredImage?.message}
+                      />
+                    )}
                   />
 
                   {/* Tags module */}
