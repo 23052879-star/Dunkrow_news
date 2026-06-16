@@ -30,7 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // concurrent auth events, causing desynchronized auth state.
   const sessionCounterRef = useRef(0);
 
-  const fetchProfile = useCallback(async (sessionUser: any): Promise<User> => {
+  const fetchProfile = useCallback(async (sessionUser: any, existingUser?: User | null): Promise<User> => {
     try {
       // Try fetching profile with a small retry for race conditions
       // (e.g. trigger hasn't finished creating profile yet after email confirm)
@@ -70,7 +70,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
       }
 
-      // No profile found → user needs onboarding (Google/OAuth user without profile)
+      // Profile not found — if we already have a user in state with the same id,
+      // keep their existing data (especially role) instead of overwriting to 'user'
+      if (existingUser && existingUser.id === sessionUser.id) {
+        return existingUser;
+      }
+
+      // Truly new user with no profile
       const name = sessionUser.user_metadata?.full_name 
         || sessionUser.user_metadata?.name 
         || sessionUser.email?.split('@')[0] 
@@ -89,6 +95,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
     } catch (err) {
       console.error('fetchProfile error:', err);
+      // On error, preserve existing user data if available
+      if (existingUser && existingUser.id === sessionUser.id) {
+        return existingUser;
+      }
       return {
         id: sessionUser.id,
         username: sessionUser.email?.split('@')[0] || 'user',
@@ -114,7 +124,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       try {
         if (session?.user) {
-          const userData = await fetchProfile(session.user);
+          // Pass current user state so fetchProfile can preserve role on failure
+          const currentUser = user;
+          const userData = await fetchProfile(session.user, currentUser);
 
           // After await: check if a NEWER call has started; if so, bail out
           if (myId !== sessionCounterRef.current || !mounted) return;
@@ -147,6 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (err) {
         console.error('handleSession error:', err);
         if (mounted && myId === sessionCounterRef.current) {
+          // Don't clear user on errors — keep existing state
           setIsLoading(false);
         }
       }
@@ -187,8 +200,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         supabase.auth.getSession().then(({ data, error }) => {
           if (!mounted || error) return;
           if (data.session?.user) {
-            // Token is still valid, optionally refresh profile
-            fetchProfile(data.session.user).then(userData => {
+            // Token is still valid, refresh profile but preserve existing role on failure
+            const currentUser = user;
+            fetchProfile(data.session.user, currentUser).then(userData => {
               if (mounted) setUser(userData);
             }).catch(() => { /* keep existing user */ });
           }
