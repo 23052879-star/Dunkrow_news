@@ -24,11 +24,18 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // Ref to always have the latest user value inside closures (avoids stale closure bug)
+  const userRef = useRef<User | null>(null);
   // Latest-wins counter: each handleSession call gets a unique ID.
   // Only the most recent call is allowed to commit state changes.
   // This replaces the old processingRef guard which silently DROPPED
   // concurrent auth events, causing desynchronized auth state.
   const sessionCounterRef = useRef(0);
+
+  // Keep userRef in sync with user state
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
 
   const fetchProfile = useCallback(async (sessionUser: any, existingUser?: User | null): Promise<User> => {
     try {
@@ -124,8 +131,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       try {
         if (session?.user) {
-          // Pass current user state so fetchProfile can preserve role on failure
-          const currentUser = user;
+          // Pass current user from ref (not stale closure) so fetchProfile can preserve role on failure
+          const currentUser = userRef.current;
           const userData = await fetchProfile(session.user, currentUser);
 
           // After await: check if a NEWER call has started; if so, bail out
@@ -175,7 +182,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (error) {
           console.error('getSession error:', error);
           // On initial load, mark loading as done but keep existing user
-          if (mounted && !user) {
+          if (mounted && !userRef.current) {
             setIsLoading(false);
           }
           return;
@@ -184,7 +191,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (error) {
         console.error('getSession failed:', error);
         // Don't clear user on network errors - keep existing auth state
-        if (mounted && !user) {
+        if (mounted && !userRef.current) {
           setIsLoading(false);
         }
       }
@@ -201,7 +208,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (!mounted || error) return;
           if (data.session?.user) {
             // Token is still valid, refresh profile but preserve existing role on failure
-            const currentUser = user;
+            const currentUser = userRef.current;
             fetchProfile(data.session.user, currentUser).then(userData => {
               if (mounted) setUser(userData);
             }).catch(() => { /* keep existing user */ });
