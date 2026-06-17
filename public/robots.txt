@@ -5,4 +5,5 @@ Disallow: /profile
 Disallow: /login
 Disallow: /register
 
-Sitemap: https://dunkrow.pages.dev/sitemap.xml
+Sitemap: https://dunkrow.in/sitemap.xml
+Sitemap: https://dunkrow.in/news-sitemap.xml

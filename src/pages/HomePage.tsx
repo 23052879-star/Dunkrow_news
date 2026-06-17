@@ -177,16 +177,32 @@ const HomePage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Dunkrow - Global Breaking News, Real-Time Updates & Investigative Journalism | Premier Digital News Platform</title>
-        <meta name="description" content="Dunkrow delivers award-winning journalism with real-time breaking news, in-depth investigative reporting, live coverage, and expert analysis across politics, technology, business, sports, entertainment, health, and global affairs. Your trusted source for credible news." />
-        <meta name="keywords" content="breaking news today, live news updates, investigative journalism, real-time news alerts, global news coverage, political analysis, technology news, business reports, sports updates, entertainment news, health journalism, fact-checked news, credible news source, digital newspaper, news website, current events, world news, trending stories, news analysis, expert commentary" />
-        <meta property="og:title" content="Dunkrow - Premier Global News Platform | Breaking News & Investigative Journalism" />
-        <meta property="og:description" content="Award-winning digital journalism platform delivering real-time breaking news, investigative reports, and expert analysis from around the world. Trusted by millions for credible, fact-checked news coverage." />
+        <title>Dunkrow - Breaking News, Investigative Journalism & Real-Time Updates</title>
+        <meta name="description" content="Dunkrow delivers real-time breaking news, investigative reporting, and expert analysis across politics, technology, business, sports, entertainment, health, and science. Your trusted source for credible news." />
+        <link rel="canonical" href="https://dunkrow.in/" />
+        <meta name="keywords" content="breaking news, live news updates, investigative journalism, global news, political analysis, technology news, business reports, sports updates, entertainment news, health journalism, science news, Dunkrow" />
+        <meta property="og:title" content="Dunkrow - Breaking News & Investigative Journalism" />
+        <meta property="og:description" content="Real-time breaking news, investigative reports, and expert analysis from around the world. Trusted for credible, fact-checked news coverage." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://dunkrow.com" />
+        <meta property="og:url" content="https://dunkrow.in/" />
+        <meta property="og:site_name" content="Dunkrow" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Dunkrow - Global Breaking News & Investigative Journalism" />
-        <meta name="twitter:description" content="Premier digital news platform delivering real-time updates, investigative reports, and expert analysis from trusted journalists worldwide." />
+        <meta name="twitter:title" content="Dunkrow - Breaking News & Investigative Journalism" />
+        <meta name="twitter:description" content="Real-time breaking news, investigative reports, and expert analysis from trusted journalists worldwide." />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "NewsMediaOrganization",
+            "name": "Dunkrow",
+            "url": "https://dunkrow.in",
+            "description": "Digital news platform delivering breaking news, investigative journalism, and expert analysis.",
+            "sameAs": [],
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://dunkrow.in/logo.jpg"
+            }
+          })}
+        </script>
       </Helmet>
 
       {/* Hero Section */}

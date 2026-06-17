@@ -118,6 +118,50 @@ const ArticleDetailPage: React.FC = () => {
       <Helmet>
         <title>{article.title} | Dunkrow</title>
         <meta name="description" content={article.excerpt} />
+        <link rel="canonical" href={`https://dunkrow.in/article/${article.slug}`} />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={article.title} />
+        <meta property="og:description" content={article.excerpt} />
+        <meta property="og:url" content={`https://dunkrow.in/article/${article.slug}`} />
+        {article.featuredImage && <meta property="og:image" content={article.featuredImage} />}
+        <meta property="og:site_name" content="Dunkrow" />
+        <meta property="article:published_time" content={article.createdAt} />
+        <meta property="article:section" content={article.category} />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={article.title} />
+        <meta name="twitter:description" content={article.excerpt} />
+        {article.featuredImage && <meta name="twitter:image" content={article.featuredImage} />}
+
+        {/* JSON-LD Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "NewsArticle",
+            "headline": article.title,
+            "description": article.excerpt,
+            "image": article.featuredImage ? [article.featuredImage] : [],
+            "datePublished": article.createdAt,
+            "dateModified": article.updatedAt || article.createdAt,
+            "author": {
+              "@type": "Person",
+              "name": article.authorName || "Dunkrow Editorial Team"
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "Dunkrow",
+              "url": "https://dunkrow.in"
+            },
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": `https://dunkrow.in/article/${article.slug}`
+            },
+            "url": `https://dunkrow.in/article/${article.slug}`
+          })}
+        </script>
       </Helmet>
 
       <div className="bg-slate-50 dark:bg-slate-900 min-h-screen pb-20">

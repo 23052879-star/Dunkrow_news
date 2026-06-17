@@ -1,158 +1,151 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://dunkrow.pages.dev/</loc>
+    <loc>https://dunkrow.in/</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>hourly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/whispers</loc>
+    <loc>https://dunkrow.in/whispers</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/jokes-trivia</loc>
+    <loc>https://dunkrow.in/jokes-trivia</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/category/politics</loc>
+    <loc>https://dunkrow.in/category/politics</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/category/technology</loc>
+    <loc>https://dunkrow.in/category/technology</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/category/business</loc>
+    <loc>https://dunkrow.in/category/business</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/category/sports</loc>
+    <loc>https://dunkrow.in/category/sports</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/category/entertainment</loc>
+    <loc>https://dunkrow.in/category/entertainment</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/category/health</loc>
+    <loc>https://dunkrow.in/category/health</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/login</loc>
+    <loc>https://dunkrow.in/category/science</loc>
     <lastmod>2026-06-17</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/register</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://dunkrow.pages.dev/article/hollywoods-ai-crisis-actors-and-studios-face-a-new-battle-over-the-future-of-entertainment</loc>
+    <loc>https://dunkrow.in/article/hollywoods-ai-crisis-actors-and-studios-face-a-new-battle-over-the-future-of-entertainment</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/article/from-a-370-biryani-joke-to-a-national-debate-how-a-stand-up-clip-took-over-the-internet</loc>
+    <loc>https://dunkrow.in/article/from-a-370-biryani-joke-to-a-national-debate-how-a-stand-up-clip-took-over-the-internet</loc>
     <lastmod>2026-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/article/world-cup-2026-biggest-ever-changing-football-forever</loc>
+    <loc>https://dunkrow.in/article/world-cup-2026-biggest-ever-changing-football-forever</loc>
     <lastmod>2026-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/article/vaibhav-suryavanshi-india-young-cricket-sensation-rise</loc>
+    <loc>https://dunkrow.in/article/vaibhav-suryavanshi-india-young-cricket-sensation-rise</loc>
     <lastmod>2026-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/article/ozempic-revolution-weight-loss-drugs-changing-healthcare-worldwide</loc>
+    <loc>https://dunkrow.in/article/ozempic-revolution-weight-loss-drugs-changing-healthcare-worldwide</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/article/india-silent-heart-crisis-young-adults-cardiac-arrest-risk</loc>
+    <loc>https://dunkrow.in/article/india-silent-heart-crisis-young-adults-cardiac-arrest-risk</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/article/india-space-economy-isro-startups-billion-dollar-future</loc>
+    <loc>https://dunkrow.in/article/india-space-economy-isro-startups-billion-dollar-future</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/article/the-new-moon-race-why-nasa-china-and-spacex-are-racing-back-to-the-lunar-surface</loc>
+    <loc>https://dunkrow.in/article/the-new-moon-race-why-nasa-china-and-spacex-are-racing-back-to-the-lunar-surface</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/article/china-ai-challenger-openai-google-global-tech-race</loc>
+    <loc>https://dunkrow.in/article/china-ai-challenger-openai-google-global-tech-race</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/article/ai-creating-new-divide-india-jobs-skills-future-workforce</loc>
+    <loc>https://dunkrow.in/article/ai-creating-new-divide-india-jobs-skills-future-workforce</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/article/ai-trillion-dollar-race-openai-google-microsoft-global-dominance</loc>
+    <loc>https://dunkrow.in/article/ai-trillion-dollar-race-openai-google-microsoft-global-dominance</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/article/modi-macron-bharat-innovates-2026-india-france-startup-partnership</loc>
+    <loc>https://dunkrow.in/article/modi-macron-bharat-innovates-2026-india-france-startup-partnership</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/article/bjp-mocks-india-bloc-after-delhi-meeting-sambit-patra-alliance-shrinking</loc>
+    <loc>https://dunkrow.in/article/bjp-mocks-india-bloc-after-delhi-meeting-sambit-patra-alliance-shrinking</loc>
     <lastmod>2026-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/article/india-bloc-strategy-meeting-kharge-foreign-policy-june-2026</loc>
+    <loc>https://dunkrow.in/article/india-bloc-strategy-meeting-kharge-foreign-policy-june-2026</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dunkrow.pages.dev/article/isro-chandrayaan-4-mission</loc>
+    <loc>https://dunkrow.in/article/isro-chandrayaan-4-mission</loc>
     <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
